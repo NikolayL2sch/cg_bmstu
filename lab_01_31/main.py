@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QBrush
+from PyQt5.QtGui import QPen, QBrush, QColor
 from PyQt5.QtWidgets import QMessageBox, QGraphicsScene, QGraphicsEllipseItem, QGraphicsLineItem
 
 from triangle_methods import *
@@ -94,13 +94,9 @@ def solve_task():
                 pm_k, pp_k, angle_k = find_corner(pc, pb, pa)
 
                 cur_min_angle = min(angle_i, angle_j, angle_k)
-
                 if min_angle > cur_min_angle:
-                    ans_vertex[0] = pa
-                    ans_vertex[1] = pb
-                    ans_vertex[2] = pc
+                    ans_vertex = [pa, pb, pc]
                     min_angle = cur_min_angle
-
                     if abs(angle_i - min_angle) < EPS:
                         coord_start = pa
                         coord_perpend = pp_i
@@ -267,18 +263,32 @@ class Ui(QtWidgets.QMainWindow):
 
     def draw_solution(self):
         vertexes, coord_start, coord_perpend, coord_median = solve_task()
+
         side_1 = QGraphicsLineItem(vertexes[0].x, vertexes[0].y, vertexes[1].x, vertexes[1].y)
         side_2 = QGraphicsLineItem(vertexes[1].x, vertexes[1].y, vertexes[2].x, vertexes[2].y)
         side_3 = QGraphicsLineItem(vertexes[2].x, vertexes[2].y, vertexes[0].x, vertexes[0].y)
-        pen = QPen(Qt.green)
-        pen.setWidth(2)
-        print('here')
-        side_1.setPen(pen)
-        side_2.setPen(pen)
-        side_3.setPen(pen)
+        perpend = QGraphicsLineItem(coord_start.x, coord_start.y, coord_perpend.x, coord_perpend.y)
+        median = QGraphicsLineItem(coord_start.x, coord_start.y, coord_median.x, coord_median.y)
+
+        pen_sides = QPen(Qt.magenta)
+        pen_median = QPen(Qt.green)
+        pen_perpend = QPen(Qt.yellow)
+
+        pen_sides.setWidth(2)
+        pen_median.setWidth(2)
+        pen_perpend.setWidth(2)
+
+        side_1.setPen(pen_sides)
+        side_2.setPen(pen_sides)
+        side_3.setPen(pen_sides)
+        perpend.setPen(pen_perpend)
+        median.setPen(pen_median)
+
         self.scene.addItem(side_1)
         self.scene.addItem(side_2)
         self.scene.addItem(side_3)
+        self.scene.addItem(perpend)
+        self.scene.addItem(median)
 
 
 if __name__ == '__main__':

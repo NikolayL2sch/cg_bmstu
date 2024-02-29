@@ -41,9 +41,8 @@ def find_intersection_altitude(p_1, p_2, p_3):
 
     base_x = (p_1.y - m_y + slope_23 * p_1.x + slope_perpendicular * m_x) / (slope_23 - slope_perpendicular)
     base_y = (slope_perpendicular * (base_x - m_x) + m_y)
-
     return Point(base_x, base_y)
 
 
 def find_intersection_median(p_1, p_2):
-    return Point((p_1.x + p_2.x) / 2, (p_1.y + p_2) / 2)
+    return Point((p_1.x + p_2.x) / 2, (p_1.y + p_2.y) / 2)
