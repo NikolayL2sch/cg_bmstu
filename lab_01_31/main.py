@@ -10,12 +10,13 @@ from PyQt5.QtWidgets import QMessageBox, QGraphicsScene, QGraphicsView, QGraphic
 from class_point import *
 
 point_list = []
+scene_point_list = []
 
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("template.ui", self)
+        uic.loadUi("./lab_01_31/template.ui", self)
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -28,10 +29,13 @@ class Ui(QtWidgets.QMainWindow):
         self.pen = QPen(Qt.red)
 
         self.add_point_button.clicked.connect(self.add_point)
+        self.del_point_button.clicked.connect(self.del_point)
+
         self.about_author.triggered.connect(self.show_author)
         self.about_task.triggered.connect(self.show_task)
-        self.del_point_button.clicked.connect(self.del_point)
+
         self.graphicsView.mousePressEvent = self.on_graphicsview_click
+
         self.show()
 
     def add_grid(self):
@@ -72,7 +76,6 @@ class Ui(QtWidgets.QMainWindow):
             try:
                 x, y = float(x_txt), float(y_txt)
                 new_point = Point(x, y)
-                flag = False
                 for point in point_list:
                     if point == new_point:
                         self.show_war_win("Введенная точка уже существует.")
@@ -91,12 +94,12 @@ class Ui(QtWidgets.QMainWindow):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
         p_x, p_y = scene_pos.x(), scene_pos.y()
-        point = QGraphicsEllipseItem(p_x, p_y, 4, 4)
+        point = QGraphicsEllipseItem(p_x, p_y, 5, 5)
         point.setBrush(self.redBrush)
         self.scene.addItem(point)
-        point.setPos(p_x, p_y)
         point_list.append(Point(p_x, p_y))
         self.scroll_list.addItem(f'{len(point_list)}.({round(p_x, 2)}; {round(p_y, 2)})')
+        scene_point_list.append(point)
 
     def show_err_win(self, err):
         msg = QMessageBox()
@@ -124,7 +127,31 @@ class Ui(QtWidgets.QMainWindow):
         msg.exec_()
 
     def del_point(self):
-        pass
+        x_txt = self.set_x_field.text()
+        y_txt = self.set_y_field.text()
+        if x_txt == '' or y_txt == '':
+            self.show_err_win("Не введены координаты точки.")
+        else:
+            try:
+                x, y = float(x_txt), float(y_txt)
+                if abs(x) > 700 or abs(y) > 420:
+                    self.show_err_win("Точка за пределами сетки")
+                del_point = Point(x, y)
+                for i in range(len(point_list)):
+                    if point_list[i] == del_point:
+                        self.scene.removeItem(scene_point_list[i])
+                        point_list.pop(i)
+                        scene_point_list.pop(i)
+                        self.update_scroll_list()
+                        break
+                self.clear_fields()
+            except:
+                self.show_err_win("Введены некорректные символы.")
+
+    def update_scroll_list(self):
+        self.scroll_list.clear()
+        for i in range(len(point_list)):
+            self.scroll_list.addItem(f'{i}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def show_task(self):
         msg = QMessageBox()
@@ -136,25 +163,27 @@ class Ui(QtWidgets.QMainWindow):
         msg.exec_()
 
     def draw_point(self, p_x, p_y):
-        point = QGraphicsEllipseItem(p_x, p_y, 4, 4)
+        point = QGraphicsEllipseItem(p_x, p_y, 5, 5)
         point.setBrush(self.redBrush)
-        point.setPos(p_x, p_y)
         self.scene.addItem(point)
+        scene_point_list.append(point)
 
     def del_point_by_click(self, event):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
-        items = self.scene.items()
-        print(items)
-        for item in items:
-            if isinstance(item, QGraphicsEllipseItem):
-                print(item.scenePos().x())
-                if abs(item.scenepos().x() - scene_pos.x()) <= 7 and abs(item.scenepos().y() - scene_pos.y()) <= 7:
-                    print('here3')
-                    self.scene.removeItem(item)
-                    point_list.remove(Point(item.x(), item.y()))
-                else:
-                    print(item.x(), item.y())
+        min_diff = 100
+        del_point_id = -1
+        for i in range(len(point_list)):
+            if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y) < min_diff:
+                min_diff = abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y)
+                del_point_id = i
+        if min_diff > 10:
+            self.show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
+        else:
+            self.scene.removeItem(scene_point_list[del_point_id])
+            point_list.pop(del_point_id)
+            scene_point_list.pop(del_point_id)
+            self.update_scroll_list()
 
     def on_graphicsview_click(self, event):
         if event.buttons() == Qt.LeftButton:
