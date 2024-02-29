@@ -30,6 +30,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.add_point_button.clicked.connect(self.add_point)
         self.del_point_button.clicked.connect(self.del_point)
+        self.solve_task_button.clicked.connect(self.solve_task)
 
         self.about_author.triggered.connect(self.show_author)
         self.about_task.triggered.connect(self.show_task)
@@ -190,6 +191,22 @@ class Ui(QtWidgets.QMainWindow):
             self.add_point_by_click(event)
         elif event.buttons() == Qt.RightButton:
             self.del_point_by_click(event)
+
+    def check_one_line(self):
+        koeff_1 = (point_list[1].y - point_list[0].y) * (point_list[2].x - point_list[1].x)
+        koeff_2 = (point_list[2].y - point_list[1].y) * (point_list[1].x - point_list[0].x)
+        if abs(koeff_1 - koeff_2) < EPS:
+            print(koeff_1, koeff_2)
+            return True
+        return False
+
+    def solve_task(self):
+        if not point_list or len(point_list) < 3:
+            self.show_err_win("Недостаточно точек для решения задачи.\nДобавьте хотя бы 3 точки.")
+            return
+        if self.check_one_line():
+            self.show_err_win("Невозможно построить треугольник.\nТочки лежат на одной прямой.")
+            return
 
 
 if __name__ == '__main__':
