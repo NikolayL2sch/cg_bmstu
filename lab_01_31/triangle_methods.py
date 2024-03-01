@@ -32,15 +32,16 @@ def count_corner(side_1, side_2, side_3):
 
 
 def find_intersection_altitude(p_1, p_2, p_3):
-    m_x = (p_2.x + p_3.x) / 2
-    m_y = (p_2.y + p_3.y) / 2
+    k_1 = (p_3.y - p_2.y) / (p_3.x - p_2.x)
 
-    slope_23 = (p_3.y - p_2.y) / (p_3.x - p_2.x)
-
-    slope_perpendicular = -1 / slope_23
-
-    base_x = (p_1.y - m_y + slope_23 * p_1.x + slope_perpendicular * m_x) / (slope_23 - slope_perpendicular)
-    base_y = (slope_perpendicular * (base_x - m_x) + m_y)
+    k_2 = -1 / k_1
+    print(f'k_1, k_2: {k_1, k_2}')
+    b_diff = p_3.y - p_1.y + k_2 * p_1.x - k_1 * p_3.x
+    print('b_diff: ', b_diff)
+    base_x = k_1 * b_diff / (1 + (k_1 ** 2))
+    print(f'base_x: ', base_x)
+    base_y = k_1 * (base_x - p_3.x) + p_3.y
+    print(f'base_y: ', base_y)
     return Point(base_x, base_y)
 
 
