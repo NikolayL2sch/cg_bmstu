@@ -135,6 +135,7 @@ class Ui(QtWidgets.QMainWindow):
         self.about_task.triggered.connect(show_task)
 
         self.graphicsView.mousePressEvent = self.on_graphicsview_click
+        self.graphicsView.wheelEvent = self.wheel_event
 
         self.show()
 
@@ -181,11 +182,9 @@ class Ui(QtWidgets.QMainWindow):
                         show_war_win("Введенная точка уже существует.")
                         break
                 else:
-                    if abs(x) > 700 or abs(y) > 420:
-                        show_err_win("Точка за пределами сетки")
                     point_list.append(new_point)
                     self.scroll_list.addItem(f'{len(point_list)}.({round(x, 2)}; {round(y, 2)})')
-                    self.draw_point(x, y)
+                    self.draw_point(x, -y)
                     self.clear_fields()
             except:
                 show_err_win("Введены некорректные символы.")
@@ -197,8 +196,8 @@ class Ui(QtWidgets.QMainWindow):
         point = QGraphicsEllipseItem(p_x, p_y, 5, 5)
         point.setBrush(self.redBrush)
         self.scene.addItem(point)
-        point_list.append(Point(p_x, p_y))
-        self.scroll_list.addItem(f'{len(point_list)}.({round(p_x, 2)}; {round(p_y, 2)})')
+        point_list.append(Point(p_x, -p_y))
+        self.scroll_list.addItem(f'{len(point_list)}.({round(p_x, 2)}; {round(-p_y, 2)})')
         scene_point_list.append(point)
 
     def clear_fields(self):
@@ -234,6 +233,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def draw_point(self, p_x, p_y):
         point = QGraphicsEllipseItem(p_x, p_y, 5, 5)
+        print(p_x, p_y)
         point.setBrush(self.redBrush)
         self.scene.addItem(point)
         scene_point_list.append(point)
@@ -244,12 +244,14 @@ class Ui(QtWidgets.QMainWindow):
         min_diff = 100
         del_point_id = -1
         for i in range(len(point_list)):
-            if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y) < min_diff:
-                min_diff = abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y)
+            if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y) < min_diff:
+                min_diff = abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y)
                 del_point_id = i
         if min_diff > 10:
             show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
         else:
+            print(del_point_id)
+            print(*scene_point_list)
             self.scene.removeItem(scene_point_list[del_point_id])
             point_list.pop(del_point_id)
             scene_point_list.pop(del_point_id)
@@ -289,6 +291,19 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(side_3)
         self.scene.addItem(perpend)
         self.scene.addItem(median)
+
+    def wheel_event(self, event):
+        factor = 1.2
+
+        if event.angleDelta().y() > 0:
+            self.graphicsView.scale(factor, factor)
+        else:
+            self.graphicsView.scale(1.0 / factor, 1.0 / factor)
+
+        current_scale = self.graphicsView.transform().m11()  # Получаем текущий масштаб по оси X (и Y)
+        for point in scene_point_list:
+            point.setTransformOriginPoint(point.boundingRect().center())
+            point.setScale(1 / current_scale)
 
 
 if __name__ == '__main__':
