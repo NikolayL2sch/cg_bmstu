@@ -3,13 +3,21 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QBrush
+from PyQt5.QtGui import QPen, QBrush, QMouseEvent
 from PyQt5.QtWidgets import QMessageBox, QGraphicsScene, QGraphicsEllipseItem, QGraphicsLineItem
 
 from triangle_methods import *
 
 point_list = []
 scene_point_list = []
+grid_lines = []
+point_scale = []
+
+scale = 1
+max_win_size = [0, 0, 0]
+
+dragging = False
+last_pos = None
 
 
 def show_war_win(war):
@@ -120,6 +128,7 @@ class Ui(QtWidgets.QMainWindow):
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
 
+        self.need_grid()
         self.add_grid()
         self.greenBrush = QBrush(Qt.green)
         self.redBrush = QBrush(Qt.red)
@@ -134,35 +143,59 @@ class Ui(QtWidgets.QMainWindow):
         self.about_author.triggered.connect(show_author)
         self.about_task.triggered.connect(show_task)
 
-        self.graphicsView.mousePressEvent = self.on_graphicsview_click
+        self.graphicsView.mousePressEvent = self.mousePressEvent
         self.graphicsView.wheelEvent = self.wheel_event
+        self.graphicsView.mouseReleaseEvent = self.mouseReleaseEvent
+        self.graphicsView.mouseMoveEvent = self.mouseMoveEvent
 
         self.show()
 
-    def add_grid(self):
+    def need_grid(self):
+        global max_win_size
+        flag = False
         max_size = self.graphicsView.maximumSize()
-        max_width = max_size.width()
-        max_height = max_size.height()
+        max_width = int(max_size.width() * (1 / scale))
+        max_height = int(max_size.height() * (1 / scale))
+        grid_interval = int(50 * (1 / scale))
+        grid_interval = round(grid_interval / 50) * 50
+        if grid_interval != max_win_size[2]:
+            max_win_size[2] = grid_interval
+            flag = True
+        if max_win_size[0] < max_width and max_win_size[1] < max_height:
+            max_win_size[0] = max_width
+            max_win_size[1] = max_height
+            flag = True
+        return flag
 
-        grid_interval = 30
+    def add_grid(self):
+        max_width = max_win_size[0]
+        max_height = max_win_size[1]
+        grid_interval = max_win_size[2]
+        if grid_interval == 0:
+            grid_interval = 20
         start_grid_width = - ((max_width // 2) + grid_interval - (max_width // 2) % grid_interval)
         start_grid_height = - ((max_height // 2) + grid_interval - (max_height // 2) % grid_interval)
         end_grid_width = (max_width // 2) - (max_width // 2) % grid_interval
         end_grid_height = (max_height // 2) - (max_width // 2) % grid_interval
         pen = QPen(Qt.darkGray)
-
+        pen_width = 1 if int(1 / scale) == 0 else int(1 / scale)
+        pen.setWidth(pen_width)
         for x in range(start_grid_width, end_grid_width, grid_interval):
             line = QGraphicsLineItem(x, start_grid_height, x, end_grid_height)
             line.setPen(pen)
+            grid_lines.append(line)
             self.scene.addItem(line)
         for y in range(start_grid_height, end_grid_height, grid_interval):
             line = QGraphicsLineItem(start_grid_width, y, end_grid_width, y)
             line.setPen(pen)
+            grid_lines.append(line)
             self.scene.addItem(line)
 
-        axis_x = QGraphicsLineItem(-300, 0, 300, 0)
-        axis_y = QGraphicsLineItem(0, -300, 0, 300)
+        axis_x = QGraphicsLineItem(-300 * (1 / scale), 0, 300 * (1 / scale), 0)
+        axis_y = QGraphicsLineItem(0, -300 * (1 / scale), 0, 300 * (1 / scale))
         pen.setColor(Qt.white)
+        grid_lines.append(axis_x)
+        grid_lines.append(axis_y)
         axis_x.setPen(pen)
         axis_y.setPen(pen)
         self.scene.addItem(axis_x)
@@ -186,6 +219,7 @@ class Ui(QtWidgets.QMainWindow):
                     self.scroll_list.addItem(f'{len(point_list)}.({round(x, 2)}; {round(y, 2)})')
                     self.draw_point(x, -y)
                     self.clear_fields()
+                    point_scale.append(1 / scale)
             except:
                 show_err_win("Введены некорректные символы.")
 
@@ -193,7 +227,8 @@ class Ui(QtWidgets.QMainWindow):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
         p_x, p_y = scene_pos.x(), scene_pos.y()
-        point = QGraphicsEllipseItem(p_x, p_y, 5, 5)
+        point = QGraphicsEllipseItem(p_x, p_y, 5 * (1 / scale), 5 * (1 / scale))
+        point_scale.append(1 / scale)
         point.setBrush(self.redBrush)
         self.scene.addItem(point)
         point_list.append(Point(p_x, -p_y))
@@ -220,6 +255,7 @@ class Ui(QtWidgets.QMainWindow):
                         self.scene.removeItem(scene_point_list[i])
                         point_list.pop(i)
                         scene_point_list.pop(i)
+                        point_scale.pop(i)
                         self.update_scroll_list()
                         break
                 self.clear_fields()
@@ -232,8 +268,7 @@ class Ui(QtWidgets.QMainWindow):
             self.scroll_list.addItem(f'{i}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def draw_point(self, p_x, p_y):
-        point = QGraphicsEllipseItem(p_x, p_y, 5, 5)
-        print(p_x, p_y)
+        point = QGraphicsEllipseItem(p_x, p_y, 5 * (1 / scale), 5 * (1 / scale))
         point.setBrush(self.redBrush)
         self.scene.addItem(point)
         scene_point_list.append(point)
@@ -241,25 +276,26 @@ class Ui(QtWidgets.QMainWindow):
     def del_point_by_click(self, event):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
-        min_diff = 100
+        min_diff = 100 * (1 / scale)
         del_point_id = -1
         for i in range(len(point_list)):
             if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y) < min_diff:
                 min_diff = abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y)
                 del_point_id = i
-        if min_diff > 10:
+        if min_diff > 10 * (1 / scale):
             show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
         else:
-            print(del_point_id)
-            print(*scene_point_list)
             self.scene.removeItem(scene_point_list[del_point_id])
             point_list.pop(del_point_id)
             scene_point_list.pop(del_point_id)
+            point_scale.pop(del_point_id)
             self.update_scroll_list()
 
-    def on_graphicsview_click(self, event):
+    def mousePressEvent(self, event):
+        global dragging, last_pos
         if event.buttons() == Qt.LeftButton:
-            self.add_point_by_click(event)
+            dragging = True
+            last_pos = event.pos()
         elif event.buttons() == Qt.RightButton:
             self.del_point_by_click(event)
 
@@ -293,6 +329,7 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(median)
 
     def wheel_event(self, event):
+        global scale
         factor = 1.2
 
         if event.angleDelta().y() > 0:
@@ -300,10 +337,34 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.graphicsView.scale(1.0 / factor, 1.0 / factor)
 
-        current_scale = self.graphicsView.transform().m11()  # Получаем текущий масштаб по оси X (и Y)
-        for point in scene_point_list:
+        scale = self.graphicsView.transform().m11()  # Получаем текущий масштаб по оси X (и Y)
+        for i in range(len(scene_point_list)):
+            point = scene_point_list[i]
             point.setTransformOriginPoint(point.boundingRect().center())
-            point.setScale(1 / current_scale)
+            point.setScale(1 / (scale * point_scale[i]))
+        if self.need_grid():
+            for grid_line in grid_lines:
+                self.scene.removeItem(grid_line)
+            self.add_grid()
+
+    def mouseReleaseEvent(self, event: QMouseEvent):
+        global dragging
+        if event.button() == Qt.LeftButton:
+            dragging = False
+            self.add_point_by_click(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent):
+        global last_pos
+        if dragging:
+            dx = event.pos().x() - last_pos.x()
+            dy = event.pos().y() - last_pos.y()
+            self.graphicsView.horizontalScrollBar().setValue(self.graphicsView.horizontalScrollBar().value() - dx)
+            self.graphicsView.verticalScrollBar().setValue(self.graphicsView.verticalScrollBar().value() - dy)
+            last_pos = event.pos()
+            if self.need_grid():
+                for grid_line in grid_lines:
+                    self.scene.removeItem(grid_line)
+                self.add_grid()
 
 
 if __name__ == '__main__':
