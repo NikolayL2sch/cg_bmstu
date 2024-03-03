@@ -50,7 +50,7 @@
    </property>
    <layout class="QFormLayout" name="formLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -196,6 +196,39 @@ background-color: rgb(116, 116, 116);</string>
         <property name="styleSheet">
          <string notr="true">font: 10pt &quot;Segoe UI&quot;;
 color: rgb(255, 255, 255);</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="current_coords_text">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Текущие координаты</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="current_coords_label">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="current_grid_label">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

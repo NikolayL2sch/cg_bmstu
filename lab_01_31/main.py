@@ -20,6 +20,7 @@ scale = 1
 max_win_size = [0, 0, 0]
 
 dragging = False
+is_pressed = False
 last_pos = None
 
 
@@ -123,7 +124,7 @@ def solve_task():
                         coord_start = pc
                         coord_perpend = pp_k
                         coord_median = pm_k
-    return ans_vertex, coord_start, coord_perpend, coord_median
+    return ans_vertex, coord_start, coord_perpend, coord_median, min_angle
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -142,7 +143,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.pen = QPen(Qt.red)
 
-        self.add_point_button.clicked.connect(self.add_point)
+        self.add_point_button.clicked.connect(self.get_coords_from_field)
         self.del_point_button.clicked.connect(self.del_point)
         self.solve_task_button.clicked.connect(self.draw_solution)
 
@@ -179,6 +180,7 @@ class Ui(QtWidgets.QMainWindow):
         grid_interval = max_win_size[2]
         if grid_interval == 0:
             grid_interval = 20
+        self.current_grid_label.setText(f'Текущий шаг сетки: {grid_interval}')
         start_grid_width = - ((max_width // 2) + grid_interval - (max_width // 2) % grid_interval)
         start_grid_height = - ((max_height // 2) + grid_interval - (max_height // 2) % grid_interval)
         end_grid_width = (max_width // 2) - (max_width // 2) % grid_interval
@@ -207,7 +209,7 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(axis_x)
         self.scene.addItem(axis_y)
 
-    def add_point(self):
+    def get_coords_from_field(self):
         x_txt = self.set_x_field.text()
         y_txt = self.set_y_field.text()
         if x_txt == '' or y_txt == '':
@@ -215,17 +217,8 @@ class Ui(QtWidgets.QMainWindow):
         else:
             try:
                 x, y = float(x_txt), float(y_txt)
-                new_point = Point(x, y)
-                for point in point_list:
-                    if point == new_point:
-                        show_war_win("Введенная точка уже существует.")
-                        break
-                else:
-                    point_list.append(new_point)
-                    self.scroll_list.addItem(f'{len(point_list)}.({round(x, 2)}; {round(y, 2)})')
-                    self.draw_point(x, -y)
-                    self.clear_fields()
-                    point_scale.append(1 / scale)
+                self.draw_point(x, -y)
+                self.clear_fields()
             except ValueError:
                 show_err_win("Введены некорректные символы.")
 
@@ -233,11 +226,7 @@ class Ui(QtWidgets.QMainWindow):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
         p_x, p_y = scene_pos.x(), scene_pos.y()
-        point_scale.append(1 / scale)
         self.draw_point(p_x, p_y)
-
-        point_list.append(Point(p_x, -p_y))
-        self.scroll_list.addItem(f'{len(point_list)}.({round(p_x, 2)}; {round(-p_y, 2)})')
 
     def clear_fields(self):
         self.set_y_field.setText('')
@@ -271,30 +260,41 @@ class Ui(QtWidgets.QMainWindow):
     def update_scroll_list(self):
         self.scroll_list.clear()
         for i in range(len(point_list)):
-            self.scroll_list.addItem(f'{i}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
+            self.scroll_list.addItem(f'{i + 1}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def draw_point(self, p_x, p_y):
-        point_coords_label = QGraphicsTextItem(f'x:({p_x:.2f}, y:{-p_y:.2f})')
-        coords_desc.append(point_coords_label)
+        new_point = Point(p_x, -p_y)
+        for point in point_list:
+            if point == new_point:
+                show_war_win("Введенная точка уже существует.")
+                break
+        else:
+            point_list.append(new_point)
+            self.scroll_list.addItem(f'{len(point_list)}.({round(p_x, 2)}; {round(-p_y, 2)})')
+            point_scale.append(1 / scale)
+            point_coords_label = QGraphicsTextItem(f'x:({p_x:.2f}, y:{-p_y:.2f})')
+            coords_desc.append(point_coords_label)
 
-        point = QGraphicsEllipseItem(p_x, p_y, 5 * (1 / scale), 5 * (1 / scale))
-        point.setBrush(self.redBrush)
-        self.scene.addItem(point)
+            point = QGraphicsEllipseItem(p_x, p_y, 5 * (1 / scale), 5 * (1 / scale))
+            point.setBrush(self.redBrush)
+            self.scene.addItem(point)
 
-        point_coords_label.setPos(point.rect().center().x() + 10, point.rect().center().y())
+            point_coords_label.setPos(point.rect().center().x() + 10, point.rect().center().y())
 
-        point_coords_label.setDefaultTextColor(QColor(255, 255, 255))
-        font = QFont()
-        font.setPointSize(8)
-        point_coords_label.setFont(font)
-        self.scene.addItem(point_coords_label)
+            point_coords_label.setDefaultTextColor(QColor(255, 255, 255))
+            font = QFont()
+            font.setPointSize(8)
+            point_coords_label.setFont(font)
+            self.scene.addItem(point_coords_label)
 
-        scene_point_list.append(point)
+            scene_point_list.append(point)
 
     def del_point_by_click(self, event):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
         min_diff = 100 * (1 / scale)
+        if min_diff < 1:
+            min_diff = 1
         del_point_id = -1
         for i in range(len(point_list)):
             if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y) < min_diff:
@@ -312,11 +312,11 @@ class Ui(QtWidgets.QMainWindow):
             self.update_scroll_list()
 
     def mousePressEvent(self, event):
-        global dragging, last_pos
-        if event.buttons() == Qt.LeftButton:
-            dragging = True
+        global last_pos, is_pressed
+        if event.button() == Qt.LeftButton:
+            is_pressed = True
             last_pos = event.pos()
-        elif event.buttons() == Qt.RightButton:
+        elif event.button() == Qt.RightButton:
             self.del_point_by_click(event)
 
     def draw_solution(self):
@@ -324,7 +324,7 @@ class Ui(QtWidgets.QMainWindow):
         if triangle_lines:
             for line in triangle_lines:
                 self.scene.removeItem(line)
-        vertexes, coord_start, coord_perpend, coord_median = solve_task()
+        vertexes, coord_start, coord_perpend, coord_median, min_angle = solve_task()
         if coord_start is None or coord_perpend is None or coord_median is None:
             return
         side_1 = QGraphicsLineItem(vertexes[0].x, -vertexes[0].y, vertexes[1].x, -vertexes[1].y)
@@ -350,6 +350,7 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(side_3)
         self.scene.addItem(perpend)
         self.scene.addItem(median)
+        show_war_win(f"Задача решена.\nМинимальный угол: {min_angle}°")
 
     def wheel_event(self, event):
         global scale
@@ -371,13 +372,17 @@ class Ui(QtWidgets.QMainWindow):
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
-        global dragging
+        global dragging, is_pressed
         if event.button() == Qt.LeftButton:
+            if not dragging:
+                self.add_point_by_click(event)
             dragging = False
+            is_pressed = False
 
     def mouseMoveEvent(self, event: QMouseEvent):
-        global last_pos
-        if dragging:
+        global last_pos, dragging
+        if is_pressed:
+            dragging = True
             dx = event.pos().x() - last_pos.x()
             dy = event.pos().y() - last_pos.y()
             self.graphicsView.horizontalScrollBar().setValue(self.graphicsView.horizontalScrollBar().value() - dx)
@@ -387,6 +392,8 @@ class Ui(QtWidgets.QMainWindow):
                 for grid_line in grid_lines:
                     self.scene.removeItem(grid_line)
                 self.add_grid()
+        scene_pos = self.graphicsView.mapToScene(event.pos())
+        self.current_coords_label.setText(f'x :{scene_pos.x():.2f}, y :{scene_pos.y():.2f}')
 
 
 if __name__ == '__main__':
