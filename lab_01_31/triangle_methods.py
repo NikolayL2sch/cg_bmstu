@@ -1,8 +1,6 @@
 from math import sqrt, acos, pi
 
-from class_point import *
-
-EPS = 1e-6
+from class_point import Point, EPS
 
 
 def side_len(p_1, p_2):

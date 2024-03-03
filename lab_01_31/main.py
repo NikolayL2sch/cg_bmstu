@@ -6,7 +6,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPen, QBrush, QMouseEvent, QFont, QColor
 from PyQt5.QtWidgets import QMessageBox, QGraphicsScene, QGraphicsEllipseItem, QGraphicsLineItem, QGraphicsTextItem
 
-from triangle_methods import *
+from triangle_methods import side_len, is_triangle, find_corner
+from class_point import EPS, Point
 
 point_list = []
 scene_point_list = []
@@ -42,7 +43,7 @@ def show_author():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle("Об авторе")
-    msg.setText(f"Лабораторная работа №1.\nРазработал Миленко Николай ИУ7-45Б")
+    msg.setText("Лабораторная работа №1.\nРазработал Миленко Николай ИУ7-45Б")
     msg.exec_()
 
 
@@ -50,9 +51,9 @@ def show_task():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle("Условие задачи")
-    msg.setText(f"На плоскости дано множество точек.\n\nНайти такой треугольник с вершинами в этих точках, "
-                f"у которого угол, образованный высотой и медианой, исходящими из одной вершины, минимален.\n\n"
-                f"Вывести изображение в графическом режиме.\n\n31 Вариант.")
+    msg.setText("На плоскости дано множество точек.\n\nНайти такой треугольник с вершинами в этих точках, "
+                "у которого угол, образованный высотой и медианой, исходящими из одной вершины, минимален.\n\n"
+                "Вывести изображение в графическом режиме.\n\n31 Вариант.")
     msg.exec_()
 
 
@@ -225,7 +226,7 @@ class Ui(QtWidgets.QMainWindow):
                     self.draw_point(x, -y)
                     self.clear_fields()
                     point_scale.append(1 / scale)
-            except:
+            except ValueError:
                 show_err_win("Введены некорректные символы.")
 
     def add_point_by_click(self, event):
@@ -264,7 +265,7 @@ class Ui(QtWidgets.QMainWindow):
                         self.update_scroll_list()
                         break
                 self.clear_fields()
-            except:
+            except ValueError:
                 show_err_win("Введены некорректные символы.")
 
     def update_scroll_list(self):
@@ -373,7 +374,6 @@ class Ui(QtWidgets.QMainWindow):
         global dragging
         if event.button() == Qt.LeftButton:
             dragging = False
-            self.add_point_by_click(event)
 
     def mouseMoveEvent(self, event: QMouseEvent):
         global last_pos
