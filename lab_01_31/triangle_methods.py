@@ -20,9 +20,11 @@ def find_corner(p_1, p_2, p_3):
     p_p = find_intersection_altitude(p_1, p_2, p_3)
     p_m = find_intersection_median(p_2, p_3)
 
+    # print(f'Perpend x: {p_p.x}, y: {p_p.y}\nMedian x: {p_m.x}, y: {p_m.y}')
     am = side_len(p_1, p_p)
     an = side_len(p_1, p_m)
     mn = side_len(p_p, p_m)
+    # print(am, an, mn)
 
     return p_p, p_m, count_corner(am, an, mn)
 
@@ -32,16 +34,26 @@ def count_corner(side_1, side_2, side_3):
 
 
 def find_intersection_altitude(p_1, p_2, p_3):
-    k_1 = (p_3.y - p_2.y) / (p_3.x - p_2.x)
+    if abs(p_3.x - p_2.x) < EPS:
+        k_1 = 0
+    else:
+        k_1 = (p_3.y - p_2.y) / (p_3.x - p_2.x)
 
-    k_2 = -1 / k_1
-    print(f'k_1, k_2: {k_1, k_2}')
-    b_diff = p_3.y - p_1.y + k_2 * p_1.x - k_1 * p_3.x
-    print('b_diff: ', b_diff)
-    base_x = k_1 * b_diff / (1 + (k_1 ** 2))
-    print(f'base_x: ', base_x)
-    base_y = k_1 * (base_x - p_3.x) + p_3.y
-    print(f'base_y: ', base_y)
+    if k_1 == 0:
+        k_2 = 0
+        b_diff = p_3.y - p_1.y + k_2 * p_1.x - k_1 * p_3.x
+        base_x = b_diff
+        base_y = 0
+    else:
+        k_2 = -1 / k_1
+        b_diff = p_3.y - p_1.y + k_2 * p_1.x - k_1 * p_3.x
+        base_x = - k_1 * b_diff / (1 + (k_1 ** 2))
+        base_y = k_1 * (base_x - p_3.x) + p_3.y
+
+    # print(f'k_1, k_2: {k_1, k_2}')
+    # print('b_diff: ', b_diff)
+    # print(f'base_x: ', base_x)
+    # print(f'base_y: ', base_y)
     return Point(base_x, base_y)
 
 

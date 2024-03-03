@@ -3,8 +3,8 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QBrush, QMouseEvent
-from PyQt5.QtWidgets import QMessageBox, QGraphicsScene, QGraphicsEllipseItem, QGraphicsLineItem
+from PyQt5.QtGui import QPen, QBrush, QMouseEvent, QFont, QColor
+from PyQt5.QtWidgets import QMessageBox, QGraphicsScene, QGraphicsEllipseItem, QGraphicsLineItem, QGraphicsTextItem
 
 from triangle_methods import *
 
@@ -12,6 +12,8 @@ point_list = []
 scene_point_list = []
 grid_lines = []
 point_scale = []
+triangle_lines = []
+coords_desc = []
 
 scale = 1
 max_win_size = [0, 0, 0]
@@ -55,10 +57,10 @@ def show_task():
 
 
 def check_one_line():
-    koeff_1 = (point_list[1].y - point_list[0].y) * (point_list[2].x - point_list[1].x)
-    koeff_2 = (point_list[2].y - point_list[1].y) * (point_list[1].x - point_list[0].x)
-    if abs(koeff_1 - koeff_2) < EPS:
-        print(koeff_1, koeff_2)
+    half_area = point_list[0].x * (point_list[1].y - point_list[2].y) +\
+                point_list[1].x * (point_list[2].y - point_list[0].y) +\
+                point_list[2].x * (point_list[0].y - point_list[1].y)
+    if abs(half_area) < EPS:
         return True
     return False
 
@@ -70,10 +72,10 @@ def solve_task():
 
     if not point_list or len(point_list) < 3:
         show_err_win("Недостаточно точек для решения задачи.\nДобавьте хотя бы 3 точки.")
-        return
+        return ans_vertex, coord_start, coord_perpend, coord_median
     if check_one_line():
         show_err_win("Невозможно построить треугольник.\nТочки лежат на одной прямой.")
-        return
+        return ans_vertex, coord_start, coord_perpend, coord_median
 
     for i in range(len(point_list) - 2):
         for j in range(i + 1, len(point_list) - 1):
@@ -82,24 +84,27 @@ def solve_task():
                 pb = point_list[j]
                 pc = point_list[k]
 
-                print(f"\n------ Points Triangle --------")
-                print(f"pa = {pa.x, pa.y}\npb = {pb.x, pb.y}\npc = {pc.x, pc.y}")
+                # print(f"\n------ Points Triangle --------")
+                # print(f"pa = {pa.x, pa.y}\npb = {pb.x, pb.y}\npc = {pc.x, pc.y}")
 
                 side_1 = side_len(pa, pb)
                 side_2 = side_len(pa, pc)
                 side_3 = side_len(pb, pc)
-                print("----------Len Sides --------")
-                print(side_1, side_2, side_3)
+                # print("----------Len Sides --------")
+                # print(side_1, side_2, side_3)
 
                 if not is_triangle(side_1, side_2, side_3):
                     continue
 
-                print("------Main vertex - pa:")
+                # print("------Main vertex - pa:")
                 pm_i, pp_i, angle_i = find_corner(pa, pb, pc)
-                print("------ Main vertex - pb:")
+                # print(f'Результат для первой точки тройки: {angle_i}')
+                # print("------ Main vertex - pb:")
                 pm_j, pp_j, angle_j = find_corner(pb, pa, pc)
-                print("------ Main vertex - pc:")
+                # print(f'Результат для второй точки тройки: {angle_j}')
+                # print("------ Main vertex - pc:")
                 pm_k, pp_k, angle_k = find_corner(pc, pb, pa)
+                # print(f'Результат для третьей точки тройки: {angle_k}')
 
                 cur_min_angle = min(angle_i, angle_j, angle_k)
                 if min_angle > cur_min_angle:
@@ -227,13 +232,11 @@ class Ui(QtWidgets.QMainWindow):
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
         p_x, p_y = scene_pos.x(), scene_pos.y()
-        point = QGraphicsEllipseItem(p_x, p_y, 5 * (1 / scale), 5 * (1 / scale))
         point_scale.append(1 / scale)
-        point.setBrush(self.redBrush)
-        self.scene.addItem(point)
+        self.draw_point(p_x, p_y)
+
         point_list.append(Point(p_x, -p_y))
         self.scroll_list.addItem(f'{len(point_list)}.({round(p_x, 2)}; {round(-p_y, 2)})')
-        scene_point_list.append(point)
 
     def clear_fields(self):
         self.set_y_field.setText('')
@@ -253,6 +256,8 @@ class Ui(QtWidgets.QMainWindow):
                 for i in range(len(point_list)):
                     if point_list[i] == del_point:
                         self.scene.removeItem(scene_point_list[i])
+                        self.scene.removeItem(coords_desc[i])
+                        coords_desc.pop(i)
                         point_list.pop(i)
                         scene_point_list.pop(i)
                         point_scale.pop(i)
@@ -268,9 +273,21 @@ class Ui(QtWidgets.QMainWindow):
             self.scroll_list.addItem(f'{i}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def draw_point(self, p_x, p_y):
+        point_coords_label = QGraphicsTextItem(f'x:({p_x:.2f}, y:{-p_y:.2f})')
+        coords_desc.append(point_coords_label)
+
         point = QGraphicsEllipseItem(p_x, p_y, 5 * (1 / scale), 5 * (1 / scale))
         point.setBrush(self.redBrush)
         self.scene.addItem(point)
+
+        point_coords_label.setPos(point.rect().center().x() + 10, point.rect().center().y())
+
+        point_coords_label.setDefaultTextColor(QColor(255, 255, 255))
+        font = QFont()
+        font.setPointSize(8)
+        point_coords_label.setFont(font)
+        self.scene.addItem(point_coords_label)
+
         scene_point_list.append(point)
 
     def del_point_by_click(self, event):
@@ -289,6 +306,8 @@ class Ui(QtWidgets.QMainWindow):
             point_list.pop(del_point_id)
             scene_point_list.pop(del_point_id)
             point_scale.pop(del_point_id)
+            self.scene.removeItem(coords_desc[del_point_id])
+            coords_desc.pop(del_point_id)
             self.update_scroll_list()
 
     def mousePressEvent(self, event):
@@ -300,27 +319,30 @@ class Ui(QtWidgets.QMainWindow):
             self.del_point_by_click(event)
 
     def draw_solution(self):
+        global triangle_lines
+        if triangle_lines:
+            for line in triangle_lines:
+                self.scene.removeItem(line)
         vertexes, coord_start, coord_perpend, coord_median = solve_task()
-
-        side_1 = QGraphicsLineItem(vertexes[0].x, vertexes[0].y, vertexes[1].x, vertexes[1].y)
-        side_2 = QGraphicsLineItem(vertexes[1].x, vertexes[1].y, vertexes[2].x, vertexes[2].y)
-        side_3 = QGraphicsLineItem(vertexes[2].x, vertexes[2].y, vertexes[0].x, vertexes[0].y)
-        perpend = QGraphicsLineItem(coord_start.x, coord_start.y, coord_perpend.x, coord_perpend.y)
-        median = QGraphicsLineItem(coord_start.x, coord_start.y, coord_median.x, coord_median.y)
+        if coord_start is None or coord_perpend is None or coord_median is None:
+            return
+        side_1 = QGraphicsLineItem(vertexes[0].x, -vertexes[0].y, vertexes[1].x, -vertexes[1].y)
+        side_2 = QGraphicsLineItem(vertexes[1].x, -vertexes[1].y, vertexes[2].x, -vertexes[2].y)
+        side_3 = QGraphicsLineItem(vertexes[2].x, -vertexes[2].y, vertexes[0].x, -vertexes[0].y)
+        perpend = QGraphicsLineItem(coord_start.x, -coord_start.y, coord_perpend.x, -coord_perpend.y)
+        median = QGraphicsLineItem(coord_start.x, -coord_start.y, coord_median.x, -coord_median.y)
 
         pen_sides = QPen(Qt.magenta)
         pen_median = QPen(Qt.green)
         pen_perpend = QPen(Qt.yellow)
-
-        pen_sides.setWidth(2)
-        pen_median.setWidth(2)
-        pen_perpend.setWidth(2)
 
         side_1.setPen(pen_sides)
         side_2.setPen(pen_sides)
         side_3.setPen(pen_sides)
         perpend.setPen(pen_perpend)
         median.setPen(pen_median)
+
+        triangle_lines = [side_1, side_2, side_3, perpend, median]
 
         self.scene.addItem(side_1)
         self.scene.addItem(side_2)
