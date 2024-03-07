@@ -3,10 +3,10 @@ EPS = 1e-6  # для сравнения вещественных точек-ко
 
 # класс точка
 class Point:
-    def __init__(self, *kargs):
-        if kargs:
-            self._x = kargs[0]
-            self._y = kargs[1]
+    def __init__(self, *args):
+        if args:
+            self._x = args[0]
+            self._y = args[1]
         else:
             self._x = 0
             self._y = 0
@@ -24,8 +24,6 @@ class Point:
 
     @x.setter
     def x(self, value): self._x = value
-
-    # нужен ли делитер?
 
     @x.deleter
     def x(self): self._x = 0

@@ -295,6 +295,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
     </property>
     <addaction name="about_author"/>
     <addaction name="about_task"/>
+    <addaction name="instruction"/>
    </widget>
    <addaction name="about_menu"/>
   </widget>
@@ -317,6 +318,11 @@ font: 10pt &quot;Segoe UI&quot;;</string>
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+  </action>
+  <action name="instruction">
+   <property name="text">
+    <string>Возможности программы</string>
    </property>
   </action>
  </widget>
