@@ -422,6 +422,11 @@
    <property name="text">
     <string>Возможности программы</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
   </action>
  </widget>
  <resources/>
