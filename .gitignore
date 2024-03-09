@@ -1,1 +1,7 @@
 .idea
+lab_01_31
+include
+Lib
+Scripts
+venv
+pyvenv.cfg
