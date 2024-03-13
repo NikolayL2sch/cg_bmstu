@@ -33,7 +33,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Лабораторная работа №1</string>
+   <string>Лабораторная работа №2</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -83,7 +83,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="move_action_label">
+       <widget class="QLabel" name="move_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -272,14 +272,17 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="scale_label">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);</string>
+         <string notr="true">color: rgb(200, 200, 200);
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
         </property>
         <property name="text">
          <string>Масштабирование</string>
@@ -289,30 +292,73 @@ background-color: rgb(86, 86, 86);</string>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QLabel" name="label_5">
+         <widget class="QLabel" name="kx_scale_label">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+          </property>
           <property name="text">
            <string>kx</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="ky_scale_label">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+          </property>
           <property name="text">
            <string>ky</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>cx</string>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_7">
+         <widget class="QLabel" name="cx_scale_label">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+          </property>
+          <property name="text">
+           <string>cx</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="cy_scale_label">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+          </property>
           <property name="text">
            <string>cy</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -321,21 +367,50 @@ background-color: rgb(86, 86, 86);</string>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
-         <widget class="QLineEdit" name="lineEdit_6"/>
+         <widget class="QLineEdit" name="set_kx">
+          <property name="styleSheet">
+           <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_5"/>
+         <widget class="QLineEdit" name="set_ky">
+          <property name="styleSheet">
+           <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_4"/>
+         <widget class="QLineEdit" name="set_cx">
+          <property name="styleSheet">
+           <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_3"/>
+         <widget class="QLineEdit" name="set_cy">
+          <property name="styleSheet">
+           <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="scale_action_button">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+        </property>
         <property name="text">
          <string>Масштабировать</string>
         </property>
