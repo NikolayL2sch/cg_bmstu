@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
@@ -7,6 +8,13 @@ from PyQt5.QtGui import QBrush, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
 from dialogs import show_war_win, show_err_win, show_author, show_task, show_instruction
+from input_checks import check_radius, params_to_float
+from class_point import Point
+from matrix_methods import mul_matrices, get_new_coords
+
+hyperbole_points: List[Point] = []
+circle_points: List[Point] = []
+intersection_points: List[Point] = []
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -17,11 +25,42 @@ class Ui(QtWidgets.QMainWindow):
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
 
+        # menu bar
         self.about_author.triggered.connect(show_author)
         self.about_task.triggered.connect(show_task)
         self.instruction.triggered.connect(show_instruction)
 
+        self.move_action_button.clicked.connect(self.move_figure)
+
         self.show()
+
+    def get_move_params(self) -> float:
+        dx_str = self.set_dx.text()
+        dy_str = self.set_dy.text()
+
+        params = params_to_float(dx_str, dy_str)
+
+        if len(params) == 0:
+            return
+        dx, dy = params[0], params[1]
+
+        return dx, dy
+
+    def move_figure(self) -> None:
+        global hyperbole_points, circle_points, intersection_points
+
+        dx, dy = self.get_move_params()
+        print(dx, dy)
+
+        move_matrix = [[1, 0, dx], [0, 1, dy], [0, 0, 1]]
+
+        hyperbole_points = get_new_coords(move_matrix, hyperbole_points)
+        circle_points = get_new_coords(move_matrix, circle_points)
+        intersection_points = get_new_coords(move_matrix, intersection_points)
+        self.draw_figure()
+
+    def draw_figure(self) -> None:
+        pass
 
 
 if __name__ == '__main__':
