@@ -3,14 +3,12 @@ from typing import List
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
-from dialogs import show_war_win, show_err_win, show_author, show_task, show_instruction
-from input_checks import check_radius, params_to_float
+from dialogs import show_author, show_task, show_instruction
+from input_checks import params_to_float
 from class_point import Point
-from matrix_methods import mul_matrices, get_new_coords
+from matrix_methods import get_new_coords
 
 hyperbole_points: List[Point] = []
 circle_points: List[Point] = []
@@ -31,6 +29,7 @@ class Ui(QtWidgets.QMainWindow):
         self.instruction.triggered.connect(show_instruction)
 
         self.move_action_button.clicked.connect(self.move_figure)
+        self.scale_action_button.clicked.connect(self.scale_figure)
 
         self.show()
 
@@ -42,7 +41,7 @@ class Ui(QtWidgets.QMainWindow):
 
         if len(params) == 0:
             return
-        dx, dy = params[0], params[1]
+        dx, dy = params
 
         return dx, dy
 
@@ -61,6 +60,43 @@ class Ui(QtWidgets.QMainWindow):
 
     def draw_figure(self) -> None:
         pass
+
+    def get_scale_params(self) -> float:
+        kx_str = self.set_kx.text()
+        ky_str = self.set_ky.text()
+        cx_str = self.set_cx.text()
+        cy_str = self.set_cy.text()
+
+        params = params_to_float(kx_str, ky_str, cx_str, cy_str)
+
+        if len(params) == 0:
+            return
+        kx, ky, cx, cy = params
+
+        return kx, ky, cx, cy
+
+    def scale_figure(self) -> None:
+        global hyperbole_points, circle_points, intersection_points
+
+        kx, ky, cx, cy = self.get_scale_params()
+        print(kx, ky, cx, cy)
+
+        move_matrix = [[1, 0, -cx], [0, 1, -cy], [0, 0, 1]]
+        scale_matrix = [[kx, 0, 0], [0, ky, 0], [0, 0, 1]]
+        move_matrix_back = [[1, 0, cx], [0, 1, cy], [0, 0, 1]]
+
+        hyperbole_points = get_new_coords(move_matrix, hyperbole_points)
+        circle_points = get_new_coords(move_matrix, circle_points)
+        intersection_points = get_new_coords(move_matrix, intersection_points)
+
+        hyperbole_points = get_new_coords(scale_matrix, hyperbole_points)
+        circle_points = get_new_coords(scale_matrix, circle_points)
+        intersection_points = get_new_coords(scale_matrix, intersection_points)
+
+        hyperbole_points = get_new_coords(move_matrix_back, hyperbole_points)
+        circle_points = get_new_coords(move_matrix_back, circle_points)
+        intersection_points = get_new_coords(move_matrix_back, intersection_points)
+        self.draw_figure()
 
 
 if __name__ == '__main__':
