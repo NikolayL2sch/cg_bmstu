@@ -52,6 +52,7 @@ class Ui(QtWidgets.QMainWindow):
         self.move_action_button.clicked.connect(self.move_figure)
         self.scale_action_button.clicked.connect(self.scale_figure)
 
+        self.graphicsView.setMouseTracking(True)
         self.graphicsView.mousePressEvent = self.mousePressEvent
         self.graphicsView.wheelEvent = self.wheel_event
         self.graphicsView.mouseReleaseEvent = self.mouseReleaseEvent
@@ -75,7 +76,6 @@ class Ui(QtWidgets.QMainWindow):
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        print('released mouse event')
         global is_pressed
         if event.button() == Qt.LeftButton:
             is_pressed = False
@@ -93,7 +93,7 @@ class Ui(QtWidgets.QMainWindow):
                     self.scene.removeItem(grid_line)
                 self.add_grid()
         scene_pos = self.graphicsView.mapToScene(event.pos())
-        self.current_coords_label.setText(f'x :{scene_pos.x():.2f}, y :{scene_pos.y():.2f}')
+        self.current_coords_label.setText(f'x :{scene_pos.x():.2f}, y :{-scene_pos.y():.2f}')
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         global last_pos, is_pressed
