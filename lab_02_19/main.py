@@ -4,7 +4,7 @@ from typing import List
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QPen, QColor
+from PyQt5.QtGui import QBrush, QPen, QColor, QWheelEvent, QMouseEvent
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem
 
 from dialogs import show_author, show_task, show_instruction
@@ -19,11 +19,15 @@ intersection_points: List[Point] = []
 grid_lines: List[QGraphicsLineItem] = []
 
 scale: float = 1.0
+step: int = int(scale) * 10
 max_win_size: List[int] = [0, 0, 0]
 a: float = 0.0
 b: float = 0.0
 c: float = 100.0
 R: float = 50
+
+is_pressed: bool = False
+last_pos: bool = None
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -48,7 +52,54 @@ class Ui(QtWidgets.QMainWindow):
         self.move_action_button.clicked.connect(self.move_figure)
         self.scale_action_button.clicked.connect(self.scale_figure)
 
+        self.graphicsView.mousePressEvent = self.mousePressEvent
+        self.graphicsView.wheelEvent = self.wheel_event
+        self.graphicsView.mouseReleaseEvent = self.mouseReleaseEvent
+        self.graphicsView.mouseMoveEvent = self.mouseMoveEvent
+
         self.show()
+
+    def wheel_event(self, event: QWheelEvent) -> None:
+        global scale
+        factor = 1.2
+
+        if event.angleDelta().y() > 0:
+            self.graphicsView.scale(factor, factor)
+        else:
+            self.graphicsView.scale(1.0 / factor, 1.0 / factor)
+
+        scale = self.graphicsView.transform().m11()  # Получаем текущий масштаб по оси X (и Y)
+        if self.need_grid():
+            for grid_line in grid_lines:
+                self.scene.removeItem(grid_line)
+            self.add_grid()
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        print('released mouse event')
+        global is_pressed
+        if event.button() == Qt.LeftButton:
+            is_pressed = False
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        global last_pos
+        if is_pressed:
+            dx = event.pos().x() - last_pos.x()
+            dy = event.pos().y() - last_pos.y()
+            self.graphicsView.horizontalScrollBar().setValue(self.graphicsView.horizontalScrollBar().value() - dx)
+            self.graphicsView.verticalScrollBar().setValue(self.graphicsView.verticalScrollBar().value() - dy)
+            last_pos = event.pos()
+            if self.need_grid():
+                for grid_line in grid_lines:
+                    self.scene.removeItem(grid_line)
+                self.add_grid()
+        scene_pos = self.graphicsView.mapToScene(event.pos())
+        self.current_coords_label.setText(f'x :{scene_pos.x():.2f}, y :{scene_pos.y():.2f}')
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        global last_pos, is_pressed
+        if event.button() == Qt.LeftButton:
+            is_pressed = True
+            last_pos = event.pos()
 
     def get_move_params(self) -> float:
         dx_str = self.set_dx.text()
@@ -66,7 +117,6 @@ class Ui(QtWidgets.QMainWindow):
         global hyperbole_points, circle_points, intersection_points
 
         dx, dy = self.get_move_params()
-        # print(dx, dy)
 
         move_matrix = [[1, 0, dx], [0, 1, dy], [0, 0, 1]]
 
@@ -82,12 +132,16 @@ class Ui(QtWidgets.QMainWindow):
 
         self.draw_parts(hyperbole_points, Qt.green)
         self.draw_parts(circle_points, Qt.red)
+        self.draw_lines(intersection_points)
 
     def draw_parts(self, points: List[Point], color: QColor) -> None:
         for i in range(len(points) - 1):
             line_item = QGraphicsLineItem(points[i].x, -points[i].y, points[i + 1].x, -points[i + 1].y)
             line_item.setPen(QPen(color))
             self.scene.addItem(line_item)
+
+    def draw_lines(self, points: List[Point]) -> None:
+        pass
 
     def need_grid(self) -> bool:
         global max_win_size
