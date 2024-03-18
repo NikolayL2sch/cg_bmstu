@@ -63,10 +63,16 @@
         <height>0</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>1600</width>
+        <height>900</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -552,6 +558,13 @@ background-color: rgb(86, 86, 86);</string>
        <widget class="QPushButton" name="pushButton_7">
         <property name="text">
          <string>Сброс</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="current_grid_label">
+        <property name="text">
+         <string>Текущий шаг сетки:</string>
         </property>
        </widget>
       </item>
