@@ -72,7 +72,7 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -744,7 +744,7 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="params_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -795,7 +795,7 @@ background-color: rgb(75, 75, 75);</string>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_15">
+         <widget class="QLabel" name="b_coeff_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -824,7 +824,7 @@ background-color: rgb(75, 75, 75);</string>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_16">
+         <widget class="QLabel" name="c_coeff_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -886,7 +886,7 @@ background-color: rgb(75, 75, 75);</string>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_11">
         <item>
-         <widget class="QLineEdit" name="lineEdit_11">
+         <widget class="QLineEdit" name="set_a">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -907,7 +907,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_12">
+         <widget class="QLineEdit" name="set_b">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -928,7 +928,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_13">
+         <widget class="QLineEdit" name="set_c">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -949,7 +949,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_10">
+         <widget class="QLineEdit" name="set_r">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -972,7 +972,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="draw_figure_action_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -996,59 +996,7 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_13">
-        <item>
-         <widget class="QPushButton" name="pushButton_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
-          </property>
-          <property name="text">
-           <string>На 1 действие назад</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_5">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
-          </property>
-          <property name="text">
-           <string>На 1 действие вперед</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_7">
+       <widget class="QPushButton" name="reset_action_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
