@@ -9,7 +9,7 @@ def get_new_coords(matrix: List[List[Union[float, int]]], points: List[Point]) -
     return points
 
 
-def mul_matrices(matrix: List[List[Union[float, int]]], point: Point):
+def mul_matrices(matrix: List[List[Union[float, int]]], point: Point) -> Point:
     point_matrix = (point.x, point.y, 1)
     result = [0] * 3
     for i in range(len(matrix)):

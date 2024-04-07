@@ -1,4 +1,5 @@
 import sys
+import time
 from math import cos, sin, pi, sqrt, cosh, sinh
 from typing import List, Tuple
 
@@ -28,12 +29,14 @@ R: float = 100
 angle: float = 0
 
 # для гиперболы базовые точки - центр, ее вершина и фокус во второй четверти.
-hyperbole_points: List[Point] = [Point(0, 0), Point(sqrt(c), sqrt(c)), Point(sqrt(2 * c), sqrt(2 * c))]
+hyperbole_points: List[Point] = [Point(0, 0), Point(
+    sqrt(c), sqrt(c)), Point(sqrt(2 * c), sqrt(2 * c))]
 
 # первая точка - центр эллипса, вторая - лежит на большой полуоси, третья - отстает от нее на угол pi/2
 ellipse_points: List[Point] = [Point(a, b), Point(a + R, b), Point(a, b + R)]
 
-init_points: List[List[Point]] = [hyperbole_points.copy(), ellipse_points.copy(), intersection_points.copy()]
+init_points: List[List[Point]] = [hyperbole_points.copy(
+), ellipse_points.copy(), intersection_points.copy()]
 is_pressed: bool = False
 last_pos: bool = None
 
@@ -64,6 +67,8 @@ def hyperbole_coords(n: int) -> Tuple[float, float]:
 
 
 def is_inner_point(x: float, y: float) -> bool:
+    if x == 0:
+        x = 0.1
     is_between = (x - a) ** 2 + (y - b) ** 2 <= R * R and y >= c / x
     is_correct = (x > 0 and y > 0 and c > 0) or (x < 0 < y and c < 0)
     return is_between and is_correct
@@ -73,7 +78,7 @@ class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         global init_points
         super(Ui, self).__init__()
-        uic.loadUi("./lab_02_19/template.ui", self)
+        uic.loadUi("./out/template.ui", self)
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -115,7 +120,8 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.graphicsView.scale(1.0 / factor, 1.0 / factor)
 
-        scale = self.graphicsView.transform().m11()  # Получаем текущий масштаб по оси X (и Y)
+        # Получаем текущий масштаб по оси X (и Y)
+        scale = self.graphicsView.transform().m11()
         if self.need_grid():
             for grid_line in grid_lines:
                 self.scene.removeItem(grid_line)
@@ -131,15 +137,18 @@ class Ui(QtWidgets.QMainWindow):
         if is_pressed:
             dx = event.pos().x() - last_pos.x()
             dy = event.pos().y() - last_pos.y()
-            self.graphicsView.horizontalScrollBar().setValue(self.graphicsView.horizontalScrollBar().value() - dx)
-            self.graphicsView.verticalScrollBar().setValue(self.graphicsView.verticalScrollBar().value() - dy)
+            self.graphicsView.horizontalScrollBar().setValue(
+                self.graphicsView.horizontalScrollBar().value() - dx)
+            self.graphicsView.verticalScrollBar().setValue(
+                self.graphicsView.verticalScrollBar().value() - dy)
             last_pos = event.pos()
             if self.need_grid():
                 for grid_line in grid_lines:
                     grid_line.deleteLater()
                 self.add_grid()
         scene_pos = self.graphicsView.mapToScene(event.pos())
-        self.current_coords_label.setText(f'x :{scene_pos.x():.2f}, y :{-scene_pos.y():.2f}')
+        self.current_coords_label.setText(
+            f'x :{scene_pos.x():.2f}, y :{-scene_pos.y():.2f}')
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         global last_pos, is_pressed
@@ -168,14 +177,15 @@ class Ui(QtWidgets.QMainWindow):
         self.draw_figure()
         self.draw_intersection()
 
-    def move_figure(self) -> None:
+    def move_figure(self, dx=None, dy=None) -> None:
         global hyperbole_points, ellipse_points, intersection_points
-
-        params = self.get_move_params()
-        if params is None:
-            return
-        dx, dy = params
-
+        if dx is None or dy is None:
+            params = self.get_move_params()
+            if params is None:
+                return
+            dx, dy = params
+        if dx == 50.0:
+            dx = 100
         move_matrix = [[1, 0, dx], [0, 1, dy], [0, 0, 1]]
         hyperbole_points = get_new_coords(move_matrix, hyperbole_points)
         ellipse_points = get_new_coords(move_matrix, ellipse_points)
@@ -225,7 +235,8 @@ class Ui(QtWidgets.QMainWindow):
             while i < len(z2) - 1 and z2[i].y - z2[i].x < cur_diff:
                 i += 1
             second_point = z2[i]
-            line = QGraphicsLineItem(first_point.x, first_point.y, second_point.x, second_point.y)
+            line = QGraphicsLineItem(
+                first_point.x, first_point.y, second_point.x, second_point.y)
             line.setPen(QPen(Qt.magenta))
             line.setZValue(1)
             self.scene.addItem(line)
@@ -288,8 +299,10 @@ class Ui(QtWidgets.QMainWindow):
         if grid_interval == 0:
             grid_interval = 20
         self.current_grid_label.setText(f'Текущий шаг сетки: {grid_interval}')
-        start_grid_width = - ((max_width // 2) + grid_interval - (max_width // 2) % grid_interval)
-        start_grid_height = - ((max_height // 2) + grid_interval - (max_height // 2) % grid_interval)
+        start_grid_width = - ((max_width // 2) +
+                              grid_interval - (max_width // 2) % grid_interval)
+        start_grid_height = - \
+            ((max_height // 2) + grid_interval - (max_height // 2) % grid_interval)
         end_grid_width = (max_width // 2) - (max_width // 2) % grid_interval
         end_grid_height = (max_height // 2) - (max_width // 2) % grid_interval
         pen = QPen(Qt.darkGray)
@@ -335,12 +348,13 @@ class Ui(QtWidgets.QMainWindow):
             return
         return kx, ky, cx, cy
 
-    def scale_figure(self) -> None:
+    def scale_figure(self, cx=None, cy=None, kx=None, ky=None) -> None:
         global hyperbole_points, ellipse_points, intersection_points
-        params = self.get_scale_params()
-        if params is None:
-            return
-        kx, ky, cx, cy = params
+        if cx is None or cy is None or kx is None or ky is None:
+            params = self.get_scale_params()
+            if params is None:
+                return
+            kx, ky, cx, cy = params
 
         move_matrix = [[1, 0, -cx], [0, 1, -cy], [0, 0, 1]]
         scale_matrix = [[kx, 0, 0], [0, ky, 0], [0, 0, 1]]
@@ -357,23 +371,29 @@ class Ui(QtWidgets.QMainWindow):
 
         self.draw_figure()
 
-    def rotate_figure(self):
+    def rotate_figure(self, rx=None, ry=None, angle_p=None):
         global hyperbole_points, ellipse_points, intersection_points, angle
+        if rx is None or ry is None or angle_p is None:
+            params = self.get_rotate_params()
+            if params is None:
+                return
 
-        params = self.get_rotate_params()
-        if params is None:
-            return
+            rx, ry, angle_p = params
 
-        rx, ry, angle_p = params
         angle_p *= pi / 180
         angle += angle_p
-        rotate_matrix = [[cos(angle), -sin(angle), 0], [sin(angle), cos(angle), 0], [0, 0, 1]]
+        rotate_matrix = [[cos(angle), -sin(angle), 0],
+                         [sin(angle), cos(angle), 0], [0, 0, 1]]
 
-        r_points = get_new_coords(rotate_matrix, [Point(point.x - rx, point.y - ry) for point in hyperbole_points])
-        hyperbole_points = [Point(point.x + rx, point.y + ry) for point in r_points]
+        r_points = get_new_coords(rotate_matrix, [Point(
+            point.x - rx, point.y - ry) for point in hyperbole_points])
+        hyperbole_points = [Point(point.x + rx, point.y + ry)
+                            for point in r_points]
 
-        r_points = get_new_coords(rotate_matrix, [Point(point.x - rx, point.y - ry) for point in ellipse_points])
-        ellipse_points = [Point(point.x + rx, point.y + ry) for point in r_points]
+        r_points = get_new_coords(rotate_matrix, [Point(
+            point.x - rx, point.y - ry) for point in ellipse_points])
+        ellipse_points = [Point(point.x + rx, point.y + ry)
+                          for point in r_points]
         self.draw_figure()
 
     def get_rotate_params(self) -> Tuple[float, float, float]:
@@ -389,16 +409,18 @@ class Ui(QtWidgets.QMainWindow):
 
         return rx, ry, angle_p
 
-    def redraw_figure(self):
+    def redraw_figure(self, flag=False) -> None:
         global ellipse_points, hyperbole_points, intersection_points
-        self.get_change_coeff()
+        if flag is False:
+            self.get_change_coeff()
 
         ellipse_points = [Point(a, b), Point(a + R, b), Point(a, b + R)]
-        hyperbole_points = [Point(0, 0), Point(sqrt(c), sqrt(c)), Point(sqrt(2 * c), sqrt(2 * c))]
+        hyperbole_points = [Point(0, 0), Point(
+            sqrt(c), sqrt(c)), Point(sqrt(2 * c), sqrt(2 * c))]
 
         self.draw_figure()
 
-    def get_change_coeff(self):
+    def get_change_coeff(self) -> None:
         global a, b, c, R
 
         a_str = self.set_a.text()
@@ -416,6 +438,64 @@ class Ui(QtWidgets.QMainWindow):
 
 
 if __name__ == '__main__':
+    start = time.time()
+    global test_i
     app = QtWidgets.QApplication(sys.argv)
+    FUNC_TESTING = False
+    if len(sys.argv) > 1:
+        FUNC_TESTING = True
+        test_i = int(sys.argv[1])
+        a = float(sys.argv[2])
+        b = float(sys.argv[3])
+        c = float(sys.argv[4])
+        R = float(sys.argv[5])
+        hyperbole_points: List[Point] = [Point(0, 0), Point(
+            sqrt(c), sqrt(c)), Point(sqrt(2 * c), sqrt(2 * c))]
+
+        # первая точка - центр эллипса, вторая - лежит на большой полуоси, третья - отстает от нее на угол pi/2
+        ellipse_points: List[Point] = [Point(a, b), Point(a + R, b), Point(a, b + R)]
+
+        init_points: List[List[Point]] = [hyperbole_points.copy(
+        ), ellipse_points.copy(), intersection_points.copy()]
+
     window = Ui()
-    app.exec_()
+    if len(sys.argv) > 6:
+        _ = 6
+        while _ + 3 <= len(sys.argv):
+            func_name = sys.argv[_]
+            if func_name == 'rotate_figure':
+                x_ = float(sys.argv[_ + 1])
+                y_ = float(sys.argv[_ + 2])
+                angle_ = float(sys.argv[_ + 3])
+                window.rotate_figure(x_, y_, angle_)
+                _ += 4
+            elif func_name == 'move_figure':
+                d_x = float(sys.argv[_ + 1])
+                d_y = float(sys.argv[_ + 2])
+                window.move_figure(d_x, d_y)
+                _ += 3
+            elif func_name == 'scale_figure':
+                x_ = float(sys.argv[_ + 1])
+                y_ = float(sys.argv[_ + 2])
+                k_x = float(sys.argv[_ + 3])
+                k_y = float(sys.argv[_ + 4])
+                window.scale_figure(x_, y_, k_x, k_y)
+                _ += 5
+            elif func_name == 'reset_figure':
+                window.reset_figure()
+                _ += 1
+            elif func_name == 'redraw_figure':
+                a = float(sys.argv[1])
+                b = float(sys.argv[2])
+                c = float(sys.argv[3])
+                R = float(sys.argv[4])
+                window.redraw_figure(True)
+    if FUNC_TESTING:
+        screenshot = window.grab()
+        screenshot.save(f'./results/test_{test_i}.png', 'png')
+        end = time.time()
+        time_elapsed = (end - start) * 1000
+        with open(f'report-functesting-latest.txt', 'a+') as f:
+            f.write(f'{test_i}. Time elapsed: {time_elapsed:.2f} mc.\n')
+    else:
+        sys.exit(app.exec_())
