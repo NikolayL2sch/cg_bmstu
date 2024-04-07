@@ -5,3 +5,6 @@ Lib
 Scripts
 venv
 pyvenv.cfg
+out
+.coverage
+*.txt

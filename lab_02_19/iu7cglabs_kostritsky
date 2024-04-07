@@ -1,0 +1,85 @@
+#!/bin/bash
+
+.PHONY: run release clean report-unittesting-latest.txt format report-functesting-latest.txt
+
+release:
+	@if [ ! -d "./out" ]; then \
+		mkdir -p ./out; \
+	fi
+	@rm -rf ./out/*.py
+	@rm -rf ./out/*.ui
+	@cp *.py ./out/
+	@cp *.ui ./out/
+
+run:
+	@if [ ! -d "./out" ]; then \
+		make -f iu7cglabs_kostritsky --no-print-directory release; \
+	fi
+
+	@if [ -e "./out/main.py" ]; then \
+		rm -rf ./out/main.py; \
+	fi
+
+	@make -f iu7cglabs_kostritsky --no-print-directory release;
+
+	@eval "python ./out/main.py"
+
+clean:
+	@rm -rf ./out
+	@rm -rf ./.coverage
+	@rm -rf ./htmlcov
+	@rm -rf ./*.txt
+	@rm -rf ./results
+
+report-unittesting-latest.txt:
+	@touch ./report-unittesting-latest.txt
+
+	@if [ ! -e "./module_test.py" ]; then \
+		echo "0.00%" > ./report-unittesting-latest.txt; \
+	else \
+		coverage run -m pytest module_test.py; \
+		coverage report > ./report-unittesting-latest.txt; \
+		coverage html; \
+	fi
+
+report-functesting-latest.txt:
+	@if [ ! -d "./out" ]; then \
+		make -f iu7cglabs_kostritsky --no-print-directory release; \
+	fi
+
+	@touch ./report-functesting-latest.txt
+
+	@if [ ! -d "./results" ]; then \
+			mkdir ./results; \
+	fi
+
+	@if [ ! -e "./func_tests.json" ]; then \
+		echo "0.00%" > ./report-functesting-latest.txt; \
+	else \
+		./func_tests.sh; \
+	fi
+
+format:
+	@autopep8 --in-place *.py
+
+checkall:
+	@if [ ! -d "./out" ]; then \
+		mkdir -p ./out; \
+	fi
+	@if [ ! -d "./out/results" ]; then \
+		mkdir -p ./out/results; \
+	fi
+	@pydeps main.py --cluster --max-bacon=5 -o ./out/results/main.svg
+	@ruff check > ./out/results/ruff_check.txt
+	@code2flow .
+	@mv out.gv out.png ./out/results/
+	@lizard > ./out/results/lizard_report.txt
+
+saveolds:
+	@if [ ! -f "./report-unittest-latest.txt" ]; then \
+		cat "./report-unittest-latest.txt" > "./report-unittesting-old.txt"; \
+	fi
+
+	@if [ ! -f "./report-functesting-latest.txt" ]; then \
+		cat "./report-functesting-latest.txt" > "./report-functesting-old.txt"; \
+	fi

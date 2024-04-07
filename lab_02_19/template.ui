@@ -33,7 +33,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Лабораторная работа №2</string>
+   <string>lab_02</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
