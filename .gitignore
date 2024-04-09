@@ -8,3 +8,5 @@ pyvenv.cfg
 out
 .coverage
 *.txt
+lab_03/__pycache__
+lab_02_19/__pycache__
