@@ -1,18 +1,20 @@
 import sys
 import time
 
-from typing import List
+from typing import List, Tuple
 
 from matplotlib import pyplot
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsItem
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsItem, QButtonGroup
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QPalette, QBrush
 
-from dialogs import show_author, show_task, show_instruction
+from dialogs import show_author, show_task, show_instruction, show_err_win
 from class_point import Point
+from input_checks import params_to_float
+from point_algs import brezenhem_float, brezenhem_st, brezenhem_int, cda, vu, bibl_alg
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -41,10 +43,35 @@ class Ui(QtWidgets.QMainWindow):
         self.instruction.triggered.connect(show_instruction)
 
         # add button group so that other will stay unchecked
+        self.line_color_group = QButtonGroup()
+        self.bg_color_group = QButtonGroup()
+        self.alg_group = QButtonGroup()
+
+        self.line_color_group.addButton(self.blue_line_rbutton)
+        self.line_color_group.addButton(self.red_line_rbutton)
+        self.line_color_group.addButton(self.green_line_rbutton)
+        self.line_color_group.addButton(self.aqua_line_rbutton)
+        self.line_color_group.addButton(self.purple_line_rbutton)
+        self.line_color_group.addButton(self.yellow_line_rbutton)
+
+        self.bg_color_group.addButton(self.blue_bg_rbutton)
+        self.bg_color_group.addButton(self.red_bg_rbutton)
+        self.bg_color_group.addButton(self.green_line_rbutton)
+        self.bg_color_group.addButton(self.aqua_line_rbutton)
+        self.bg_color_group.addButton(self.purple_line_rbutton)
+        self.bg_color_group.addButton(self.yellow_line_rbutton)
+
+        self.alg_group.addButton(self.brezenhem_float_rbutton)
+        self.alg_group.addButton(self.brezenhem_int_rbutton)
+        self.alg_group.addButton(self.brezenhem_st_rbutton)
+        self.alg_group.addButton(self.cda_alg_rbutton)
+        self.alg_group.addButton(self.vu_alg_rbutton)
+        self.alg_group.addButton(self.bibl_alg_rbutton)
 
         # !!! radio buttons setChecked (setup default config)
         self.red_line_rbutton.setChecked(True)
         self.gray_bg_rbutton.setChecked(True)
+        self.bibl_alg_rbutton.setChecked(True)
 
         # line color radio buttons
         self.blue_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.blue))
@@ -61,6 +88,8 @@ class Ui(QtWidgets.QMainWindow):
         self.aqua_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkCyan))
         self.purple_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkMagenta))
         self.gray_bg_rbutton.clicked.connect(lambda: self.set_bg_color(QColor(56, 56, 56)))
+
+        self.draw_segment_button.clicked.connect(self.draw_segment)
 
         self.graphicsView.setMouseTracking(True)
 
@@ -133,7 +162,7 @@ class Ui(QtWidgets.QMainWindow):
             flag = True
         return flag
 
-    def add_grid(self):
+    def add_grid(self) -> None:
         global grid_lines, max_win_size
         max_width = max_win_size[0]
         max_height = max_win_size[1]
@@ -184,6 +213,37 @@ class Ui(QtWidgets.QMainWindow):
     def set_bg_color(self, color: QColor) -> None:
         background_brush = QBrush(color)
         self.graphicsView.setBackgroundBrush(background_brush)
+
+    def get_segment_coords(self) -> Tuple[Point, Point]:
+        x_1_str = self.set_x1.text()
+        y_1_str = self.set_y1.text()
+        x_2_str = self.set_x2.text()
+        y_2_str = self.set_y2.text()
+        params = params_to_float(x_1_str, y_1_str, x_2_str, y_2_str)
+
+        if len(params) == 0:
+            return
+
+        x1, y1, x2, y2 = params
+        if abs(x1 - x2) <= 1e-13 and abs(y1 - y2) <= 1e-13:
+            show_err_win("Координаты должны быть отличны.\nВведен вырожденный случай (точка).")
+
+        return Point(x1, y1), Point(x2, y2)
+
+    def draw_segment(self) -> None:
+        p1, p2 = self.get_segment_coords()
+        if self.brezenhem_int_rbutton.isChecked():
+            brezenhem_int(self, p1, p2)
+        elif self.brezenhem_float_rbutton.isChecked():
+            brezenhem_float(self, p1, p2)
+        elif self.brezenhem_st_rbutton.isChecked():
+            brezenhem_st(self, p1, p2)
+        elif self.cda_alg_rbutton.isChecked():
+            cda(self, p1, p2)
+        elif self.vu_alg_rbutton.isChecked():
+            vu(self, p1, p2)
+        elif self.bibl_alg_rbutton.isChecked():
+            bibl_alg(self, p1, p2)
 
 
 if __name__ == '__main__':
