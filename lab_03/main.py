@@ -1,4 +1,5 @@
 import sys
+from math import radians, pi, cos, sin
 
 from typing import List, Tuple, Union
 
@@ -87,7 +88,7 @@ class Ui(QtWidgets.QMainWindow):
         self.gray_bg_rbutton.clicked.connect(lambda: self.set_bg_color(QColor(56, 56, 56)))
 
         self.draw_segment_button.clicked.connect(self.draw_segment)
-
+        self.draw_spektr_button.clicked.connect(self.draw_spectre)
         self.graphicsView.setMouseTracking(True)
 
         self.graphicsView.mousePressEvent = self.mousePressEvent
@@ -227,8 +228,14 @@ class Ui(QtWidgets.QMainWindow):
 
         return Point(x1, y1), Point(x2, y2)
 
-    def draw_segment(self) -> None:
-        p1, p2 = self.get_segment_coords()
+    def draw_segment(self, p1: Point = None, p2: Point = None) -> None:
+        if p1 is None or p2 is None:
+            params = self.get_segment_coords()
+
+            if params is None:
+                return
+
+            p1, p2 = params
 
         if self.bibl_alg_rbutton.isChecked():
             line = QGraphicsLineItem(p1.x, p1.y, p2.x, -p2.y)
@@ -255,6 +262,33 @@ class Ui(QtWidgets.QMainWindow):
                 part_color.setAlpha(int(intensity))
                 part.setPen(part_color)
                 self.scene.addItem(part)
+
+    def draw_spectre(self) -> None:
+        params = self.get_spectre_coeff()
+        if params is None:
+            return
+
+        point, angle, length = params
+        angle = radians(angle)
+        cur_angle = 0
+        while cur_angle < 2 * pi:
+            self.draw_segment(point, Point(point.x + length * cos(cur_angle), point.y + length * sin(cur_angle)))
+            cur_angle += angle
+
+    def get_spectre_coeff(self) -> Union[Tuple[Point, float, float], None]:
+        x_c_str = self.set_xc.text()
+        y_c_str = self.set_yc.text()
+        angle_str = self.set_angle.text()
+        length_str = self.set_length.text()
+
+        params = params_to_float(x_c_str, y_c_str, angle_str, length_str)
+
+        if len(params) == 0:
+            return
+
+        x_c, y_c, angle, length = params
+
+        return Point(x_c, y_c), angle, length
 
     def get_points(self, p1: Point, p2: Point) -> Union[List[Point], List[Tuple[Point, float]]]:
         if self.brezenhem_int_rbutton.isChecked():
