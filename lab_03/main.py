@@ -1,5 +1,5 @@
 import sys
-from math import radians, pi, cos, sin
+from math import radians, cos, sin
 
 from typing import List, Tuple, Union
 
@@ -73,7 +73,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # line color radio buttons
         self.blue_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.blue))
-        self.red_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkRed))
+        self.red_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.red))
         self.green_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkGreen))
         self.aqua_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkCyan))
         self.purple_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkMagenta))
@@ -81,7 +81,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # background color radio buttons
         self.blue_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.blue))
-        self.red_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkRed))
+        self.red_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.red))
         self.green_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkGreen))
         self.aqua_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkCyan))
         self.purple_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkMagenta))
@@ -89,6 +89,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.draw_segment_button.clicked.connect(self.draw_segment)
         self.draw_spektr_button.clicked.connect(self.draw_spectre)
+        self.clear_button.clicked.connect(self.clear_scene)
+
         self.graphicsView.setMouseTracking(True)
 
         self.graphicsView.mousePressEvent = self.mousePressEvent
@@ -214,6 +216,11 @@ class Ui(QtWidgets.QMainWindow):
         background_brush = QBrush(color)
         self.graphicsView.setBackgroundBrush(background_brush)
 
+    def clear_scene(self):
+        for item in self.scene.items():
+            if item not in grid_lines:
+                self.scene.removeItem(item)
+
     def get_segment_coords(self) -> Tuple[Point, Point]:
         x_1_str = self.set_x1.text()
         y_1_str = self.set_y1.text()
@@ -238,7 +245,7 @@ class Ui(QtWidgets.QMainWindow):
             p1, p2 = params
 
         if self.bibl_alg_rbutton.isChecked():
-            line = QGraphicsLineItem(p1.x, p1.y, p2.x, -p2.y)
+            line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
             line.setPen(current_line_color)
             line.setZValue(1)
             self.scene.addItem(line)
@@ -269,10 +276,10 @@ class Ui(QtWidgets.QMainWindow):
             return
 
         point, angle, length = params
-        angle = radians(angle)
+        print(angle, length)
         cur_angle = 0
-        while cur_angle < 2 * pi:
-            self.draw_segment(point, Point(point.x + length * cos(cur_angle), point.y + length * sin(cur_angle)))
+        while cur_angle < 360:
+            self.draw_segment(point, Point(point.x + length * cos(radians(cur_angle)), point.y + length * sin(radians(cur_angle))))
             cur_angle += angle
 
     def get_spectre_coeff(self) -> Union[Tuple[Point, float, float], None]:

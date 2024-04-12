@@ -72,7 +72,7 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -860,6 +860,58 @@ background-color: rgb(86, 86, 86);</string>
          <string>Построить спектр</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clear_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>460</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+        </property>
+        <property name="text">
+         <string>Очистить все</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QPushButton" name="time_test_button">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+          </property>
+          <property name="text">
+           <string>Тест на время</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="ladder_test_button">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+          </property>
+          <property name="text">
+           <string>Тест на ступенчатость</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
