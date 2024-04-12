@@ -38,5 +38,6 @@ def show_instruction():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle("Возможности программы")
-    msg.setText("Смена цвета отрезка.\nВыбор одного из предложенных цветов меняет цвет всех отрезков на графике.")
+    msg.setText("Смена цвета отрезка.\nВыбор одного из предложенных цветов меняет цвет всех отрезков на "
+                "графике.\n\nСмена цвета заднего фона.\n")
     msg.exec_()

@@ -1,20 +1,17 @@
 import sys
-import time
 
-from typing import List, Tuple
-
-from matplotlib import pyplot
+from typing import List, Tuple, Union
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsItem, QButtonGroup
-from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QPalette, QBrush
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QButtonGroup, QGraphicsRectItem
+from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QBrush
 
-from dialogs import show_author, show_task, show_instruction, show_err_win
+from dialogs import show_author, show_task, show_instruction
 from class_point import Point
 from input_checks import params_to_float
-from point_algs import brezenhem_float, brezenhem_st, brezenhem_int, cda, vu, bibl_alg
+from point_algs import brezenhem_float, brezenhem_st, brezenhem_int, cda, vu
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -24,6 +21,7 @@ scale: float = 1.0
 is_pressed: bool = False
 
 last_pos: QPoint = None
+current_line_color: QColor = QColor(255, 0, 0)
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -35,7 +33,6 @@ class Ui(QtWidgets.QMainWindow):
         self.graphicsView.setScene(self.scene)
         self.need_grid()
         self.add_grid()
-        self.scene.addLine(0, 0, 100, 100)
 
         # menu bar
         self.about_author.triggered.connect(show_author)
@@ -56,10 +53,10 @@ class Ui(QtWidgets.QMainWindow):
 
         self.bg_color_group.addButton(self.blue_bg_rbutton)
         self.bg_color_group.addButton(self.red_bg_rbutton)
-        self.bg_color_group.addButton(self.green_line_rbutton)
-        self.bg_color_group.addButton(self.aqua_line_rbutton)
-        self.bg_color_group.addButton(self.purple_line_rbutton)
-        self.bg_color_group.addButton(self.yellow_line_rbutton)
+        self.bg_color_group.addButton(self.green_bg_rbutton)
+        self.bg_color_group.addButton(self.aqua_bg_rbutton)
+        self.bg_color_group.addButton(self.purple_bg_rbutton)
+        self.bg_color_group.addButton(self.gray_bg_rbutton)
 
         self.alg_group.addButton(self.brezenhem_float_rbutton)
         self.alg_group.addButton(self.brezenhem_int_rbutton)
@@ -205,10 +202,12 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(axis_y)
 
     def set_lines_color(self, color: QColor) -> None:
+        global current_line_color
+        current_line_color = color
         lines = self.scene.items()
         for line in lines:
             if line not in grid_lines:
-                line.setPen(color)
+                line.setPen(current_line_color)
 
     def set_bg_color(self, color: QColor) -> None:
         background_brush = QBrush(color)
@@ -225,25 +224,49 @@ class Ui(QtWidgets.QMainWindow):
             return
 
         x1, y1, x2, y2 = params
-        if abs(x1 - x2) <= 1e-13 and abs(y1 - y2) <= 1e-13:
-            show_err_win("Координаты должны быть отличны.\nВведен вырожденный случай (точка).")
 
         return Point(x1, y1), Point(x2, y2)
 
     def draw_segment(self) -> None:
         p1, p2 = self.get_segment_coords()
+
+        if self.bibl_alg_rbutton.isChecked():
+            line = QGraphicsLineItem(p1.x, p1.y, p2.x, -p2.y)
+            line.setPen(current_line_color)
+            line.setZValue(1)
+            self.scene.addItem(line)
+            return
+
+        current_points = self.get_points(p1, p2)
+        if type(current_points[0]) is Point:
+            for point in current_points:
+                part = QGraphicsRectItem(point.x, -point.y, 1, 1)
+                part.setZValue(1)
+                part.setPen(current_line_color)
+                self.scene.addItem(part)
+        elif type(current_points[0]) is tuple:
+            for i in range(len(current_points)):
+                point = current_points[i][0]
+                intensity = current_points[i][1]
+
+                part = QGraphicsRectItem(point.x, -point.y, 1, 1)
+                part.setZValue(1)
+                part_color = QColor(current_line_color)
+                part_color.setAlpha(int(intensity))
+                part.setPen(part_color)
+                self.scene.addItem(part)
+
+    def get_points(self, p1: Point, p2: Point) -> Union[List[Point], List[Tuple[Point, float]]]:
         if self.brezenhem_int_rbutton.isChecked():
-            brezenhem_int(self, p1, p2)
+            return brezenhem_int(p1, p2)
         elif self.brezenhem_float_rbutton.isChecked():
-            brezenhem_float(self, p1, p2)
+            return brezenhem_float(p1, p2)
         elif self.brezenhem_st_rbutton.isChecked():
-            brezenhem_st(self, p1, p2)
+            return brezenhem_st(p1, p2)
         elif self.cda_alg_rbutton.isChecked():
-            cda(self, p1, p2)
+            return cda(p1, p2)
         elif self.vu_alg_rbutton.isChecked():
-            vu(self, p1, p2)
-        elif self.bibl_alg_rbutton.isChecked():
-            bibl_alg(self, p1, p2)
+            return vu(p1, p2)
 
 
 if __name__ == '__main__':

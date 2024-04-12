@@ -445,6 +445,12 @@ font: 12pt &quot;Segoe UI&quot;;</string>
          <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
            <widget class="QRadioButton" name="brezenhem_int_rbutton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
@@ -460,6 +466,12 @@ font: 11pt &quot;Segoe UI&quot;;
           </item>
           <item>
            <widget class="QRadioButton" name="brezenhem_float_rbutton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
@@ -474,6 +486,12 @@ font: 11pt &quot;Segoe UI&quot;;</string>
           </item>
           <item>
            <widget class="QRadioButton" name="brezenhem_st_rbutton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
@@ -492,6 +510,12 @@ font: 11pt &quot;Segoe UI&quot;;</string>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
            <widget class="QRadioButton" name="cda_alg_rbutton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
@@ -506,6 +530,12 @@ font: 11pt &quot;Segoe UI&quot;;</string>
           </item>
           <item>
            <widget class="QRadioButton" name="vu_alg_rbutton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
@@ -520,6 +550,12 @@ font: 11pt &quot;Segoe UI&quot;;</string>
           </item>
           <item>
            <widget class="QRadioButton" name="bibl_alg_rbutton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
@@ -549,7 +585,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
 border-color: rgb(131, 131, 131);
 gridline-color: rgb(95, 95, 95);
 background-color: rgb(55, 55, 55);
-font: 10pt &quot;Segoe UI&quot;;</string>
+font: 12pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="text">
          <string>Построение отрезка</string>
@@ -568,7 +604,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>130</width>
+            <width>110</width>
             <height>30</height>
            </size>
           </property>
@@ -592,7 +628,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>130</width>
+            <width>110</width>
             <height>30</height>
            </size>
           </property>
@@ -616,7 +652,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>130</width>
+            <width>110</width>
             <height>30</height>
            </size>
           </property>
@@ -640,7 +676,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>130</width>
+            <width>110</width>
             <height>30</height>
            </size>
           </property>
@@ -666,7 +702,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="maximumSize">
          <size>
-          <width>650</width>
+          <width>460</width>
           <height>16777215</height>
          </size>
         </property>
@@ -705,6 +741,18 @@ font: 10pt &quot;Segoe UI&quot;;
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QLineEdit" name="set_xc">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>110</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="styleSheet">
            <string notr="true">border-color: rgb(255, 255, 255);
 color: rgb(255, 255, 255);
@@ -717,6 +765,18 @@ font: 10pt &quot;Segoe UI&quot;;</string>
         </item>
         <item>
          <widget class="QLineEdit" name="set_yc">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>110</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="styleSheet">
            <string notr="true">border-color: rgb(255, 255, 255);
 color: rgb(255, 255, 255);
@@ -729,6 +789,18 @@ font: 10pt &quot;Segoe UI&quot;;</string>
         </item>
         <item>
          <widget class="QLineEdit" name="set_angle">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>110</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="styleSheet">
            <string notr="true">border-color: rgb(255, 255, 255);
 color: rgb(255, 255, 255);
@@ -741,6 +813,18 @@ font: 10pt &quot;Segoe UI&quot;;</string>
         </item>
         <item>
          <widget class="QLineEdit" name="set_length">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>110</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="styleSheet">
            <string notr="true">border-color: rgb(255, 255, 255);
 color: rgb(255, 255, 255);
@@ -755,6 +839,18 @@ font: 10pt &quot;Segoe UI&quot;;</string>
       </item>
       <item>
        <widget class="QPushButton" name="draw_spektr_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>460</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">color: rgb(200, 200, 200);
 font: 10pt &quot;Segoe UI&quot;;
@@ -777,7 +873,7 @@ background-color: rgb(86, 86, 86);</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>300</width>
+            <width>230</width>
             <height>50</height>
            </size>
           </property>
@@ -802,7 +898,7 @@ background-color: rgb(75, 75, 75);</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>300</width>
+            <width>230</width>
             <height>50</height>
            </size>
           </property>
