@@ -1,5 +1,7 @@
 import sys
+from time import time
 from math import radians, cos, sin
+from matplotlib import pyplot
 
 from typing import List, Tuple, Union
 
@@ -18,6 +20,7 @@ grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
 
 scale: float = 1.0
+num_tests: int = 50
 
 is_pressed: bool = False
 
@@ -86,6 +89,9 @@ class Ui(QtWidgets.QMainWindow):
         self.aqua_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkCyan))
         self.purple_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkMagenta))
         self.gray_bg_rbutton.clicked.connect(lambda: self.set_bg_color(QColor(56, 56, 56)))
+
+        self.ladder_test_button.clicked.connect(self.ladder_test)
+        self.time_test_button.clicked.connect(self.time_test)
 
         self.draw_segment_button.clicked.connect(self.draw_segment)
         self.draw_spektr_button.clicked.connect(self.draw_spectre)
@@ -244,14 +250,10 @@ class Ui(QtWidgets.QMainWindow):
 
             p1, p2 = params
 
-        if self.bibl_alg_rbutton.isChecked():
-            line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
-            line.setPen(current_line_color)
-            line.setZValue(1)
-            self.scene.addItem(line)
+        current_points = self.get_points(p1, p2)
+        if not current_points:
             return
 
-        current_points = self.get_points(p1, p2)
         if type(current_points[0]) is Point:
             for point in current_points:
                 part = QGraphicsRectItem(point.x, -point.y, 1, 1)
@@ -276,10 +278,11 @@ class Ui(QtWidgets.QMainWindow):
             return
 
         point, angle, length = params
-        print(angle, length)
+
         cur_angle = 0
         while cur_angle < 360:
-            self.draw_segment(point, Point(point.x + length * cos(radians(cur_angle)), point.y + length * sin(radians(cur_angle))))
+            self.draw_segment(point, Point(point.x + length * cos(radians(cur_angle)),
+                                           point.y + length * sin(radians(cur_angle))))
             cur_angle += angle
 
     def get_spectre_coeff(self) -> Union[Tuple[Point, float, float], None]:
@@ -308,9 +311,99 @@ class Ui(QtWidgets.QMainWindow):
             return cda(p1, p2)
         elif self.vu_alg_rbutton.isChecked():
             return vu(p1, p2)
+        elif self.bibl_alg_rbutton.isChecked():
+            line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
+            line.setPen(current_line_color)
+            line.setZValue(1)
+            self.scene.addItem(line)
+            return []
+
+    def ladder_test(self):
+        pass
+
+    def time_test(self):
+        params = self.get_spectre_coeff()
+        if params is None:
+            return
+
+        point, angle, length = params
+        run_times = []
+        for alg in [brezenhem_int, brezenhem_float, brezenhem_st, cda, vu]:
+            sum_time = 0
+
+            for _ in range(num_tests):
+                start = time()
+                cur_angle = 0
+                while cur_angle < 360:
+                    alg(point, Point(point.x + length * cos(radians(cur_angle)),
+                                     point.y + length * sin(radians(cur_angle))))
+                    cur_angle += angle
+                sum_time += time() - start
+
+            run_times.append(sum_time / num_tests)
+
+        pyplot.figure(figsize=(20, 20))
+        pyplot.title("Сравнение времени работы алгоритмов")
+        pyplot.xlabel("Название алгоритма")
+        pyplot.ylabel("Время, с")
+        pyplot.bar(["Брезенхем int", "Брезенхем float", "Брезенхем с устранением ступенчатости", "ЦДА", "Ву"],
+                   run_times, color='green')
+        if not FUNC_TESTING:
+            pyplot.show()
+        else:
+            pyplot.savefig(f'test.png')
 
 
 if __name__ == '__main__':
+    start = time()
+    global test_i
     app = QtWidgets.QApplication(sys.argv)
     window = Ui()
-    sys.exit(app.exec_())
+
+    FUNC_TESTING = False
+    if len(sys.argv) > 7:
+        FUNC_TESTING = True
+        test_i = int(sys.argv[1])
+        if sys.argv[7] == 'br_int':
+            window.brezenhem_int_rbutton.setChecked(True)
+        elif sys.argv[7] == 'br_float':
+            window.brezenhem_float_rbutton.setChecked(True)
+        elif sys.argv[7] == 'cda':
+            window.cda_alg_rbutton.setChecked(True)
+        elif sys.argv[7] == 'vu':
+            window.vu_alg_rbutton.setChecked(True)
+        elif sys.argv[7] == 'bibl':
+            window.bibl_alg_rbutton.setChecked(True)
+        elif sys.argv[7] == 'br_st':
+            window.brezenhem_st_rbutton.setChecked(True)
+
+        if sys.argv[2] == 'segment':
+            x1 = float(sys.argv[3])
+            y1 = float(sys.argv[4])
+            x2 = float(sys.argv[5])
+            y2 = float(sys.argv[6])
+
+            window.draw_segment(Point(x1, y1), Point(x2, y2))
+
+        elif sys.argv[2] == 'spectre':
+            xc = float(sys.argv[3])
+            yc = float(sys.argv[4])
+            angle = float(sys.argv[5])
+            length = float(sys.argv[6])
+
+            if sys.argv[7] == 'time_test':
+                window.time_test()
+            elif sys.argv[7] == 'ladder_test':
+                window.ladder_test()
+            else:
+                window.draw_spectre()
+
+    if FUNC_TESTING:
+        screenshot = window.grab()
+        screenshot.save(f'./results/test_{test_i}.png', 'png')
+        end = time()
+        time_elapsed = (end - start) * 1000
+        with open(f'report-functesting-latest.txt', 'a+') as f:
+            f.write(f'{test_i}. Time elapsed: {time_elapsed:.2f} mc.\n')
+    else:
+        sys.exit(app.exec_())
