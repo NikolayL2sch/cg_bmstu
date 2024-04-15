@@ -12,8 +12,9 @@ def sign(n: Union[int, float]) -> int:
     return 1
 
 
-def brezenhem_int(p1: Point, p2: Point) -> List[Point]:
+def brezenhem_int(p1: Point, p2: Point, testing=False) -> Union[List[Point], int]:
     points = []
+    steps = 0
 
     if abs(p1.x - p2.x) <= 1e-13 and abs(p1.y - p2.y) <= 1e-13:
         points.append(Point(p1.x, p1.y))
@@ -23,41 +24,52 @@ def brezenhem_int(p1: Point, p2: Point) -> List[Point]:
     dy = p2.y - p1.y
     sx = sign(dx)
     sy = sign(dy)
+
     dx = abs(dx)
     dy = abs(dy)
 
-    m = dy / dx
-    if m > 1:
+    if dy > dx:
         dx, dy = dy, dx
-        m = 1 / m
-        fl = True
+        swap = True
     else:
-        fl = False
+        swap = False
 
     f = 2 * dy - dx
     x = p1.x
     y = p1.y
 
+    x_ = x
+    y_ = y
+
     for i in range(1, int(dx + 1)):
-        points.append(Point(x, y))
-        if f > 0:
-            if fl:
+        if not testing:
+            points.append(Point(x, y))
+
+        if f >= 0:
+            if swap:
                 x += sx
             else:
                 y += sy
             f -= 2 * dx
-        else:
-            if fl:
+        if f <= 0:
+            if swap:
                 y += sy
             else:
                 x += sx
             f += 2 * dy
 
-    return points
+        if testing:
+            if abs(x_ - x) > 1e-13 or abs(y_ - y) > 1e-13:
+                steps += 1
+            x_ = x
+            y_ = y
+
+    return points if not testing else steps
 
 
-def brezenhem_float(p1: Point, p2: Point) -> List[Point]:
+def brezenhem_float(p1: Point, p2: Point, testing=False) -> Union[List[Point], int]:
     points = []
+    steps = 0
 
     if abs(p1.x - p2.x) <= 1e-13 and abs(p1.y - p2.y) <= 1e-13:
         points.append(Point(p1.x, p1.y))
@@ -70,7 +82,10 @@ def brezenhem_float(p1: Point, p2: Point) -> List[Point]:
     dx = abs(dx)
     dy = abs(dy)
 
-    m = dy / dx
+    if dx <= 1e-13:
+        m = 10e9
+    else:
+        m = dy / dx
 
     if m > 1:
         dx, dy = dy, dx
@@ -84,25 +99,35 @@ def brezenhem_float(p1: Point, p2: Point) -> List[Point]:
     x = p1.x
     y = p1.y
 
-    for i in range(1, int(dx + 1)):
-        points.append(Point(x, y))
-        if f > 0:
+    x_ = x
+    y_ = y
+
+    for i in range(int(dx + 1)):
+        if not testing:
+            points.append(Point(x, y))
+        if f >= 0:
             if fl:
                 x = x + sx
             else:
                 y = y + sy
             f -= 1
-        else:
+        if f <= 0:
             if fl:
                 y = y + sy
             else:
                 x = x + sx
             f += m
-    return points
+        if testing:
+            if abs(x_ - x) > 1e-13 or abs(y_ - y) > 1e-13:
+                steps += 1
+            x_ = x
+            y_ = y
+    return points if not testing else steps
 
 
-def brezenhem_st(p1: Point, p2: Point) -> List[Tuple[Point, float]]:
+def brezenhem_st(p1: Point, p2: Point, testing=False) -> Union[List[Tuple[Point, float]], int]:
     points = []
+    steps = 0
 
     if abs(p1.x - p2.x) <= 1e-13 and abs(p1.y - p2.y) <= 1e-13:
         points.append((Point(p1.x, p1.y), 255))
@@ -114,21 +139,31 @@ def brezenhem_st(p1: Point, p2: Point) -> List[Tuple[Point, float]]:
     sy = sign(dy)
     dx = abs(dx)
     dy = abs(dy)
-    m = dy / dx
-    if m > 1:
+
+    if dy > dx:
         dx, dy = dy, dx
-        m = 1 / m
         fl = True
     else:
         fl = False
 
-    intensity = 255
+    intensity = 1
     f = intensity / 2
+
+    if abs(dx) < 1e-13:
+        m = 10e9
+    else:
+        m = dy / dx
 
     x = p1.x
     y = p1.y
 
+    x_ = x
+    y_ = y
+
     for i in range(1, int(dx + 1)):
+        if not testing:
+            points.append((Point(x, y), 255 * f))
+
         if f < 1 - m:
             if fl:
                 y += sy
@@ -140,12 +175,16 @@ def brezenhem_st(p1: Point, p2: Point) -> List[Tuple[Point, float]]:
             y += sy
             f -= (1 - m)
 
-        points.append((Point(x, y), f))
+        if testing:
+            if abs(x_ - x) > 1e-13 or abs(y_ - y) > 1e-13:
+                steps += 1
+            x_ = x
+            y_ = y
 
-    return points
+    return points if not testing else steps
 
 
-def cda(p1: Point, p2: Point) -> List[Point]:
+def cda(p1: Point, p2: Point, testing=False) -> Union[List[Point], int]:
     points = []
 
     if abs(p1.x - p2.x) <= 1e-13 and abs(p1.y - p2.y) <= 1e-13:
@@ -163,25 +202,36 @@ def cda(p1: Point, p2: Point) -> List[Point]:
     x = p1.x
     y = p1.y
 
-    for i in range(1, int(L + 1)):
-        points.append(Point(round(x), round(y)))
+    x_ = x
+    y_ = y
+
+    steps = 0
+
+    for _ in range(int(L)):
+        if testing:
+            x_ = x
+            y_ = y
         x = x + dx
         y = y + dy
+        if not testing:
+            points.append(Point(round(x), round(y)))
+        elif round(x_) != round(x) and round(y_) != round(y):
+            steps += 1
 
-    return points
+    return points if not testing else steps
 
 
-def vu(p1: Point, p2: Point, counting_steps=False) -> List[Tuple[Point, float]]:
+def vu(p1: Point, p2: Point, testing=False) -> Union[List[Tuple[Point, float]], int]:
     points = []
 
     count_steps = 0
+
     if abs(p1.x - p2.x) <= 1e-13 and abs(p1.y - p2.y) <= 1e-13:
         points.append((Point(p1.x, p1.y), 255))
         return points
 
     dx = p2.x - p1.x
     dy = p2.y - p1.y
-
     intensity = 1
     step = 1
 
@@ -201,7 +251,7 @@ def vu(p1: Point, p2: Point, counting_steps=False) -> List[Tuple[Point, float]]:
             d1 = p1.x - floor(p1.x)
             d2 = 1 - d1
 
-            if not counting_steps:
+            if not testing:
                 points.append((Point(int(p1.x) + 1, y), round(fabs(d1) * 255)))
                 points.append((Point(int(p1.x), y), round(fabs(d2) * 255)))
             elif y < round(p2.y) and int(p1.x) != int(p1.x + intensity):
@@ -212,10 +262,10 @@ def vu(p1: Point, p2: Point, counting_steps=False) -> List[Tuple[Point, float]]:
         if dx != 0:
             intensity = dy / dx
 
-        temp_intensity_coefficient = intensity
+        tmp_intensity = intensity
 
         if p1.x > p2.x:
-            temp_intensity_coefficient *= -1
+            tmp_intensity *= -1
             step *= -1
 
         end = round(p2.x) - 1 if dx < dy else round(p2.x) + 1
@@ -224,12 +274,11 @@ def vu(p1: Point, p2: Point, counting_steps=False) -> List[Tuple[Point, float]]:
             d1 = p1.y - floor(p1.y)
             d2 = 1 - d1
 
-            if not counting_steps:
+            if not testing:
                 points.append((Point(x, int(p1.y) + 1), round(fabs(d1) * 255)))
-                points.append((Point(x, int(p1.y)), round(fabs(d2) * 255)))
+                points.append((Point(x, int(p1.y)), round(fabs(d2) * 100)))
             elif x < round(p2.x) and int(p1.y) != int(p1.y + intensity):
                 count_steps += 1
 
-            p1.y += temp_intensity_coefficient
-
-    return points if not counting_steps else count_steps
+            p1.y += tmp_intensity
+    return points if not testing else count_steps

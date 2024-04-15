@@ -272,17 +272,19 @@ class Ui(QtWidgets.QMainWindow):
                 part.setPen(part_color)
                 self.scene.addItem(part)
 
-    def draw_spectre(self) -> None:
-        params = self.get_spectre_coeff()
-        if params is None:
-            return
+    def draw_spectre(self, center: Point = None, angle: float = None, length: float = None) -> None:
+        if center is None or angle is None or length is None:
+            params = self.get_spectre_coeff()
+            if params is None:
+                return
 
-        point, angle, length = params
+            center, angle, length = params
 
         cur_angle = 0
+
         while cur_angle < 360:
-            self.draw_segment(point, Point(point.x + length * cos(radians(cur_angle)),
-                                           point.y + length * sin(radians(cur_angle))))
+            self.draw_segment(Point(center.x, center.y), Point(center.x + length * cos(radians(cur_angle)),
+                                                               center.y + length * sin(radians(cur_angle))))
             cur_angle += angle
 
     def get_spectre_coeff(self) -> Union[Tuple[Point, float, float], None]:
@@ -355,8 +357,8 @@ class Ui(QtWidgets.QMainWindow):
 
 
 if __name__ == '__main__':
-    start = time()
     global test_i
+    start_testing = time()
     app = QtWidgets.QApplication(sys.argv)
     window = Ui()
 
@@ -378,31 +380,30 @@ if __name__ == '__main__':
             window.brezenhem_st_rbutton.setChecked(True)
 
         if sys.argv[2] == 'segment':
-            x1 = float(sys.argv[3])
-            y1 = float(sys.argv[4])
-            x2 = float(sys.argv[5])
-            y2 = float(sys.argv[6])
+            x_1 = float(sys.argv[3])
+            y_1 = float(sys.argv[4])
+            x_2 = float(sys.argv[5])
+            y_2 = float(sys.argv[6])
 
-            window.draw_segment(Point(x1, y1), Point(x2, y2))
+            window.draw_segment(Point(x_1, y_1), Point(x_2, y_2))
 
         elif sys.argv[2] == 'spectre':
-            xc = float(sys.argv[3])
-            yc = float(sys.argv[4])
-            angle = float(sys.argv[5])
-            length = float(sys.argv[6])
+            xc_ = float(sys.argv[3])
+            yc_ = float(sys.argv[4])
+            angle_ = float(sys.argv[5])
+            length_ = float(sys.argv[6])
 
             if sys.argv[7] == 'time_test':
                 window.time_test()
             elif sys.argv[7] == 'ladder_test':
                 window.ladder_test()
             else:
-                window.draw_spectre()
+                window.draw_spectre(Point(xc_, yc_), angle_, length_)
 
     if FUNC_TESTING:
         screenshot = window.grab()
         screenshot.save(f'./results/test_{test_i}.png', 'png')
-        end = time()
-        time_elapsed = (end - start) * 1000
+        time_elapsed = (time() - start_testing) * 1000
         with open(f'report-functesting-latest.txt', 'a+') as f:
             f.write(f'{test_i}. Time elapsed: {time_elapsed:.2f} mc.\n')
     else:
