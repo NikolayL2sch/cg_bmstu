@@ -59,7 +59,7 @@ def brezenhem_int(p1: Point, p2: Point, testing=False) -> Union[List[Point], int
             f += 2 * dy
 
         if testing:
-            if abs(x_ - x) > 1e-13 or abs(y_ - y) > 1e-13:
+            if abs(x_ - x) > 1e-13 and abs(y_ - y) > 1e-13:
                 steps += 1
             x_ = x
             y_ = y
@@ -118,7 +118,7 @@ def brezenhem_float(p1: Point, p2: Point, testing=False) -> Union[List[Point], i
                 x = x + sx
             f += m
         if testing:
-            if abs(x_ - x) > 1e-13 or abs(y_ - y) > 1e-13:
+            if abs(x_ - x) > 1e-13 and abs(y_ - y) > 1e-13:
                 steps += 1
             x_ = x
             y_ = y
@@ -176,7 +176,7 @@ def brezenhem_st(p1: Point, p2: Point, testing=False) -> Union[List[Tuple[Point,
             f -= (1 - m)
 
         if testing:
-            if abs(x_ - x) > 1e-13 or abs(y_ - y) > 1e-13:
+            if abs(x_ - x) > 1e-13 and abs(y_ - y) > 1e-13:
                 steps += 1
             x_ = x
             y_ = y
@@ -191,13 +191,16 @@ def cda(p1: Point, p2: Point, testing=False) -> Union[List[Point], int]:
         points.append(Point(p1.x, p1.y))
         return points
 
-    if abs(p2.x - p1.x) > abs(p2.y - p1.y):
-        L = abs(p2.x - p1.x)
-    else:
-        L = abs(p2.y - p1.y)
+    dx = p2.x - p1.x
+    dy = p2.y - p1.y
 
-    dx = (p2.x - p1.x) / L
-    dy = (p2.y - p1.y) / L
+    if abs(dx) > abs(dy):
+        L = abs(dx)
+    else:
+        L = abs(dy)
+
+    dx /= L
+    dy /= L
 
     x = p1.x
     y = p1.y
@@ -211,8 +214,8 @@ def cda(p1: Point, p2: Point, testing=False) -> Union[List[Point], int]:
         if testing:
             x_ = x
             y_ = y
-        x = x + dx
-        y = y + dy
+        x += dx
+        y += dy
         if not testing:
             points.append(Point(round(x), round(y)))
         elif round(x_) != round(x) and round(y_) != round(y):

@@ -6,5 +6,7 @@ jq -c '.[]' "func_tests.json" | while IFS= read -r row; do
     touch ./results/"$name"_desc.txt
     echo -e "$desc" > ./results/"$name"_desc.txt
 
-    eval "python main.py "$input_args""
+    eval "coverage run -a main.py "$input_args""
 done
+
+eval "coverage report" >> "./report-functesting-latest.txt"

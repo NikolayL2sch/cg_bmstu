@@ -69,7 +69,7 @@ checkall:
 	@if [ ! -d "./out/results" ]; then \
 		mkdir -p ./out/results; \
 	fi
-	@pydeps main.py --cluster --max-bacon=5 -o ./out/results/main.svg
+	@pydeps main.py --cluster --max-bacon=3 -o ./out/results/main.svg
 	@ruff check > ./out/results/ruff_check.txt
 	@code2flow .
 	@mv out.gv out.png ./out/results/

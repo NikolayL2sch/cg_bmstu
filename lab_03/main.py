@@ -31,7 +31,7 @@ current_line_color: QColor = QColor(255, 0, 0)
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./lab_03/template.ui", self)  # временно в корне
+        uic.loadUi("./out/template.ui", self)  # временно в корне
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -75,20 +75,31 @@ class Ui(QtWidgets.QMainWindow):
         self.bibl_alg_rbutton.setChecked(True)
 
         # line color radio buttons
-        self.blue_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.blue))
-        self.red_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.red))
-        self.green_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkGreen))
-        self.aqua_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkCyan))
-        self.purple_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkMagenta))
-        self.yellow_line_rbutton.clicked.connect(lambda: self.set_lines_color(Qt.darkYellow))
+        self.blue_line_rbutton.clicked.connect(
+            lambda: self.set_lines_color(Qt.blue))
+        self.red_line_rbutton.clicked.connect(
+            lambda: self.set_lines_color(Qt.red))
+        self.green_line_rbutton.clicked.connect(
+            lambda: self.set_lines_color(Qt.darkGreen))
+        self.aqua_line_rbutton.clicked.connect(
+            lambda: self.set_lines_color(Qt.darkCyan))
+        self.purple_line_rbutton.clicked.connect(
+            lambda: self.set_lines_color(Qt.darkMagenta))
+        self.yellow_line_rbutton.clicked.connect(
+            lambda: self.set_lines_color(Qt.darkYellow))
 
         # background color radio buttons
-        self.blue_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.blue))
+        self.blue_bg_rbutton.clicked.connect(
+            lambda: self.set_bg_color(Qt.blue))
         self.red_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.red))
-        self.green_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkGreen))
-        self.aqua_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkCyan))
-        self.purple_bg_rbutton.clicked.connect(lambda: self.set_bg_color(Qt.darkMagenta))
-        self.gray_bg_rbutton.clicked.connect(lambda: self.set_bg_color(QColor(56, 56, 56)))
+        self.green_bg_rbutton.clicked.connect(
+            lambda: self.set_bg_color(Qt.darkGreen))
+        self.aqua_bg_rbutton.clicked.connect(
+            lambda: self.set_bg_color(Qt.darkCyan))
+        self.purple_bg_rbutton.clicked.connect(
+            lambda: self.set_bg_color(Qt.darkMagenta))
+        self.gray_bg_rbutton.clicked.connect(
+            lambda: self.set_bg_color(QColor(56, 56, 56)))
 
         self.ladder_test_button.clicked.connect(self.ladder_test)
         self.time_test_button.clicked.connect(self.time_test)
@@ -119,7 +130,8 @@ class Ui(QtWidgets.QMainWindow):
         scale = self.graphicsView.transform().m11()
         if self.need_grid():
             for grid_line in grid_lines:
-                self.scene.removeItem(grid_line)
+                if grid_line in self.scene.items():
+                    self.scene.removeItem(grid_line)
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -139,7 +151,8 @@ class Ui(QtWidgets.QMainWindow):
             last_pos = event.pos()
             if self.need_grid():
                 for grid_line in grid_lines:
-                    grid_line.deleteLater()
+                    if grid_line in self.scene.items():
+                        self.scene.removeItem(grid_line)
                 self.add_grid()
         scene_pos = self.graphicsView.mapToScene(event.pos())
         self.current_coords_label.setText(
@@ -320,15 +333,58 @@ class Ui(QtWidgets.QMainWindow):
             self.scene.addItem(line)
             return []
 
-    def ladder_test(self):
-        pass
+    def ladder_test(self, *args):
+        if isinstance(args[0], bool):
+            params = self.get_spectre_coeff()
+            if params is None:
+                return
+            point, angle, length = params
+        else:
+            x, y, angle, length = args
+            point = Point(x, y)
 
-    def time_test(self):
-        params = self.get_spectre_coeff()
-        if params is None:
-            return
+        steps = [[] for _ in range(5)]
+        step = 5
+        cur_angle = 0
 
-        point, angle, length = params
+        while cur_angle < 90:
+            for i, alg in enumerate([cda, brezenhem_float, brezenhem_int, brezenhem_st, vu]):
+                cur_steps = alg(Point(point.x, point.y), Point(point.x + length * cos(radians(cur_angle)),
+                                                               point.y + length * sin(radians(cur_angle))), True)
+                steps[i].append(cur_steps)
+
+            cur_angle += step
+
+        pyplot.figure(figsize=(20, 20))
+        pyplot.title(f"Сравнение ступенчатости алгоритмов при разных углах, длина: {length}")
+        pyplot.xlabel("Угол, °")
+        pyplot.ylabel("Кол-во ступенек")
+
+        pyplot.plot([_ for _ in range(0, 90, step)], steps[0], "*", label="ЦДА")
+        pyplot.plot([_ for _ in range(0, 90, step)], steps[1], "-.", label="Брезенхем float")
+        pyplot.plot([_ for _ in range(0, 90, step)], steps[2], "-", label="Брезенхем int")
+        pyplot.plot([_ for _ in range(0, 90, step)], steps[3], ":", label="Брезенхем (сглаживание)")
+        pyplot.plot([_ for _ in range(0, 90, step)], steps[4], "--", label="Ву")
+
+        pyplot.xticks([_ for _ in range(0, 91, step)])
+        pyplot.legend()
+
+        if not FUNC_TESTING:
+            pyplot.show()
+        else:
+            pyplot.savefig(f'./results/ladder_test_{test_i}.png')
+
+    def time_test(self, *args):
+        if isinstance(args[0], bool):
+            params = self.get_spectre_coeff()
+            if params is None:
+                return
+
+            point, angle, length = params
+        else:
+            x, y, angle, length = args
+            point = Point(x, y)
+
         run_times = []
         for alg in [brezenhem_int, brezenhem_float, brezenhem_st, cda, vu]:
             sum_time = 0
@@ -353,7 +409,7 @@ class Ui(QtWidgets.QMainWindow):
         if not FUNC_TESTING:
             pyplot.show()
         else:
-            pyplot.savefig(f'test.png')
+            pyplot.savefig(f'./results/time_test_{test_i}.png')
 
 
 if __name__ == '__main__':
@@ -394,9 +450,9 @@ if __name__ == '__main__':
             length_ = float(sys.argv[6])
 
             if sys.argv[7] == 'time_test':
-                window.time_test()
+                window.time_test(xc_, yc_, angle_, length_)
             elif sys.argv[7] == 'ladder_test':
-                window.ladder_test()
+                window.ladder_test(xc_, yc_, angle_, length_)
             else:
                 window.draw_spectre(Point(xc_, yc_), angle_, length_)
 
@@ -404,7 +460,7 @@ if __name__ == '__main__':
         screenshot = window.grab()
         screenshot.save(f'./results/test_{test_i}.png', 'png')
         time_elapsed = (time() - start_testing) * 1000
-        with open(f'report-functesting-latest.txt', 'a+') as f:
+        with open('report-functesting-latest.txt', 'a+') as f:
             f.write(f'{test_i}. Time elapsed: {time_elapsed:.2f} mc.\n')
     else:
         sys.exit(app.exec_())
