@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>800</height>
+    <height>900</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,7 +22,7 @@
   <property name="minimumSize">
    <size>
     <width>1000</width>
-    <height>800</height>
+    <height>900</height>
    </size>
   </property>
   <property name="font">
@@ -33,7 +33,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>lab_03</string>
+   <string>lab_04</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -72,7 +72,7 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -89,7 +89,86 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="line_color_label">
+       <widget class="QLabel" name="figure_type_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 12pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+        </property>
+        <property name="text">
+         <string>Тип фигуры</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QRadioButton" name="circle_rb">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>222</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+          </property>
+          <property name="text">
+           <string>Окружность</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="ellipse_rb">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>222</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);</string>
+          </property>
+          <property name="text">
+           <string>Эллипс</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="figure_color_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -118,7 +197,7 @@ gridline-color: rgb(95, 95, 95);
 background-color: rgb(55, 55, 55);</string>
         </property>
         <property name="text">
-         <string>Цвет линий</string>
+         <string>Цвет фигуры</string>
         </property>
        </widget>
       </item>
@@ -129,7 +208,7 @@ background-color: rgb(55, 55, 55);</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="QRadioButton" name="blue_line_rbutton">
+             <widget class="QRadioButton" name="blue_figure_rbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -149,7 +228,7 @@ background-color: rgb(55, 55, 55);</string>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="red_line_rbutton">
+             <widget class="QRadioButton" name="red_figure_rbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -169,7 +248,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="green_line_rbutton">
+             <widget class="QRadioButton" name="green_figure_rbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -193,7 +272,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <widget class="QRadioButton" name="aqua_line_rbutton">
+             <widget class="QRadioButton" name="aqua_figure_rbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -213,7 +292,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="purple_line_rbutton">
+             <widget class="QRadioButton" name="purple_figure_rbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -233,7 +312,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="yellow_line_rbutton">
+             <widget class="QRadioButton" name="yellow_figure_rbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -420,7 +499,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="rotate_label">
+       <widget class="QLabel" name="draw_method_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -435,7 +514,7 @@ background-color: rgb(55, 55, 55);
 font: 12pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="text">
-         <string>Алгоритм построения</string>
+         <string>Метод построения</string>
         </property>
        </widget>
       </item>
@@ -444,7 +523,7 @@ font: 12pt &quot;Segoe UI&quot;;</string>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
-           <widget class="QRadioButton" name="brezenhem_int_rbutton">
+           <widget class="QRadioButton" name="brezenhem_rbutton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -460,12 +539,12 @@ font: 11pt &quot;Segoe UI&quot;;
 </string>
             </property>
             <property name="text">
-             <string>Брезенхем (int)</string>
+             <string>Брезенхем</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="brezenhem_float_rbutton">
+           <widget class="QRadioButton" name="canonical_rbutton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -480,12 +559,12 @@ background-color: rgb(55, 55, 55);
 font: 11pt &quot;Segoe UI&quot;;</string>
             </property>
             <property name="text">
-             <string>Брезенхем (float)</string>
+             <string>Канонический</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="brezenhem_st_rbutton">
+           <widget class="QRadioButton" name="param_rbutton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -500,7 +579,7 @@ background-color: rgb(55, 55, 55);
 font: 11pt &quot;Segoe UI&quot;;</string>
             </property>
             <property name="text">
-             <string>Брезенхем (без ступ.)</string>
+             <string>Параметрический</string>
             </property>
            </widget>
           </item>
@@ -509,7 +588,7 @@ font: 11pt &quot;Segoe UI&quot;;</string>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <widget class="QRadioButton" name="cda_alg_rbutton">
+           <widget class="QRadioButton" name="middle_point_rbutton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -524,27 +603,7 @@ background-color: rgb(55, 55, 55);
 font: 11pt &quot;Segoe UI&quot;;</string>
             </property>
             <property name="text">
-             <string>ЦДА</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="vu_alg_rbutton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: rgb(200, 200, 200);
-border-color: rgb(131, 131, 131);
-gridline-color: rgb(95, 95, 95);
-background-color: rgb(55, 55, 55);
-font: 11pt &quot;Segoe UI&quot;;</string>
-            </property>
-            <property name="text">
-             <string>Ву</string>
+             <string>Средней точки</string>
             </property>
            </widget>
           </item>
@@ -588,159 +647,201 @@ background-color: rgb(55, 55, 55);
 font: 12pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="text">
-         <string>Построение отрезка</string>
+         <string>Построение фигуры выбранного типа</string>
         </property>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
-        <item>
-         <widget class="QLineEdit" name="set_x1">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>x1</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="set_y1">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>y1</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="set_x2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>x2</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="set_y2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>y2</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QPushButton" name="draw_segment_button">
+       <widget class="QStackedWidget" name="stackedWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize">
+        <property name="minimumSize">
          <size>
-          <width>460</width>
-          <height>16777215</height>
+          <width>450</width>
+          <height>170</height>
          </size>
         </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <widget class="QWidget" name="page_1">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>100</height>
+          </size>
+         </property>
+         <widget class="QPushButton" name="draw_circle_button">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>40</y>
+            <width>451</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>460</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
 font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(86, 86, 86);</string>
-        </property>
-        <property name="text">
-         <string>Построить отрезок</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="draw_spektr_label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
+          </property>
+          <property name="text">
+           <string>Построить окружность</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>451</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <widget class="QLineEdit" name="set_x">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>x центра</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_y">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>y центра</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_r">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>Радиус</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QLabel" name="draw_spektr_label">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>70</y>
+            <width>200</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
 border-color: rgb(131, 131, 131);
 gridline-color: rgb(95, 95, 95);
 background-color: rgb(55, 55, 55);
-font: 10pt &quot;Segoe UI&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Построение спектра</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLineEdit" name="set_xc">
+font: 12pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Построение спектра</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="draw_spektr_button">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>140</y>
+            <width>451</width>
+            <height>32</height>
+           </rect>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -749,116 +850,408 @@ font: 10pt &quot;Segoe UI&quot;;
           </property>
           <property name="maximumSize">
            <size>
-            <width>110</width>
+            <width>460</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>x центра</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="set_yc">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>y центра</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="set_angle">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>угол спектра</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="set_length">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>110</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(255, 255, 255);
-color: rgb(255, 255, 255);
-font: 10pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="placeholderText">
-           <string>длина</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QPushButton" name="draw_spektr_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
+           <string notr="true">color: rgb(200, 200, 200);
 font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(86, 86, 86);</string>
-        </property>
-        <property name="text">
-         <string>Построить спектр</string>
-        </property>
+          </property>
+          <property name="text">
+           <string>Построить спектр</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>100</y>
+            <width>451</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLineEdit" name="set_r_start">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>нач радиус</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_r_end">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>кон радиус</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_circle_count">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>кол-во окр</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_step">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>шаг</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_2">
+         <widget class="QWidget" name="horizontalLayoutWidget_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>451</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_x">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>x центра</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_y">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>y центра</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_width">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>ширина</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_height">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>высота</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="draw_ellipse_button">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>50</y>
+            <width>451</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>460</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+          </property>
+          <property name="text">
+           <string>Построить эллипс</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="draw_spektr_label_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>80</y>
+            <width>200</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+border-color: rgb(131, 131, 131);
+gridline-color: rgb(95, 95, 95);
+background-color: rgb(55, 55, 55);
+font: 12pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Построение спектра</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_5">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>100</y>
+            <width>451</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QLineEdit" name="set_spektr_width">
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>ширина</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_spektr_height">
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>высота</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_step_x">
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>шаг по x</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_step_y">
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>шаг по y</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_ellipse_count">
+             <property name="styleSheet">
+              <string notr="true">border-color: rgb(255, 255, 255);
+color: rgb(255, 255, 255);
+font: 10pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="placeholderText">
+              <string>кол-во</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="draw_ellipse_button_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>140</y>
+            <width>451</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>460</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+          </property>
+          <property name="text">
+           <string>Построить эллипс</string>
+          </property>
+         </widget>
+        </widget>
        </widget>
       </item>
       <item>
@@ -896,18 +1289,6 @@ background-color: rgb(86, 86, 86);</string>
           </property>
           <property name="text">
            <string>Тест на время</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="ladder_test_button">
-          <property name="styleSheet">
-           <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
-          </property>
-          <property name="text">
-           <string>Тест на ступенчатость</string>
           </property>
          </widget>
         </item>

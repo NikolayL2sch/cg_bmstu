@@ -21,7 +21,7 @@ def show_author():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle("Об авторе")
-    msg.setText("Лабораторная работа №3.\nРазработал Миленко Николай ИУ7-45Б")
+    msg.setText("Лабораторная работа №4.\nРазработал Миленко Николай ИУ7-45Б")
     msg.exec_()
 
 
