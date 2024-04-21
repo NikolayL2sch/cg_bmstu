@@ -860,7 +860,7 @@ font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(86, 86, 86);</string>
           </property>
           <property name="text">
-           <string>Построить спектр</string>
+           <string>Построить спектр окружностей</string>
           </property>
          </widget>
          <widget class="QWidget" name="horizontalLayoutWidget_3">
@@ -1248,7 +1248,7 @@ font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(86, 86, 86);</string>
           </property>
           <property name="text">
-           <string>Построить эллипс</string>
+           <string>Построить спектр эллипсов</string>
           </property>
          </widget>
         </widget>

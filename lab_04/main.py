@@ -1,16 +1,18 @@
 import sys
 from time import time
 
-from typing import List
+from typing import List, Tuple
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QButtonGroup
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QButtonGroup, QGraphicsEllipseItem, QGraphicsRectItem
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QBrush
 
-from dialogs import show_author, show_task, show_instruction
+from dialogs import show_author, show_task, show_instruction, show_err_win
 from class_point import Point
+from input_checks import params_to_float
+from circle_algs import circle_brezenhem, circle_canonical, circle_param, circle_middle_point
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -103,7 +105,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.time_test_button.clicked.connect(self.time_test)
         self.draw_circle_button.clicked.connect(self.draw_circle)
-        self.draw_spektr_button.clicked.connect(self.draw_spectre)
+        self.draw_spektr_button.clicked.connect(self.draw_circle_spectre)
         self.clear_button.clicked.connect(self.clear_scene)
 
         self.graphicsView.setMouseTracking(True)
@@ -221,13 +223,13 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(axis_x)
         self.scene.addItem(axis_y)
 
-    def set_lines_color(self, color: QColor) -> None:
+    def set_figure_color(self, color: QColor) -> None:
         global current_line_color
         current_line_color = color
-        lines = self.scene.items()
-        for line in lines:
-            if line not in grid_lines:
-                line.setPen(current_line_color)
+        objects = self.scene.items()
+        for obj in objects:
+            if obj not in grid_lines:
+                obj.setPen(current_line_color)
 
     def set_bg_color(self, color: QColor) -> None:
         background_brush = QBrush(color)
@@ -241,11 +243,56 @@ class Ui(QtWidgets.QMainWindow):
     def time_test(self):
         pass
 
-    def draw_circle(self):
+    def draw_circle(self, center: Point = None, r: float = None):
+        if center is None or r is None:
+            params = self.get_circle_params()
+            if params is None:
+                return
+            center, r = params
+
+        if r <= 0.0:
+            show_err_win("Радиус должен быть положительным числом")
+            return
+
+        circle_points = self.get_circle_points(center, r)
+        if not circle_points:
+            return
+        for point in circle_points:
+            part = QGraphicsRectItem(point.x, -point.y, 1, 1)
+            part.setZValue(1)
+            part.setPen(current_line_color)
+            self.scene.addItem(part)
+
+    def draw_circle_spectre(self):
         pass
 
-    def draw_spectre(self):
-        pass
+    def get_circle_points(self, center: Point, r: float) -> List[Point]:
+        if self.brezenhem_rbutton.isChecked():
+            return circle_brezenhem(center, r)
+        elif self.canonical_rbutton.isChecked():
+            return circle_canonical(center, r)
+        elif self.param_rbutton.isChecked():
+            return circle_param(center, r)
+        elif self.middle_point_rbutton.isChecked():
+            return circle_middle_point(center, r)
+        elif self.bibl_alg_rbutton.isChecked():
+            circle = QGraphicsEllipseItem(-r + center.x, r - center.y, 2 * r, - 2 * r)
+            circle.setPen(current_line_color)
+            circle.setZValue(1)
+            self.scene.addItem(circle)
+            return []
+
+    def get_circle_params(self) -> Tuple[Point, float]:
+        x_c_str = self.set_x.text()
+        y_c_str = self.set_y.text()
+        r_str = self.set_r.text()
+        params = params_to_float(x_c_str, y_c_str, r_str)
+
+        if len(params) == 0:
+            return
+
+        x_c, y_c, r = params
+        return Point(x_c, y_c), r
 
 
 if __name__ == '__main__':
