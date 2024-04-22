@@ -11,7 +11,7 @@ from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QBrush
 
 from dialogs import show_author, show_task, show_instruction, show_err_win
 from class_point import Point
-from input_checks import params_to_float
+from input_checks import params_to_float, validate_circle_spektre_params
 from circle_algs import circle_brezenhem, circle_canonical, circle_param, circle_middle_point
 
 grid_lines: List[QGraphicsLineItem] = []
@@ -263,8 +263,49 @@ class Ui(QtWidgets.QMainWindow):
             part.setPen(current_line_color)
             self.scene.addItem(part)
 
-    def draw_circle_spectre(self):
-        pass
+    def get_circle_spectre_params(self):
+        unsetted = 0
+        unsetted_id = -1
+
+        r_start_str = self.set_r_start.text()
+        r_end_str = self.set_r_end.text()
+        cnt_str = self.set_circle_count.text()
+        step_str = self.set_step.text()
+        x_c = self.set_x.text()
+        y_c = self.set_y.text()
+        params = params_to_float(x_c, y_c)
+        if len(params) == 0:
+            return
+
+        x_c, y_c = params
+
+        values = [r_start_str, r_end_str, cnt_str, step_str]
+        for _ in range(len(values)):
+            if values[_] == '':
+                unsetted += 1
+                unsetted_id = _
+
+        params = validate_circle_spektre_params(unsetted, unsetted_id, values)
+        if params is None:
+            return
+        r_start, r_end, circle_count, step = params
+        return r_start, r_end, circle_count, step, x_c, y_c
+
+    def draw_circle_spectre(self, params: List[float] = False) -> None:
+        if not params:
+            params = self.get_circle_spectre_params()
+            if params is None:
+                return
+        r_start, r_end, n, step, x_c, y_c = params
+        points = []
+        for i in range(n):
+            points.extend(self.get_circle_points(Point(x_c, y_c), r_start + i * step))
+
+        for point in points:
+            part = QGraphicsRectItem(point.x, -point.y, 1, 1)
+            part.setZValue(1)
+            part.setPen(current_line_color)
+            self.scene.addItem(part)
 
     def get_circle_points(self, center: Point, r: float) -> List[Point]:
         if self.brezenhem_rbutton.isChecked():
