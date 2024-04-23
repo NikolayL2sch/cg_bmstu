@@ -13,6 +13,7 @@ from dialogs import show_author, show_task, show_instruction, show_err_win
 from class_point import Point
 from input_checks import params_to_float, validate_circle_spektre_params
 from circle_algs import circle_brezenhem, circle_canonical, circle_param, circle_middle_point
+from ellipse_algs import ellipse_brezenhem, ellipse_canonical, ellipse_param, ellipse_middle_point
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -106,6 +107,10 @@ class Ui(QtWidgets.QMainWindow):
         self.time_test_button.clicked.connect(self.time_test)
         self.draw_circle_button.clicked.connect(self.draw_circle)
         self.draw_spektr_button.clicked.connect(self.draw_circle_spectre)
+
+        self.draw_ellipse_button.clicked.connect(self.draw_ellipse)
+        self.draw_ellipse_spektre.clicked.connect(self.draw_ellipse_spectre)
+
         self.clear_button.clicked.connect(self.clear_scene)
 
         self.graphicsView.setMouseTracking(True)
@@ -334,6 +339,58 @@ class Ui(QtWidgets.QMainWindow):
 
         x_c, y_c, r = params
         return Point(x_c, y_c), r
+
+    def get_ellipse_params(self) -> Tuple[Point, float, float]:
+        x_c_str = self.set_ellipse_x.text()
+        y_c_str = self.set_ellipse_y.text()
+        width_str = self.set_ellipse_width.text()
+        height_str = self.set_ellipse_height.text()
+
+        params = params_to_float(x_c_str, y_c_str, width_str, height_str)
+        if len(params) == 0:
+            return
+
+        x_c, y_c, width, height = params
+        return Point(x_c, y_c), width, height
+
+    def draw_ellipse(self, center: Point = None, width: float = None, height: float = None) -> None:
+        if center is None or width is None or height is None:
+            params = self.get_ellipse_params()
+            if params is None:
+                return
+            center, width, height = params
+
+        if width <= 0 or height <= 0:
+            show_err_win("Радиусы эллипса должны быть больше 0")
+            return
+
+        ellipse_points = self.get_ellipse_points(center, width, height)
+        if not ellipse_points:
+            return
+        for point in ellipse_points:
+            part = QGraphicsRectItem(point.x, -point.y, 1, 1)
+            part.setZValue(1)
+            part.setPen(current_line_color)
+            self.scene.addItem(part)
+
+    def get_ellipse_points(self, center: Point, width: float, height: float) -> List[Point]:
+        if self.brezenhem_rbutton.isChecked():
+            return ellipse_brezenhem(center, width, height)
+        elif self.canonical_rbutton.isChecked():
+            return ellipse_canonical(center, width, height)
+        elif self.param_rbutton.isChecked():
+            return ellipse_param(center, width, height)
+        elif self.middle_point_rbutton.isChecked():
+            return ellipse_middle_point(center, width, height)
+        elif self.bibl_alg_rbutton.isChecked():
+            ellipse = QGraphicsEllipseItem(center.x - width, height - center.y, 2 * width, - 2 * height)
+            ellipse.setPen(current_line_color)
+            ellipse.setZValue(1)
+            self.scene.addItem(ellipse)
+            return []
+
+    def draw_ellipse_spectre(self) -> None:
+        pass
 
 
 if __name__ == '__main__':

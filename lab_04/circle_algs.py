@@ -2,28 +2,10 @@ from math import sqrt, pi, cos, sin
 from typing import List
 
 from class_point import Point
+from lab_04.point_funcs import add_symmetr_points
 
 
-def add_symmetr_points(p1: Point, p2: Point, is_circle=False) -> List[Point]:
-    points_list = []
-    dx = p2.x - p1.x
-    dy = p2.y - p1.y
-
-    if is_circle:
-        points_list.append(Point(p1.x - dy, p1.y + dx))
-        points_list.append(Point(p1.x + dy, p1.y + dx))
-        points_list.append(Point(p1.x + dy, p1.y - dx))
-        points_list.append(Point(p1.x - dy, p1.y - dx))
-
-    points_list.append(Point(p1.x - dx, p1.y + dy))
-    points_list.append(Point(p1.x + dx, p1.y + dy))
-    points_list.append(Point(p1.x + dx, p1.y - dy))
-    points_list.append(Point(p1.x - dx, p1.y - dy))
-
-    return points_list
-
-
-def circle_brezenhem(p: Point, radius: float):
+def circle_brezenhem(p: Point, radius: float) -> List[Point]:
     points = []
     x = 0
     y = radius
