@@ -14,7 +14,7 @@ def params_to_float(*args: List[str]) -> List[float]:
     return float_args
 
 
-def validate_circle_spektre_params(cnt, ind, params) -> Union[None, Tuple[float, int]]:
+def validate_circle_spektre_params(cnt, ind, params) -> Union[None, Tuple[Union[float, int]]]:
     if cnt != 1:
         show_err_win("Должно быть задано ровно 3 параметра.")
         return

@@ -8,6 +8,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QButtonGroup, QGraphicsEllipseItem, QGraphicsRectItem
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QBrush
+from matplotlib import pyplot
 
 from dialogs import show_author, show_task, show_instruction, show_err_win
 from class_point import Point
@@ -30,7 +31,7 @@ current_line_color: QColor = QColor(255, 0, 0)
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./lab_04/template.ui", self)  # временно в корне
+        uic.loadUi("./template.ui", self)  # временно в корне
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -100,8 +101,10 @@ class Ui(QtWidgets.QMainWindow):
         self.gray_bg_rbutton.clicked.connect(
             lambda: self.set_bg_color(QColor(56, 56, 56)))
 
-        self.circle_rb.toggled.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_1))
-        self.ellipse_rb.toggled.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_2))
+        self.circle_rb.toggled.connect(
+            lambda: self.stackedWidget.setCurrentWidget(self.page_1))
+        self.ellipse_rb.toggled.connect(
+            lambda: self.stackedWidget.setCurrentWidget(self.page_2))
         self.stackedWidget.setCurrentWidget(self.page_1)
 
         self.time_test_button.clicked.connect(self.time_test)
@@ -246,7 +249,47 @@ class Ui(QtWidgets.QMainWindow):
                 self.scene.removeItem(item)
 
     def time_test(self):
-        pass
+        r_max = 1500
+        step = 100
+        cnt_runs = 500
+        algs = [ellipse_brezenhem, ellipse_canonical, ellipse_param, ellipse_middle_point] \
+            if self.ellipse_rb.isChecked() else [circle_brezenhem, circle_canonical, circle_param, circle_middle_point]
+        run_times = [[] for _ in range(4)]
+        for k, alg in enumerate(algs):
+            for i in range(1, r_max // step):
+                sum_time = 0
+                if self.ellipse_rb.isChecked():
+                    for _ in range(cnt_runs):
+                        start = time()
+                        alg(Point(0, 0), step * i, step * i, True)
+                        sum_time += time() - start
+                else:
+                    for _ in range(cnt_runs):
+                        start = time()
+                        alg(Point(0, 0), step * i, True)
+                        sum_time += time() - start
+                run_times[k].append(sum_time / cnt_runs)
+
+        range_ = [i for i in range(step, r_max, step)]
+
+        pyplot.figure(figsize=(13, 7))
+        pyplot.rcParams['font.size'] = '14'
+
+        pyplot.title(f"Сравнение времени построения {'эллипсов' if self.ellipse_rb.isChecked() else 'окружностей'}"
+                     f" для различных алгоритмов")
+        pyplot.plot(range_, run_times[0], label='Алгоритм Брезенхема')
+        pyplot.plot(range_, run_times[1], label='Каноническое уравнение')
+        pyplot.plot(range_, run_times[2], label='Параметрическое уравнение')
+        pyplot.plot(range_, run_times[3], label='Алгоритм средней точки')
+        pyplot.xticks([_ for _ in range(step, r_max + 1, step)])
+        pyplot.legend()
+        pyplot.xlabel("Радиус")
+        pyplot.ylabel("Время")
+
+        if not FUNC_TESTING:
+            pyplot.show()
+        else:
+            pyplot.savefig(f'./results/time_test_{test_i}.png')
 
     def draw_circle(self, center: Point = None, r: float = None):
         if center is None or r is None:
@@ -268,7 +311,7 @@ class Ui(QtWidgets.QMainWindow):
             part.setPen(current_line_color)
             self.scene.addItem(part)
 
-    def get_circle_spectre_params(self):
+    def get_circle_spectre_params(self) -> Tuple[float]:
         unsetted = 0
         unsetted_id = -1
 
@@ -303,8 +346,9 @@ class Ui(QtWidgets.QMainWindow):
                 return
         r_start, r_end, n, step, x_c, y_c = params
         points = []
-        for i in range(n):
-            points.extend(self.get_circle_points(Point(x_c, y_c), r_start + i * step))
+        for i in range(int(n)):
+            points.extend(self.get_circle_points(
+                Point(x_c, y_c), r_start + i * step))
 
         for point in points:
             part = QGraphicsRectItem(point.x, -point.y, 1, 1)
@@ -322,7 +366,8 @@ class Ui(QtWidgets.QMainWindow):
         elif self.middle_point_rbutton.isChecked():
             return circle_middle_point(center, r)
         elif self.bibl_alg_rbutton.isChecked():
-            circle = QGraphicsEllipseItem(-r + center.x, r - center.y, 2 * r, - 2 * r)
+            circle = QGraphicsEllipseItem(-r +
+                                          center.x, r - center.y, 2 * r, - 2 * r)
             circle.setPen(current_line_color)
             circle.setZValue(1)
             self.scene.addItem(circle)
@@ -383,14 +428,70 @@ class Ui(QtWidgets.QMainWindow):
         elif self.middle_point_rbutton.isChecked():
             return ellipse_middle_point(center, width, height)
         elif self.bibl_alg_rbutton.isChecked():
-            ellipse = QGraphicsEllipseItem(center.x - width, height - center.y, 2 * width, - 2 * height)
+            ellipse = QGraphicsEllipseItem(
+                center.x - width, height - center.y, 2 * width, - 2 * height)
             ellipse.setPen(current_line_color)
             ellipse.setZValue(1)
             self.scene.addItem(ellipse)
             return []
 
-    def draw_ellipse_spectre(self) -> None:
-        pass
+    def get_ellipse_spectre_params(self) -> Tuple[float, str]:
+        width_str = self.set_spektr_width.text()
+        height_str = self.set_spektr_height.text()
+        step_x_str = self.set_ellipse_step_x.text()
+        step_y_str = self.set_ellipse_step_y.text()
+        cnt = self.set_ellipse_count.text()
+        x_c = self.set_ellipse_x.text()
+        y_c = self.set_ellipse_y.text()
+        params = params_to_float(x_c, y_c, width_str, height_str, cnt)
+        if len(params) == 0:
+            return
+        x_c, y_c, width, height, cnt = params
+        if abs(cnt - int(cnt)) > 1e-13 or cnt <= 0 or width <= 0 or height <= 0:
+            show_err_win("Введены некорректные параметры эллипса")
+            return
+
+        unsetted = 0
+        unsetted_id = -1
+        steps = [step_x_str, step_y_str]
+        for _ in range(2):
+            try:
+                steps[_] = float(steps[_])
+            except ValueError:
+                unsetted += 1
+                unsetted_id = _
+
+        if unsetted != 1:
+            return
+
+        if steps[unsetted_id - 1] <= 0:
+            return
+
+        return x_c, y_c, width, height, cnt, steps[0], steps[1], unsetted_id
+
+    def draw_ellipse_spectre(self, params: List[float] = False) -> None:
+        if not params:
+            params = self.get_ellipse_spectre_params()
+            if params is None:
+                return
+        x_c, y_c, width, height, cnt, step_x, step_y, unsetted_ind = params
+        points = []
+        coeff = width / height
+
+        for i in range(int(cnt)):
+            if unsetted_ind == 1:
+                width += step_x
+                height = round(width / coeff)
+            else:
+                height += step_y
+                width = round(height * coeff)
+            points.extend(self.get_ellipse_points(
+                Point(x_c, y_c), width, height))
+        for point in points:
+            part = QGraphicsRectItem(point.x, -point.y, 1, 1)
+            part.setZValue(1)
+            part.setPen(current_line_color)
+            self.scene.addItem(part)
 
 
 if __name__ == '__main__':
@@ -400,46 +501,66 @@ if __name__ == '__main__':
     window = Ui()
 
     FUNC_TESTING = False
-    if len(sys.argv) > 7:
+    if len(sys.argv) > 2:
         FUNC_TESTING = True
         test_i = int(sys.argv[1])
-        if sys.argv[7] == 'br_int':
-            window.brezenhem_int_rbutton.setChecked(True)
-        elif sys.argv[7] == 'br_float':
-            window.brezenhem_float_rbutton.setChecked(True)
-        elif sys.argv[7] == 'cda':
-            window.cda_alg_rbutton.setChecked(True)
-        elif sys.argv[7] == 'vu':
-            window.vu_alg_rbutton.setChecked(True)
-        elif sys.argv[7] == 'bibl':
-            window.bibl_alg_rbutton.setChecked(True)
-        elif sys.argv[7] == 'br_st':
-            window.brezenhem_st_rbutton.setChecked(True)
-
-        if sys.argv[2] == 'segment':
-            x_1 = float(sys.argv[3])
-            y_1 = float(sys.argv[4])
-            x_2 = float(sys.argv[5])
-            y_2 = float(sys.argv[6])
-
-            window.draw_segment(Point(x_1, y_1), Point(x_2, y_2))
-
-        elif sys.argv[2] == 'spectre':
-            xc_ = float(sys.argv[3])
-            yc_ = float(sys.argv[4])
-            angle_ = float(sys.argv[5])
-            length_ = float(sys.argv[6])
-
-            if sys.argv[7] == 'time_test':
-                window.time_test(xc_, yc_, angle_, length_)
+        algs_choice = {'br': window.brezenhem_rbutton, 'can': window.canonical_rbutton, 'param': window.param_rbutton,
+                       'mp': window.middle_point_rbutton}
+        if sys.argv[2] == 'circle':
+            window.circle_rb.setChecked(True)
+            if sys.argv[3] == 'time_test':
+                window.time_test()
             else:
-                window.draw_spectre(Point(xc_, yc_), angle_, length_)
+                xc = float(sys.argv[3])
+                yc = float(sys.argv[4])
+                radius = float(sys.argv[5])
+                algs_choice[sys.argv[6]].setChecked(True)
+                window.draw_circle(Point(xc, yc), radius)
+        elif sys.argv[2] == 'ellipse':
+            window.ellipse_rb.setChecked(True)
+            if sys.argv[3] == 'time_test':
+                window.time_test()
+            else:
+                xc = float(sys.argv[3])
+                yc = float(sys.argv[4])
+                width_ = float(sys.argv[5])
+                height_ = float(sys.argv[6])
+                algs_choice[sys.argv[7]].setChecked(True)
+                window.draw_ellipse(Point(xc, yc), width_, height_)
+        elif sys.argv[2] == 'circle_spectre':
+            window.circle_rb.setChecked(True)
+            xc = float(sys.argv[3])
+            yc = float(sys.argv[4])
+            r_start_ = float(sys.argv[5])
+            r_end_ = float(sys.argv[6])
+            circle_cnt_ = int(sys.argv[7])
+            step_ = float(sys.argv[8])
+            algs_choice[sys.argv[9]].setChecked(True)
+            window.draw_circle_spectre(
+                [r_start_, r_end_, circle_cnt_, step_, xc, yc])
+        elif sys.argv[2] == 'ellipse_spectre':
+            xc = float(sys.argv[3])
+            yc = float(sys.argv[4])
+            width_ = float(sys.argv[5])
+            height_ = float(sys.argv[6])
+            try:
+                step_x_ = float(sys.argv[7])
+                unsetted_i = 1
+                step_y_ = ''
+            except ValueError:
+                step_x_ = ''
+                unsetted_i = 0
+                step_y_ = float(sys.argv[8])
+            ellipse_cnt_ = int(sys.argv[9])
+            algs_choice[sys.argv[10]].setChecked(True)
+            window.draw_ellipse_spectre(
+                [xc, yc, width_, height_, ellipse_cnt_, step_x_, step_y_, unsetted_i])
 
     if FUNC_TESTING:
         screenshot = window.grab()
         screenshot.save(f'./results/test_{test_i}.png', 'png')
         time_elapsed = (time() - start_testing) * 1000
         with open('report-functesting-latest.txt', 'a+') as f:
-            f.write(f'{test_i}. Time elapsed: {time_elapsed:.2f} mc.\n')
+            f.write(f'{test_i}. Time elapsed: {time_elapsed:.3f} mc.\n')
     else:
         sys.exit(app.exec_())
