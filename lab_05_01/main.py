@@ -13,8 +13,6 @@ from matplotlib import pyplot
 from dialogs import show_author, show_task, show_instruction, show_err_win
 from class_point import Point
 from input_checks import params_to_float, validate_circle_spektre_params
-from circle_algs import circle_brezenhem, circle_canonical, circle_param, circle_middle_point
-from ellipse_algs import ellipse_brezenhem, ellipse_canonical, ellipse_param, ellipse_middle_point
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -117,7 +115,7 @@ class Ui(QtWidgets.QMainWindow):
         self.clear_button.clicked.connect(self.clear_scene)
 
         self.graphicsView.setMouseTracking(True)
-
+        change_color_button
         self.graphicsView.mousePressEvent = self.mousePressEvent
         self.graphicsView.wheelEvent = self.wheel_event
         self.graphicsView.mouseReleaseEvent = self.mouseReleaseEvent
