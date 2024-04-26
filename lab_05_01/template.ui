@@ -100,6 +100,10 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+            </property>
             <property name="text">
              <string>Координата X точки</string>
             </property>
@@ -119,6 +123,10 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
             </property>
             <property name="text">
              <string>Координата Y точки</string>
@@ -141,6 +149,10 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="text">
            <string>Задержка:</string>
@@ -187,7 +199,7 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="delete_point_button">
+       <widget class="QPushButton" name="remove_point_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -340,13 +352,13 @@ background-color: rgb(86, 86, 86);</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>120</width>
+            <width>150</width>
             <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>230</width>
+            <width>150</width>
             <height>50</height>
            </size>
           </property>
