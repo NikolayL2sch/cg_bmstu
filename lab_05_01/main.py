@@ -6,21 +6,26 @@ from typing import List, Tuple
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QButtonGroup, QGraphicsEllipseItem, QGraphicsRectItem
-from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QBrush
-from matplotlib import pyplot
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsRectItem, \
+    QGraphicsTextItem, QColorDialog
+from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 
-from dialogs import show_author, show_task, show_instruction, show_err_win
+from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
 from class_point import Point
-from input_checks import params_to_float, validate_circle_spektre_params
+from input_checks import params_to_float
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
+point_list: List[Point] = []
+point_scale: List[float] = []
+coords_desc: List[QGraphicsTextItem] = []
+scene_point_list: List[QGraphicsEllipseItem] = []
 
 scale: float = 1.0
 num_tests: int = 50
 
 is_pressed: bool = False
+dragging: bool = False
 
 last_pos: QPoint = None
 current_line_color: QColor = QColor(255, 0, 0)
@@ -48,7 +53,7 @@ class Ui(QtWidgets.QMainWindow):
         # push buttons
         self.add_point_button.clicked.connect(self.add_point)
         self.remove_point_button.clicked.connect(self.remove_point)
-        self.change_color_button.clicked.connect(self.change_color)
+        self.change_color_button.clicked.connect(self.set_new_colour)
         self.close_figure_button.clicked.connect(self.close_figure)
         self.paint_figure_button.clicked.connect(self.paint_figure)
 
@@ -71,6 +76,10 @@ class Ui(QtWidgets.QMainWindow):
 
         # Получаем текущий масштаб по оси X (и Y)
         scale = self.graphicsView.transform().m11()
+        for i in range(len(scene_point_list)):
+            point = scene_point_list[i]
+            point.setTransformOriginPoint(point.boundingRect().center())
+            point.setScale(1 / (scale * point_scale[i]))
         if self.need_grid():
             for grid_line in grid_lines:
                 if grid_line in self.scene.items():
@@ -78,13 +87,18 @@ class Ui(QtWidgets.QMainWindow):
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        global is_pressed
+        global is_pressed, dragging
         if event.button() == Qt.LeftButton:
+            if not dragging:
+                self.scene.removeItem(self.scene.items()[-1])
+                self.add_point_by_click(event)
+            dragging = False
             is_pressed = False
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        global last_pos
+        global last_pos, dragging
         if is_pressed:
+            dragging = True
             dx = event.pos().x() - last_pos.x()
             dy = event.pos().y() - last_pos.y()
             self.graphicsView.horizontalScrollBar().setValue(
@@ -170,30 +184,92 @@ class Ui(QtWidgets.QMainWindow):
 
     def change_color(self, color: QColor) -> None:
         global current_line_color
+        print(color)
         current_line_color = color
         objects = self.scene.items()
+        cnt = 0
         for obj in objects:
             if obj not in grid_lines:
+                print(cnt)
                 obj.setPen(current_line_color)
-
+                cnt += 1
+                print(cnt)
     def clear_scene(self):
         for item in self.scene.items():
             if item not in grid_lines:
                 self.scene.removeItem(item)
 
-    def add_point(self):
-        pass
+    def add_point(self) -> None:
+        point = self.get_point_coords()
+        if point is not None:
+            self.draw_point(point)
+
+    def get_point_coords(self) -> Point:
+        x_txt = self.set_x.text()
+        y_txt = self.set_y.text()
+        params = params_to_float(x_txt, y_txt)
+        if params is None:
+            return
+        x, y = params
+        return Point(x, y)
+
+    def add_point_by_click(self, event: QMouseEvent) -> None:
+        pos = event.pos()
+        scene_pos = self.graphicsView.mapToScene(pos)
+        p_x, p_y = scene_pos.x(), scene_pos.y()
+        self.draw_point(Point(p_x, -p_y))
+
+    def draw_point(self, point: Point) -> None:
+        for _ in point_list:
+            if point == _:
+                show_war_win("Введенная точка уже существует.")
+                break
+        else:
+            point_list.append(point)
+            self.scroll_list.addItem(f'{len(point_list)}.({round(point.x, 2)}; {round(point.y, 2)})')
+            point_scale.append(1 / scale)
+            point_coords_label = QGraphicsTextItem(f'x:({point.x:.2f}, y:{point.y:.2f})')
+            coords_desc.append(point_coords_label)
+
+            point = QGraphicsEllipseItem(point.x, -point.y, 5 * (1 / scale), 5 * (1 / scale))
+            point.setBrush(current_line_color)
+            self.scene.addItem(point)
+
+            point_coords_label.setPos(point.rect().center().x() + 10, point.rect().center().y())
+
+            point_coords_label.setDefaultTextColor(QColor(255, 255, 255))
+            font = QFont()
+            font.setPointSize(8)
+            point_coords_label.setFont(font)
+            point_coords_label.setZValue(1)
+            self.scene.addItem(point_coords_label)
+            if len(point_list) > 1:
+                self.draw_line(point_list[-2], point_list[-1])
+            scene_point_list.append(point)
+
+    def draw_line(self, p1: Point, p2: Point) -> None:
+        line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
+        line.setPen(current_line_color)
+        line.setZValue(1)
+        self.scene.addItem(line)
 
     def remove_point(self):
         pass
 
     def close_figure(self):
-        pass
+        self.draw_line(point_list[0], point_list[-1])
 
     def paint_figure(self):
         pass
 
     def del_point_by_click(self, event: QMouseEvent):
+        pass
+
+    def set_new_colour(self) -> None:
+        colour = QColorDialog.getColor(initial=current_line_color)
+        if colour.isValid():
+            self.change_color(QColor(colour))
+
 
 if __name__ == '__main__':
     global test_i

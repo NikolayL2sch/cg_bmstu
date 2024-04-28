@@ -110,7 +110,12 @@ font: 11pt &quot;Segoe UI&quot;;</string>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="set_x"/>
+           <widget class="QLineEdit" name="set_x">
+            <property name="styleSheet">
+             <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -134,7 +139,12 @@ font: 11pt &quot;Segoe UI&quot;;</string>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="set_y"/>
+           <widget class="QLineEdit" name="set_y">
+            <property name="styleSheet">
+             <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -325,18 +335,10 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="scroll_list">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
+       <widget class="QListWidget" name="scroll_list">
+        <property name="styleSheet">
+         <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
         </property>
        </widget>
       </item>
