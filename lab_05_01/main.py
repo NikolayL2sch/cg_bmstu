@@ -6,8 +6,7 @@ from typing import List, Tuple
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsRectItem, \
-    QGraphicsTextItem, QColorDialog
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 
 from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
@@ -20,9 +19,12 @@ point_list: List[Point] = []
 point_scale: List[float] = []
 coords_desc: List[QGraphicsTextItem] = []
 scene_point_list: List[QGraphicsEllipseItem] = []
+figures: List[List[Point]] = []
 
 scale: float = 1.0
 num_tests: int = 50
+prev_figure_points: int = 0
+current_figure_points: int = 0
 
 is_pressed: bool = False
 dragging: bool = False
@@ -187,13 +189,10 @@ class Ui(QtWidgets.QMainWindow):
         print(color)
         current_line_color = color
         objects = self.scene.items()
-        cnt = 0
         for obj in objects:
-            if obj not in grid_lines:
-                print(cnt)
+            if obj not in grid_lines and not isinstance(obj, QGraphicsTextItem):
                 obj.setPen(current_line_color)
-                cnt += 1
-                print(cnt)
+
     def clear_scene(self):
         for item in self.scene.items():
             if item not in grid_lines:
@@ -220,6 +219,7 @@ class Ui(QtWidgets.QMainWindow):
         self.draw_point(Point(p_x, -p_y))
 
     def draw_point(self, point: Point) -> None:
+        global current_figure_points
         for _ in point_list:
             if point == _:
                 show_war_win("Введенная точка уже существует.")
@@ -245,6 +245,7 @@ class Ui(QtWidgets.QMainWindow):
             self.scene.addItem(point_coords_label)
             if len(point_list) > 1:
                 self.draw_line(point_list[-2], point_list[-1])
+            current_figure_points += 1
             scene_point_list.append(point)
 
     def draw_line(self, p1: Point, p2: Point) -> None:
@@ -254,16 +255,62 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(line)
 
     def remove_point(self):
-        pass
+        point = self.get_point_coords()
+        if point is not None:
+            for i in range(len(point_list)):
+                if point_list[i] == point:
+                    self.scene.removeItem(scene_point_list[i])
+                    self.scene.removeItem(coords_desc[i])
+                    coords_desc.pop(i)
+                    point_list.pop(i)
+                    scene_point_list.pop(i)
+                    point_scale.pop(i)
+                    self.update_scroll_list()
+                    break
+            else:
+                show_err_win("Введенной точки не существует.")
+        for i in range(len(figures)):
+            for _ in range(len(figures[i])):
+                if figures[i][_] == point:
+                    figures[i].pop(_)
+                    break
+
+    def update_scroll_list(self) -> None:
+        self.scroll_list.clear()
+        for i in range(len(point_list)):
+            self.scroll_list.addItem(f'{i + 1}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def close_figure(self):
+        global prev_figure_points
         self.draw_line(point_list[0], point_list[-1])
+        figures.append(point_list[prev_figure_points:current_figure_points:])
+        prev_figure_points = current_figure_points
 
     def paint_figure(self):
-        pass
+        for figure in figures:
+            paint_alg(figure)
 
     def del_point_by_click(self, event: QMouseEvent):
-        pass
+        pos = event.pos()
+        scene_pos = self.graphicsView.mapToScene(pos)
+        min_diff = 100 * (1 / scale)
+        if min_diff < 1:
+            min_diff = 1
+        del_point_id = -1
+        for i in range(len(point_list)):
+            if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y) < min_diff:
+                min_diff = abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() + point_list[i].y)
+                del_point_id = i
+        if min_diff > 10 * (1 / scale):
+            show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
+        else:
+            self.scene.removeItem(scene_point_list[del_point_id])
+            point_list.pop(del_point_id)
+            scene_point_list.pop(del_point_id)
+            point_scale.pop(del_point_id)
+            self.scene.removeItem(coords_desc[del_point_id])
+            coords_desc.pop(del_point_id)
+            self.update_scroll_list()
 
     def set_new_colour(self) -> None:
         colour = QColorDialog.getColor(initial=current_line_color)
