@@ -1,7 +1,7 @@
 import sys
 from time import time
 
-from typing import List, Tuple
+from typing import List
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
@@ -12,6 +12,7 @@ from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
 from class_point import Point
 from input_checks import params_to_float
+from paint_algs import paint_alg
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -20,9 +21,9 @@ point_scale: List[float] = []
 coords_desc: List[QGraphicsTextItem] = []
 scene_point_list: List[QGraphicsEllipseItem] = []
 figures: List[List[Point]] = []
+edges: List[List[QGraphicsLineItem]] = []
 
 scale: float = 1.0
-num_tests: int = 50
 prev_figure_points: int = 0
 current_figure_points: int = 0
 
@@ -57,7 +58,7 @@ class Ui(QtWidgets.QMainWindow):
         self.remove_point_button.clicked.connect(self.remove_point)
         self.change_color_button.clicked.connect(self.set_new_colour)
         self.close_figure_button.clicked.connect(self.close_figure)
-        self.paint_figure_button.clicked.connect(self.paint_figure)
+        self.paint_figure_button.clicked.connect(self.paint_figures)
 
         # graphics view mouse events
         self.graphicsView.mousePressEvent = self.mousePressEvent
@@ -186,7 +187,6 @@ class Ui(QtWidgets.QMainWindow):
 
     def change_color(self, color: QColor) -> None:
         global current_line_color
-        print(color)
         current_line_color = color
         objects = self.scene.items()
         for obj in objects:
@@ -194,9 +194,19 @@ class Ui(QtWidgets.QMainWindow):
                 obj.setPen(current_line_color)
 
     def clear_scene(self):
+        global prev_figure_points, current_figure_points
         for item in self.scene.items():
             if item not in grid_lines:
                 self.scene.removeItem(item)
+        point_list.clear()
+        point_scale.clear()
+        coords_desc.clear()
+        scene_point_list.clear()
+        figures.clear()
+        edges.clear()
+        self.scroll_list.clear()
+        prev_figure_points = 0
+        current_figure_points = 0
 
     def add_point(self) -> None:
         point = self.get_point_coords()
@@ -207,7 +217,7 @@ class Ui(QtWidgets.QMainWindow):
         x_txt = self.set_x.text()
         y_txt = self.set_y.text()
         params = params_to_float(x_txt, y_txt)
-        if params is None:
+        if len(params) == 0:
             return
         x, y = params
         return Point(x, y)
@@ -243,6 +253,7 @@ class Ui(QtWidgets.QMainWindow):
             point_coords_label.setFont(font)
             point_coords_label.setZValue(1)
             self.scene.addItem(point_coords_label)
+            edges.append([])
             if len(point_list) > 1:
                 self.draw_line(point_list[-2], point_list[-1])
             current_figure_points += 1
@@ -252,6 +263,8 @@ class Ui(QtWidgets.QMainWindow):
         line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
         line.setPen(current_line_color)
         line.setZValue(1)
+        edges[-1].append(line)
+        edges[-2].append(line)
         self.scene.addItem(line)
 
     def remove_point(self):
@@ -259,6 +272,18 @@ class Ui(QtWidgets.QMainWindow):
         if point is not None:
             for i in range(len(point_list)):
                 if point_list[i] == point:
+                    if len(edges) > 1 and edges[i - 1]:
+                        for line in edges[i - 1]:
+                            if line in edges[i]:
+                                edges[i - 1].remove(line)
+                    if len(edges) > 1 and edges[i + 1]:
+                        for line in edges[i + 1]:
+                            if line in edges[i]:
+                                edges[i + 1].remove(line)
+                    if edges[i]:
+                        for line in edges[i]:
+                            self.scene.removeItem(line)
+                    edges.pop(i)
                     self.scene.removeItem(scene_point_list[i])
                     self.scene.removeItem(coords_desc[i])
                     coords_desc.pop(i)
@@ -282,13 +307,12 @@ class Ui(QtWidgets.QMainWindow):
 
     def close_figure(self):
         global prev_figure_points
-        self.draw_line(point_list[0], point_list[-1])
-        figures.append(point_list[prev_figure_points:current_figure_points:])
-        prev_figure_points = current_figure_points
-
-    def paint_figure(self):
-        for figure in figures:
-            paint_alg(figure)
+        if len(point_list) < 2:
+            show_err_win("Введено недостаточно точек для этого действия")
+        else:
+            self.draw_line(point_list[0], point_list[-1])
+            figures.append(point_list[prev_figure_points:current_figure_points:])
+            prev_figure_points = current_figure_points
 
     def del_point_by_click(self, event: QMouseEvent):
         pos = event.pos()
@@ -304,6 +328,28 @@ class Ui(QtWidgets.QMainWindow):
         if min_diff > 10 * (1 / scale):
             show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
         else:
+            k = del_point_id + 1
+            for _ in range(len(figures)):
+                if k - len(figures[_]) > 0:
+                    k -= len(figures[_])
+                else:
+                    figures[_].pop(k - 1)
+            if len(edges) > 1 and edges[del_point_id - 1]:
+                for line in edges[del_point_id - 1]:
+                    if line in edges[del_point_id]:
+                        edges[del_point_id - 1].remove(line)
+            if len(edges) > 1 and edges[del_point_id + 1]:
+                for line in edges[del_point_id + 1]:
+                    if line in edges[del_point_id]:
+                        edges[del_point_id + 1].remove(line)
+            if edges[del_point_id]:
+                for line in edges[del_point_id]:
+                    self.scene.removeItem(line)
+            edges.pop(del_point_id)
+            if del_point_id == len(point_list) - 1 and len(point_list) > 2:
+                self.draw_line(point_list[del_point_id - 1], point_list[0])
+            elif len(point_list) > 2:
+                self.draw_line(point_list[del_point_id - 1], point_list[del_point_id + 1])
             self.scene.removeItem(scene_point_list[del_point_id])
             point_list.pop(del_point_id)
             scene_point_list.pop(del_point_id)
@@ -316,6 +362,15 @@ class Ui(QtWidgets.QMainWindow):
         colour = QColorDialog.getColor(initial=current_line_color)
         if colour.isValid():
             self.change_color(QColor(colour))
+
+    def paint_figures(self):
+        delay = False
+        if self.set_delay_cb.isChecked():
+            delay = True
+        if len(figures) == 0:
+            show_err_win("Ошибка. Фигура не замкнута")
+        else:
+            paint_alg(figures, self.scene, current_line_color, delay)
 
 
 if __name__ == '__main__':
