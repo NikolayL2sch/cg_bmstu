@@ -33,7 +33,7 @@ def get_y_extremum(figures: List[List[Point]]) -> Tuple[float, float]:
     return y_min, y_max
 
 
-def create_empty_linked_list(y_min: float, y_max: float) -> List[Point]:
+def create_empty_linked_list(y_min: float, y_max: float) -> Dict:
     linked_list = {}
     for _ in range(round(y_max), round(y_min), -1):
         linked_list[_] = []
