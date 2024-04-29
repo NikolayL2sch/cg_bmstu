@@ -1,0 +1,17 @@
+1. Time elapsed: 861.971 mc.
+2. Time elapsed: 741.355 mc.
+3. Time elapsed: 786.132 mc.
+4. Time elapsed: 1079.352 mc.
+5. Time elapsed: 31446.364 mc.
+6. Time elapsed: 11411.310 mc.
+Name              Stmts   Miss  Cover
+-------------------------------------
+circle_algs.py       61      5    92%
+class_point.py       26      5    81%
+dialogs.py           31     25    19%
+ellipse_algs.py      86      5    94%
+input_checks.py      50     46     8%
+main.py             444    152    66%
+point_funcs.py       16      0   100%
+-------------------------------------
+TOTAL               714    238    67%
