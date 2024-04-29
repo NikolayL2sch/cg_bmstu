@@ -375,7 +375,11 @@ class Ui(QtWidgets.QMainWindow):
         if len(figures) == 0:
             show_err_win("Ошибка. Фигура не замкнута")
         else:
+            start = time()
             paint_alg(figures, self.scene, current_line_color, delay)
+            end = time()
+            if not delay:
+                show_war_win(f"Время выполнения алгоритма: {(end - start) * 1000:.2f} мс.")
 
 
 if __name__ == '__main__':
