@@ -338,10 +338,15 @@ class Ui(QtWidgets.QMainWindow):
                 for line in edges[del_point_id - 1]:
                     if line in edges[del_point_id]:
                         edges[del_point_id - 1].remove(line)
-            if len(edges) > 1 and edges[del_point_id + 1]:
-                for line in edges[del_point_id + 1]:
-                    if line in edges[del_point_id]:
-                        edges[del_point_id + 1].remove(line)
+            if len(edges) > 1:
+                if del_point_id + 1 < len(point_list):
+                    for line in edges[del_point_id + 1]:
+                        if line in edges[del_point_id]:
+                            edges[del_point_id + 1].remove(line)
+                elif figures and figures[0]:
+                    for line in edges[0]:
+                        if line in edges[del_point_id]:
+                            edges[0].remove(line)
             if edges[del_point_id]:
                 for line in edges[del_point_id]:
                     self.scene.removeItem(line)
