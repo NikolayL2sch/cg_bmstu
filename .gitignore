@@ -6,5 +6,5 @@ venv
 pyvenv.cfg
 out
 .coverage
-*.txt
+*-latest.txt
 */__pycache__

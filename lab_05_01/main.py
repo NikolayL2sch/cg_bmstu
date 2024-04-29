@@ -37,7 +37,7 @@ current_line_color: QColor = QColor(255, 0, 0)
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./lab_05_01/template.ui", self)  # временно в корне
+        uic.loadUi("./template.ui", self)  # временно в корне
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -208,8 +208,9 @@ class Ui(QtWidgets.QMainWindow):
         prev_figure_points = 0
         current_figure_points = 0
 
-    def add_point(self) -> None:
-        point = self.get_point_coords()
+    def add_point(self, point: Point = None) -> None:
+        if point is None:
+            point = self.get_point_coords()
         if point is not None:
             self.draw_point(point)
 
@@ -368,7 +369,7 @@ class Ui(QtWidgets.QMainWindow):
         if colour.isValid():
             self.change_color(QColor(colour))
 
-    def paint_figures(self):
+    def paint_figures(self, func_testing=False):
         delay = False
         if self.set_delay_cb.isChecked():
             delay = True
@@ -376,10 +377,14 @@ class Ui(QtWidgets.QMainWindow):
             show_err_win("Ошибка. Фигура не замкнута")
         else:
             start = time()
-            paint_alg(figures, self.scene, current_line_color, delay)
+            paint_alg(figures, self, current_line_color, test_i, delay, func_testing)
             end = time()
             if not delay:
-                show_war_win(f"Время выполнения алгоритма: {(end - start) * 1000:.2f} мс.")
+                if func_testing:
+                    with open('report-functesting-latest.txt', 'a+') as f:
+                        f.write(f"Время выполнения алгоритма в тесте {test_i}: {(end - start) * 1000:.2f} мс.\n")
+                else:
+                    show_war_win(f"Время выполнения алгоритма: {(end - start) * 1000:.2f} мс.")
 
 
 if __name__ == '__main__':
@@ -392,12 +397,16 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         FUNC_TESTING = True
         test_i = int(sys.argv[1])
+        num_points = int(sys.argv[2])
+        for _ in range(num_points):
+            window.add_point(Point(float(sys.argv[2 * _ + 3]), float(sys.argv[2 * _ + 4])))
+        if sys.argv[-1] == 'true':
+            window.set_delay_cb.setChecked(True)
+        window.close_figure()
+        window.paint_figures(func_testing=True)
 
     if FUNC_TESTING:
         screenshot = window.grab()
         screenshot.save(f'./results/test_{test_i}.png', 'png')
-        time_elapsed = (time() - start_testing) * 1000
-        with open('report-functesting-latest.txt', 'a+') as f:
-            f.write(f'{test_i}. Time elapsed: {time_elapsed:.3f} mc.\n')
     else:
         sys.exit(app.exec_())

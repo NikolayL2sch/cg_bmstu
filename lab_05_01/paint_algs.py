@@ -87,7 +87,7 @@ def draw_curr_scan_string(scene: QGraphicsScene, active_edges: List[Point], y: f
             scene.addItem(line)
 
 
-def paint_alg(figures: List[List[Point]], scene: QGraphicsScene, color: QColor, delay=False) -> List[Point]:
+def paint_alg(figures: List[List[Point]], win: QMainWindow, color: QColor, test_i: int, delay=False, func_testing=False) -> List[Point]:
     y_min, y_max = get_y_extremum(figures)
     edges = get_figure_edges(figures)
     y_groups = create_empty_linked_list(y_min, y_max)
@@ -98,11 +98,22 @@ def paint_alg(figures: List[List[Point]], scene: QGraphicsScene, color: QColor, 
     y_start = y_min
     y_end = y_max
     active_edges = []
+    if func_testing:
+        step_screenshot = abs(y_end - y_start) // 7
+        start = 0
+        screenshot_i = 0
     while y_end > y_start:
         iter_active_edges(active_edges)
         append_active_edges(y_groups, active_edges, y_end)
-        draw_curr_scan_string(scene, active_edges, y_end, color)
+        draw_curr_scan_string(win.scene, active_edges, y_end, color)
         y_end -= 1
         if delay:
+            if func_testing:
+                if start == step_screenshot:
+                    screenshot = win.grab()
+                    screenshot.save(f'./results/test_delay_{test_i}_{screenshot_i}.png', 'png')
+                    start = 0
+                    screenshot_i += 1
+                start += 1
             QApplication.processEvents(QEventLoop.AllEvents, 1)
-            time.sleep(0.2)
+            time.sleep(0.01)
