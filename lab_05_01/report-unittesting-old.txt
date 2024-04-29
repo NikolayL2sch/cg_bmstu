@@ -1,0 +1,8 @@
+Name             Stmts   Miss  Cover
+------------------------------------
+class_node.py        6      0   100%
+class_point.py      26      1    96%
+module_test.py      20      0   100%
+paint_algs.py       94     59    37%
+------------------------------------
+TOTAL              146     60    59%
