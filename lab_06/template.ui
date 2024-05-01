@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>600</height>
+    <width>1069</width>
+    <height>900</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,7 +22,7 @@
   <property name="minimumSize">
    <size>
     <width>1000</width>
-    <height>600</height>
+    <height>900</height>
    </size>
   </property>
   <property name="font">
@@ -33,7 +33,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>lab_04</string>
+   <string>lab_06. РЕАЛИЗАЦИЯ И ИССЛЕДОВАНИЕ АЛГОРИТМА ПОСТРОЧНОГО ЗАТРАВОЧНОГО  ЗАПОЛНЕНИЯ СПЛОШНЫХ ОБЛАСТЕЙ.</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -49,30 +49,8 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>100</horstretch>
-        <verstretch>100</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>600</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>1600</width>
-        <height>900</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -239,6 +217,322 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="add_zt_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>460</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+        </property>
+        <property name="text">
+         <string>Добавить затравку</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="draw_limit_figure_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Построить ограничивающую фигуру</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QRadioButton" name="set_circle_figure">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Окружность</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="set_ellipse_figure">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Эллипс</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QStackedWidget" name="stackedWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>130</height>
+         </size>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page">
+         <widget class="QWidget" name="horizontalLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>401</width>
+            <height>67</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_8">
+             <item>
+              <widget class="QLabel" name="set_xc_circle_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+               </property>
+               <property name="text">
+                <string>x центра</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="set_xc_circle">
+               <property name="styleSheet">
+                <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <widget class="QLabel" name="set_yc_circle_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+               </property>
+               <property name="text">
+                <string>y центра</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="set_yc_circle">
+               <property name="styleSheet">
+                <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>70</y>
+            <width>401</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QLabel" name="set_radius_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+             </property>
+             <property name="text">
+              <string>Радиус окружности</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_r_circle">
+             <property name="styleSheet">
+              <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_2">
+         <widget class="QWidget" name="horizontalLayoutWidget_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>2</y>
+            <width>401</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_11">
+             <item>
+              <widget class="QLabel" name="set_xc_ellipse_label">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+               </property>
+               <property name="text">
+                <string>x центра</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="set_xc_ellipse">
+               <property name="styleSheet">
+                <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_10">
+             <item>
+              <widget class="QLabel" name="set_yc_ellipse_label">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+               </property>
+               <property name="text">
+                <string>y центра</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="set_yc_ellipse">
+               <property name="styleSheet">
+                <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_5">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>70</y>
+            <width>401</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_12">
+             <item>
+              <widget class="QLabel" name="set_ellipse_width_label">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+               </property>
+               <property name="text">
+                <string>Ширина</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="set_ellipse_width">
+               <property name="styleSheet">
+                <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_13">
+             <item>
+              <widget class="QLabel" name="set_ellipse_height_label">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+               </property>
+               <property name="text">
+                <string>Высота</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="set_ellipse_height">
+               <property name="styleSheet">
+                <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="change_color_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -259,6 +553,30 @@ background-color: rgb(86, 86, 86);</string>
         </property>
         <property name="text">
          <string>Изменить цвет закраски</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="change_edge_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>460</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+        </property>
+        <property name="text">
+         <string>Изменить цвет границы</string>
         </property>
        </widget>
       </item>
@@ -336,6 +654,18 @@ background-color: rgb(86, 86, 86);</string>
       </item>
       <item>
        <widget class="QListWidget" name="scroll_list">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">font: 11pt &quot;Segoe UI&quot;;
 color: rgb(255, 255, 255);</string>
@@ -410,6 +740,28 @@ background-color: rgb(75, 75, 75);</string>
       </item>
      </layout>
     </item>
+    <item row="0" column="1">
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>100</horstretch>
+        <verstretch>100</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>600</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>1600</width>
+        <height>900</height>
+       </size>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -417,7 +769,7 @@ background-color: rgb(75, 75, 75);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1069</width>
      <height>29</height>
     </rect>
    </property>

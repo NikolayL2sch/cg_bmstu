@@ -12,7 +12,6 @@ from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
 from class_point import Point
 from input_checks import params_to_float
-from paint_algs import paint_alg
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -37,7 +36,7 @@ current_line_color: QColor = QColor(255, 0, 0)
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./template.ui", self)  # временно в корне
+        uic.loadUi("./lab_06/template.ui", self)  # временно в корне
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
