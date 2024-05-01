@@ -6,12 +6,14 @@ from typing import List
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog, \
+    QButtonGroup
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 
 from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
 from class_point import Point
 from input_checks import params_to_float
+from point_funcs import del_lines_by_point
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -55,9 +57,23 @@ class Ui(QtWidgets.QMainWindow):
         # push buttons
         self.add_point_button.clicked.connect(self.add_point)
         self.remove_point_button.clicked.connect(self.remove_point)
+        self.add_zt_button.clicked.connect(self.add_zt)
+        self.add_figure_button.clicked.connect(self.add_figure)
+        self.change_edge_button.clicked.connect(self.change_edge)
         self.change_color_button.clicked.connect(self.set_new_colour)
         self.close_figure_button.clicked.connect(self.close_figure)
         self.paint_figure_button.clicked.connect(self.paint_figures)
+
+        self.figure_type_group = QButtonGroup()
+        self.figure_type_group.addButton(self.set_circle_figure)
+        self.figure_type_group.addButton(self.set_ellipse_figure)
+
+        self.set_circle_figure.setChecked(True)
+        self.set_circle_figure.toggled.connect(
+            lambda: self.stackedWidget.setCurrentWidget(self.page))
+        self.set_ellipse_figure.toggled.connect(
+            lambda: self.stackedWidget.setCurrentWidget(self.page_2))
+        self.stackedWidget.setCurrentWidget(self.page)
 
         # graphics view mouse events
         self.graphicsView.mousePressEvent = self.mousePressEvent
@@ -192,6 +208,9 @@ class Ui(QtWidgets.QMainWindow):
             if obj not in grid_lines and not isinstance(obj, QGraphicsTextItem):
                 obj.setPen(current_line_color)
 
+    def change_edge(self, color: QColor):
+        pass
+
     def clear_scene(self):
         global prev_figure_points, current_figure_points
         for item in self.scene.items():
@@ -208,7 +227,7 @@ class Ui(QtWidgets.QMainWindow):
         current_figure_points = 0
 
     def add_point(self, point: Point = None) -> None:
-        if point is None:
+        if not point:
             point = self.get_point_coords()
         if point is not None:
             self.draw_point(point)
@@ -269,31 +288,28 @@ class Ui(QtWidgets.QMainWindow):
 
     def remove_point(self):
         point = self.get_point_coords()
-        if point is not None:
-            for i in range(len(point_list)):
-                if point_list[i] == point:
-                    if len(edges) > 1 and edges[i - 1]:
-                        for line in edges[i - 1]:
-                            if line in edges[i]:
-                                edges[i - 1].remove(line)
-                    if len(edges) > 1 and edges[i + 1]:
-                        for line in edges[i + 1]:
-                            if line in edges[i]:
-                                edges[i + 1].remove(line)
-                    if edges[i]:
-                        for line in edges[i]:
-                            self.scene.removeItem(line)
-                    edges.pop(i)
-                    self.scene.removeItem(scene_point_list[i])
-                    self.scene.removeItem(coords_desc[i])
-                    coords_desc.pop(i)
-                    point_list.pop(i)
-                    scene_point_list.pop(i)
-                    point_scale.pop(i)
-                    self.update_scroll_list()
-                    break
-            else:
-                show_err_win("Введенной точки не существует.")
+        if point is None:
+            return
+
+        for i in range(len(point_list)):
+            if point_list[i] == point:
+                del_lines_by_point(edges, i)
+                if edges[i]:
+                    for line in edges[i]:
+                        self.scene.removeItem(line)
+                edges.pop(i)
+                self.scene.removeItem(scene_point_list[i])
+                self.scene.removeItem(coords_desc[i])
+                coords_desc.pop(i)
+                point_list.pop(i)
+                scene_point_list.pop(i)
+                point_scale.pop(i)
+                self.update_scroll_list()
+                break
+        else:
+            show_err_win("Введенной точки не существует.")
+            return
+
         for i in range(len(figures)):
             for _ in range(len(figures[i])):
                 if figures[i][_] == point:
@@ -384,6 +400,12 @@ class Ui(QtWidgets.QMainWindow):
                         f.write(f"Время выполнения алгоритма в тесте {test_i}: {(end - start) * 1000:.2f} мс.\n")
                 else:
                     show_war_win(f"Время выполнения алгоритма: {(end - start) * 1000:.2f} мс.")
+
+    def add_zt(self):
+        pass
+
+    def add_figure(self):
+        pass
 
 
 if __name__ == '__main__':

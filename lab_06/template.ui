@@ -33,7 +33,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>lab_06. РЕАЛИЗАЦИЯ И ИССЛЕДОВАНИЕ АЛГОРИТМА ПОСТРОЧНОГО ЗАТРАВОЧНОГО  ЗАПОЛНЕНИЯ СПЛОШНЫХ ОБЛАСТЕЙ.</string>
+   <string>ЛР 6. Реализация и исследование алгоритма построчного затравочного  заполнения сплошных областей.</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -50,7 +50,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -530,6 +530,30 @@ color: rgb(255, 255, 255);</string>
           </layout>
          </widget>
         </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="add_figure_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>460</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+        </property>
+        <property name="text">
+         <string>Добавить фигуру</string>
+        </property>
        </widget>
       </item>
       <item>
