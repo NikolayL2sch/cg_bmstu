@@ -1,6 +1,6 @@
-Время выполнения алгоритма в тесте 1: 5.44 мс.
-Время выполнения алгоритма в тесте 2: 2.62 мс.
-Время выполнения алгоритма в тесте 3: 9.82 мс.
+Paint alg time in test 1: 2.45 mc.
+Paint alg time in test 2: 3.63 mc.
+Paint alg time in test 3: 5.52 mc.
 Name              Stmts   Miss  Cover
 -------------------------------------
 class_node.py         6      0   100%

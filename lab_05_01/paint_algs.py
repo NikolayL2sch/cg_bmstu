@@ -76,12 +76,14 @@ def append_active_edges(y_groups: Dict, active_edges: List[Node], y: float) -> N
 def draw_curr_scan_string(scene: QGraphicsScene, active_edges: List[Point], y: float, color: QColor) -> None:
     for i in range(0, len(active_edges), 2):
         try:
-            line = QGraphicsLineItem(active_edges[i].x, -y, active_edges[i + 1].x, -y)
+            line = QGraphicsLineItem(
+                active_edges[i].x, -y, active_edges[i + 1].x, -y)
             line.setPen(color)
             line.setZValue(1)
             scene.addItem(line)
         except IndexError:
-            line = QGraphicsLineItem(active_edges[i].x, -y, active_edges[i - 1].x, -y)
+            line = QGraphicsLineItem(
+                active_edges[i].x, -y, active_edges[i - 1].x, -y)
             line.setPen(color)
             line.setZValue(1)
             scene.addItem(line)
@@ -111,7 +113,8 @@ def paint_alg(figures: List[List[Point]], win: QMainWindow, color: QColor, test_
             if func_testing:
                 if start == step_screenshot:
                     screenshot = win.grab()
-                    screenshot.save(f'./results/test_delay_{test_i}_{screenshot_i}.png', 'png')
+                    screenshot.save(
+                        f'./results/test_delay_{test_i}_{screenshot_i}.png', 'png')
                     start = 0
                     screenshot_i += 1
                 start += 1

@@ -32,4 +32,4 @@ def test_get_figure_edges():
 
 
 def test_create_empty_linked_list():
-    assert(len(create_empty_linked_list(-222.6, 23.3)) == 246)
+    assert (len(create_empty_linked_list(-222.6, 23.3)) == 246)
