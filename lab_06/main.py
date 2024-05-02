@@ -1,7 +1,7 @@
 import sys
 from time import time
 
-from typing import List
+from typing import List, Tuple
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
@@ -13,6 +13,7 @@ from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
 from class_point import Point
 from input_checks import params_to_float
+from paint_funcs import paint_alg
 from point_funcs import del_lines_by_point
 
 grid_lines: List[QGraphicsLineItem] = []
@@ -33,6 +34,34 @@ dragging: bool = False
 
 last_pos: QPoint = None
 current_line_color: QColor = QColor(255, 0, 0)
+
+seed_point: Point = None
+scene_seed_point: QGraphicsEllipseItem = None
+
+
+def delete_point_from_figures(del_point_id: int) -> None:
+    k = del_point_id + 1
+    for _ in range(len(figures)):
+        if k - len(figures[_]) > 0:
+            k -= len(figures[_])
+        else:
+            figures[_].pop(k - 1)
+
+
+def delete_point_from_edges(del_point_id):
+    if len(edges) > 1 and edges[del_point_id - 1]:
+        for line in edges[del_point_id - 1]:
+            if line in edges[del_point_id]:
+                edges[del_point_id - 1].remove(line)
+    if len(edges) > 1:
+        if del_point_id + 1 < len(point_list):
+            for line in edges[del_point_id + 1]:
+                if line in edges[del_point_id]:
+                    edges[del_point_id + 1].remove(line)
+        elif figures and figures[0]:
+            for line in edges[0]:
+                if line in edges[del_point_id]:
+                    edges[0].remove(line)
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -140,6 +169,8 @@ class Ui(QtWidgets.QMainWindow):
             last_pos = event.pos()
         elif event.button() == Qt.RightButton:
             self.del_point_by_click(event)
+        elif event.button() == Qt.MiddleButton:
+            self.add_zt_point_by_click(event)
 
     def need_grid(self) -> bool:
         global max_win_size
@@ -343,41 +374,24 @@ class Ui(QtWidgets.QMainWindow):
                 del_point_id = i
         if min_diff > 10 * (1 / scale):
             show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
-        else:
-            k = del_point_id + 1
-            for _ in range(len(figures)):
-                if k - len(figures[_]) > 0:
-                    k -= len(figures[_])
-                else:
-                    figures[_].pop(k - 1)
-            if len(edges) > 1 and edges[del_point_id - 1]:
-                for line in edges[del_point_id - 1]:
-                    if line in edges[del_point_id]:
-                        edges[del_point_id - 1].remove(line)
-            if len(edges) > 1:
-                if del_point_id + 1 < len(point_list):
-                    for line in edges[del_point_id + 1]:
-                        if line in edges[del_point_id]:
-                            edges[del_point_id + 1].remove(line)
-                elif figures and figures[0]:
-                    for line in edges[0]:
-                        if line in edges[del_point_id]:
-                            edges[0].remove(line)
-            if edges[del_point_id]:
-                for line in edges[del_point_id]:
-                    self.scene.removeItem(line)
-            edges.pop(del_point_id)
-            if del_point_id == len(point_list) - 1 and len(point_list) > 2:
-                self.draw_line(point_list[del_point_id - 1], point_list[0])
-            elif len(point_list) > 2:
-                self.draw_line(point_list[del_point_id - 1], point_list[del_point_id + 1])
-            self.scene.removeItem(scene_point_list[del_point_id])
-            point_list.pop(del_point_id)
-            scene_point_list.pop(del_point_id)
-            point_scale.pop(del_point_id)
-            self.scene.removeItem(coords_desc[del_point_id])
-            coords_desc.pop(del_point_id)
-            self.update_scroll_list()
+            return
+        delete_point_from_figures(del_point_id)
+        delete_point_from_edges(del_point_id)
+        if edges[del_point_id]:
+            for line in edges[del_point_id]:
+                self.scene.removeItem(line)
+        edges.pop(del_point_id)
+        if del_point_id == len(point_list) - 1 and len(point_list) > 2:
+            self.draw_line(point_list[del_point_id - 1], point_list[0])
+        elif len(point_list) > 2:
+            self.draw_line(point_list[del_point_id - 1], point_list[del_point_id + 1])
+        self.scene.removeItem(scene_point_list[del_point_id])
+        point_list.pop(del_point_id)
+        scene_point_list.pop(del_point_id)
+        point_scale.pop(del_point_id)
+        self.scene.removeItem(coords_desc[del_point_id])
+        coords_desc.pop(del_point_id)
+        self.update_scroll_list()
 
     def set_new_colour(self) -> None:
         colour = QColorDialog.getColor(initial=current_line_color)
@@ -390,22 +404,66 @@ class Ui(QtWidgets.QMainWindow):
             delay = True
         if len(figures) == 0:
             show_err_win("Ошибка. Фигура не замкнута")
-        else:
-            start = time()
-            paint_alg(figures, self, current_line_color, test_i, delay, func_testing)
-            end = time()
-            if not delay:
-                if func_testing:
-                    with open('report-functesting-latest.txt', 'a+') as f:
-                        f.write(f"Время выполнения алгоритма в тесте {test_i}: {(end - start) * 1000:.2f} мс.\n")
-                else:
-                    show_war_win(f"Время выполнения алгоритма: {(end - start) * 1000:.2f} мс.")
+            return
+        if seed_point is None or scene_seed_point is None:
+            show_err_win("Ошибка. Не задана затравочная точка.")
+        start = time()
+        paint_alg()
+        end = time()
+        if not delay:
+            if func_testing:
+                with open('report-functesting-latest.txt', 'a+') as f:
+                    f.write(f"Время выполнения алгоритма в тесте {test_i}: {(end - start) * 1000:.2f} мс.\n")
+            else:
+                show_war_win(f"Время выполнения алгоритма: {(end - start) * 1000:.2f} мс.")
 
-    def add_zt(self):
-        pass
+    def add_zt(self, point: Point = None) -> None:
+        global seed_point
+        if not point:
+            seed_point = self.get_point_coords()
+        else:
+            seed_point = point
+        if seed_point is not None:
+            self.scene.removeItem(scene_seed_point)
+            self.draw_zt_point()
+
+    def draw_zt_point(self) -> None:
+        global scene_seed_point
+        scene_seed_point = QGraphicsEllipseItem(seed_point.x, -seed_point.y, 5, 5)
+        scene_seed_point.setBrush(Qt.magenta)
+        scene_seed_point.setZValue(1)
+        self.scene.addItem(scene_seed_point)
 
     def add_figure(self):
-        pass
+        if self.set_circle_figure.isChecked():
+            self.draw_circle()
+        else:
+            self.draw_ellipse()
+
+    def get_circle_params(self) -> Tuple[Point, float]:
+        xc_str = self.set_xc_circle.text()
+        yc_str = self.set_yc_circle.text()
+        radius_str = self.set_r_circle.text()
+        params = params_to_float(xc_str, yc_str, radius_str)
+        if len(params) == 0:
+            return
+        xc, yc, radius = params
+        if radius <= 0:
+            show_err_win("Значение радиуса должно быть больше нуля!")
+        return Point(xc, yc), radius
+
+    def draw_circle(self):
+        coords = self.get_circle_params()
+
+    def add_zt_point_by_click(self, event: QMouseEvent) -> None:
+        global seed_point
+        pos = event.pos()
+        scene_pos = self.graphicsView.mapToScene(pos)
+        p_x, p_y = scene_pos.x(), scene_pos.y()
+        if seed_point is not None and scene_seed_point is not None:
+            self.scene.removeItem(scene_seed_point)
+        seed_point = Point(p_x, -p_y)
+        self.draw_zt_point()
 
 
 if __name__ == '__main__':
