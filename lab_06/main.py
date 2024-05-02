@@ -7,13 +7,13 @@ from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog, \
-    QButtonGroup
+    QButtonGroup, QGraphicsRectItem
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 
 from dialogs import show_author, show_task, show_instruction, show_err_win, show_war_win
 from class_point import Point
 from input_checks import params_to_float
-from paint_funcs import paint_alg
+from paint_funcs import paint_alg, brezenhem_circle, brezenhem_ellipse
 from point_funcs import del_lines_by_point
 
 grid_lines: List[QGraphicsLineItem] = []
@@ -24,6 +24,7 @@ coords_desc: List[QGraphicsTextItem] = []
 scene_point_list: List[QGraphicsEllipseItem] = []
 figures: List[List[Point]] = []
 edges: List[List[QGraphicsLineItem]] = []
+limit_figures: List[List[Point]] = []
 
 scale: float = 1.0
 prev_figure_points: int = 0
@@ -440,6 +441,33 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.draw_ellipse()
 
+    def draw_ellipse(self) -> None:
+        coords = self.get_ellipse_params()
+        if coords is None:
+            return
+        center, width, height = coords
+        points = brezenhem_ellipse(center, width, height)
+        limit_figures.append(points)
+        for point in points:
+            p = QGraphicsRectItem(point.x, -point.y, 1, 1)
+            p.setPen(Qt.green)
+            p.setZValue(1)
+            self.scene.addItem(p)
+
+    def get_ellipse_params(self) -> Tuple[Point, float, float]:
+        xc_str = self.set_xc_ellipse.text()
+        yc_str = self.set_yc_ellipse.text()
+        width_str = self.set_ellipse_width.text()
+        height_str = self.set_ellipse_height.text()
+        params = params_to_float(xc_str, yc_str, width_str, height_str)
+        if len(params) == 0:
+            return
+        xc, yc, width, height = params
+        if width <= 0 or height <= 0:
+            show_err_win("Значение высоты и ширины должно быть больше нуля!")
+            return
+        return Point(xc, yc), width, height
+
     def get_circle_params(self) -> Tuple[Point, float]:
         xc_str = self.set_xc_circle.text()
         yc_str = self.set_yc_circle.text()
@@ -450,10 +478,21 @@ class Ui(QtWidgets.QMainWindow):
         xc, yc, radius = params
         if radius <= 0:
             show_err_win("Значение радиуса должно быть больше нуля!")
+            return
         return Point(xc, yc), radius
 
     def draw_circle(self):
         coords = self.get_circle_params()
+        if coords is None:
+            return
+        center, radius = coords
+        points = brezenhem_circle(center, radius)
+        limit_figures.append(points)
+        for point in points:
+            p = QGraphicsRectItem(point.x, -point.y, 1, 1)
+            p.setPen(Qt.green)
+            p.setZValue(1)
+            self.scene.addItem(p)
 
     def add_zt_point_by_click(self, event: QMouseEvent) -> None:
         global seed_point
