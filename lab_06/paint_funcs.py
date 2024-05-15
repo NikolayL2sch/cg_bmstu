@@ -13,7 +13,8 @@ def paint_alg(edge_color: QColor, fill_color: QColor, seed_point: Point, win: QM
         # Извлечь затравочный пиксель из стека
         seed_pixel = stack.pop()
 
-        win.image.setPixel(int(seed_pixel.x), int(seed_pixel.y), fill_color.rgb())
+        win.image.setPixel(int(seed_pixel.x), int(
+            seed_pixel.y), fill_color.rgb())
 
         x = seed_pixel.x + 1
         y = seed_pixel.y

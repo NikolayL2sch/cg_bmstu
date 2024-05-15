@@ -47,7 +47,8 @@ def brezenhem_ellipse(p: Point, width: float, height: float) -> List[Point]:
             else:
                 x += 1
                 y -= 1
-                d += height * height * (2 * x + 1) + width * width * (1 - 2 * y)
+                d += height * height * (2 * x + 1) + \
+                    width * width * (1 - 2 * y)
         else:
             d2 = 2 * d + height * height * (2 - 2 * x)
             y -= 1

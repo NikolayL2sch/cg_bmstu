@@ -1,0 +1,8 @@
+Name                Stmts   Miss  Cover
+---------------------------------------
+brezenhem_algs.py      78     27    65%
+class_point.py         26      3    88%
+module_test.py         36      0   100%
+point_funcs.py         25     12    52%
+---------------------------------------
+TOTAL                 165     42    75%

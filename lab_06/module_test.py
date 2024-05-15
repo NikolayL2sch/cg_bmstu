@@ -31,7 +31,7 @@ def test_ellipse_brezenhem(null_point):
     points = brezenhem_ellipse(null_point, 2, 5)
     result = [Point(0.0, 5.0), Point(0.0, 5.0), Point(0.0, -5.0), Point(0.0, -5.0),
               Point(-1.0, 4.0), Point(1.0, 4.0), Point(1.0, -
-        4.0), Point(-1.0, -4.0),
+                                                       4.0), Point(-1.0, -4.0),
               Point(-1.0, 3.0), Point(1.0,
                                       3.0), Point(1.0, -3.0), Point(-1.0, -3.0),
               Point(-1.0, 2.0), Point(1.0,

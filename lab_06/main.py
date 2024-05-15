@@ -165,7 +165,8 @@ class Ui(QtWidgets.QMainWindow):
                 break
         else:
             point_list.append(point)
-            self.scroll_list.addItem(f'{len(point_list)}.({point.x}; {point.y})')
+            self.scroll_list.addItem(
+                f'{len(point_list)}.({point.x}; {point.y})')
             self.image.setPixel(point.x, point.y, current_edge_color.rgb())
             edges.append([])
             if len(point_list) > 1:
@@ -192,7 +193,8 @@ class Ui(QtWidgets.QMainWindow):
                 if edges[i]:
                     for line in edges[i]:
                         for pixel in line:
-                            self.image.setPixel(int(pixel.x), int(pixel.y), QColor(Qt.white).rgb())
+                            self.image.setPixel(int(pixel.x), int(
+                                pixel.y), QColor(Qt.white).rgb())
                 edges.pop(i)
                 if i == len(point_list) - 1 and len(point_list) > 2:
                     self.draw_line(point_list[i - 1], point_list[0])
@@ -215,7 +217,8 @@ class Ui(QtWidgets.QMainWindow):
     def update_scroll_list(self) -> None:
         self.scroll_list.clear()
         for i in range(len(point_list)):
-            self.scroll_list.addItem(f'{i + 1}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
+            self.scroll_list.addItem(
+                f'{i + 1}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def close_figure(self):
         global prev_figure_points
@@ -223,7 +226,8 @@ class Ui(QtWidgets.QMainWindow):
             show_err_win("Введено недостаточно точек для этого действия")
         else:
             self.draw_line(point_list[0], point_list[-1])
-            figures.append(point_list[prev_figure_points:current_figure_points:])
+            figures.append(
+                point_list[prev_figure_points:current_figure_points:])
             prev_figure_points = current_figure_points
 
     def del_point_by_click(self, event: QGraphicsSceneMouseEvent):
@@ -232,22 +236,26 @@ class Ui(QtWidgets.QMainWindow):
         del_point_id = -1
         for i in range(len(point_list)):
             if abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y) < min_diff:
-                min_diff = abs(scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y)
+                min_diff = abs(
+                    scene_pos.x() - point_list[i].x) + abs(scene_pos.y() - point_list[i].y)
                 del_point_id = i
         if min_diff > 10:
-            show_err_win("Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
+            show_err_win(
+                "Кажется, вы пытаетесь удалить несуществующую точку.\nПопробуйте кликнуть ближе к точке.")
             return
         delete_point_from_figures(del_point_id)
         delete_point_from_edges(del_point_id)
         if edges[del_point_id]:
             for line in edges[del_point_id]:
                 for pixel in line:
-                    self.image.setPixel(int(pixel.x), int(pixel.y), QColor(Qt.white).rgb())
+                    self.image.setPixel(int(pixel.x), int(
+                        pixel.y), QColor(Qt.white).rgb())
         edges.pop(del_point_id)
         if del_point_id == len(point_list) - 1 and len(point_list) > 2:
             self.draw_line(point_list[del_point_id - 1], point_list[0])
         elif len(point_list) > 2:
-            self.draw_line(point_list[del_point_id - 1], point_list[del_point_id + 1])
+            self.draw_line(point_list[del_point_id - 1],
+                           point_list[del_point_id + 1])
         point_list.pop(del_point_id)
         self.update_scroll_list()
 
@@ -262,7 +270,8 @@ class Ui(QtWidgets.QMainWindow):
             show_err_win("Ошибка. Не задана затравочная точка.")
             return
         start = time()
-        paint_alg(current_edge_color, current_paint_color, seed_point, self, delay=delay)
+        paint_alg(current_edge_color, current_paint_color,
+                  seed_point, self, delay=delay)
         end = time()
         if not delay:
             if func_testing:
@@ -280,34 +289,45 @@ class Ui(QtWidgets.QMainWindow):
         if new_point is not None:
             if seed_point is not None:
                 for i in range(3):
-                    self.image.setPixel(int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.white).rgb())
-                    self.image.setPixel(int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.white).rgb())
-                    self.image.setPixel(int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.white).rgb())
-                    self.image.setPixel(int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.white).rgb())
+                    self.image.setPixel(
+                        int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.white).rgb())
+                    self.image.setPixel(
+                        int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.white).rgb())
+                    self.image.setPixel(
+                        int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.white).rgb())
+                    self.image.setPixel(
+                        int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.white).rgb())
             seed_point = new_point
             for i in range(3):
-                self.image.setPixel(int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.magenta).rgb())
-                self.image.setPixel(int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.magenta).rgb())
-                self.image.setPixel(int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.magenta).rgb())
-                self.image.setPixel(int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.magenta).rgb())
-            self.current_seed_label.setText(f"x,y затравки: {seed_point.x}, {seed_point.y}")
+                self.image.setPixel(
+                    int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.magenta).rgb())
+                self.image.setPixel(
+                    int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.magenta).rgb())
+                self.image.setPixel(
+                    int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.magenta).rgb())
+                self.image.setPixel(
+                    int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.magenta).rgb())
+            self.current_seed_label.setText(
+                f"x,y затравки: {seed_point.x}, {seed_point.y}")
             self.redraw()
 
-    def add_figure(self):
+    def add_figure(self, args):
         if self.set_circle_figure.isChecked():
-            self.draw_circle()
+            self.draw_circle(args)
         else:
-            self.draw_ellipse()
+            self.draw_ellipse(args)
 
-    def draw_ellipse(self) -> None:
-        coords = self.get_ellipse_params()
+    def draw_ellipse(self, coords=None) -> None:
         if coords is None:
-            return
+            coords = self.get_ellipse_params()
+            if coords is None:
+                return
         center, width, height = coords
         points = brezenhem_ellipse(center, width, height)
         limit_figures.append(points)
         for point in points:
-            self.image.setPixel(int(point.x), int(point.y), current_edge_color.rgb())
+            self.image.setPixel(int(point.x), int(
+                point.y), current_edge_color.rgb())
         self.redraw()
 
     def get_ellipse_params(self) -> Tuple[Point, int, int]:
@@ -337,15 +357,17 @@ class Ui(QtWidgets.QMainWindow):
             return
         return Point(xc, yc), radius
 
-    def draw_circle(self):
-        coords = self.get_circle_params()
+    def draw_circle(self, coords=None):
         if coords is None:
-            return
+            coords = self.get_circle_params()
+            if coords is None:
+                return
         center, radius = coords
         points = brezenhem_circle(center, radius)
         limit_figures.append(points)
         for point in points:
-            self.image.setPixel(int(point.x), int(point.y), QColor(current_edge_color).rgb())
+            self.image.setPixel(int(point.x), int(point.y),
+                                QColor(current_edge_color).rgb())
         self.redraw()
 
     def add_zt_point_by_click(self, event: QGraphicsSceneMouseEvent) -> None:
@@ -354,17 +376,26 @@ class Ui(QtWidgets.QMainWindow):
         p_x, p_y = scene_pos.x(), scene_pos.y()
         if seed_point is not None:
             for i in range(3):
-                self.image.setPixel(int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.white).rgb())
-                self.image.setPixel(int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.white).rgb())
-                self.image.setPixel(int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.white).rgb())
-                self.image.setPixel(int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.white).rgb())
+                self.image.setPixel(
+                    int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.white).rgb())
+                self.image.setPixel(
+                    int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.white).rgb())
+                self.image.setPixel(
+                    int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.white).rgb())
+                self.image.setPixel(
+                    int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.white).rgb())
         seed_point = Point(p_x, p_y)
-        self.current_seed_label.setText(f"x,y затравки: {seed_point.x}, {seed_point.y}")
+        self.current_seed_label.setText(
+            f"x,y затравки: {seed_point.x}, {seed_point.y}")
         for i in range(3):
-            self.image.setPixel(int(seed_point.x + i), int(seed_point.y - i), QColor(Qt.magenta).rgb())
-            self.image.setPixel(int(seed_point.x - i), int(seed_point.y + i), QColor(Qt.magenta).rgb())
-            self.image.setPixel(int(seed_point.x + i), int(seed_point.y + i), QColor(Qt.magenta).rgb())
-            self.image.setPixel(int(seed_point.x - i), int(seed_point.y - i), QColor(Qt.magenta).rgb())
+            self.image.setPixel(int(seed_point.x + i),
+                                int(seed_point.y - i), QColor(Qt.magenta).rgb())
+            self.image.setPixel(int(seed_point.x - i),
+                                int(seed_point.y + i), QColor(Qt.magenta).rgb())
+            self.image.setPixel(int(seed_point.x + i),
+                                int(seed_point.y + i), QColor(Qt.magenta).rgb())
+            self.image.setPixel(int(seed_point.x - i),
+                                int(seed_point.y - i), QColor(Qt.magenta).rgb())
         self.redraw()
 
 
@@ -403,12 +434,29 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         FUNC_TESTING = True
         test_i = int(sys.argv[1])
-        num_points = int(sys.argv[2])
+        seed_x = int(sys.argv[2])
+        seed_y = int(sys.argv[3])
+        seed_point = Point(seed_x, seed_y)
+        num_points = int(sys.argv[4])
         for _ in range(num_points):
-            window.add_point(Point(int(sys.argv[2 * _ + 3]), int(sys.argv[2 * _ + 4])))
-        if sys.argv[-1] == 'true':
+            window.add_point(
+                Point(int(sys.argv[2 * _ + 5]), int(sys.argv[2 * _ + 6])))
+        if sys.argv[2 * num_points + 5] == 'true':
             window.set_delay_cb.setChecked(True)
         window.close_figure()
+        if len(sys.argv) > 2 * num_points + 6:
+            limit_figure_type = sys.argv[2 * num_points + 6]
+            if limit_figure_type == 'circle':
+                window.set_circle_figure.setChecked(True)
+                data = [Point(int(sys.argv[2 * num_points + 7]), int(sys.argv[2 * num_points + 8])),
+                        int(sys.argv[2 * num_points + 9])]
+            else:
+                window.set_ellipse_figure.setChecked(True)
+                data = [Point(int(sys.argv[2 * num_points + 7]), int(sys.argv[2 * num_points + 8])),
+                        int(sys.argv[2 * num_points + 9]), int(sys.argv[2 * num_points + 10])]
+
+            window.add_figure(data)
+
         window.paint_figures(func_testing=True)
 
     if FUNC_TESTING:
