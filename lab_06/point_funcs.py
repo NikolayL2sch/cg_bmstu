@@ -1,16 +1,14 @@
 from typing import List
 
-from PyQt5.QtWidgets import QGraphicsLineItem
-
 from class_point import Point
 
 
-def del_lines_by_point(edges: List[QGraphicsLineItem], ind: int) -> None:
+def del_lines_by_point(edges: List[List[List[Point]]], ind: int) -> None:
     if len(edges) > 1 and edges[ind - 1]:
         for line in edges[ind - 1]:
             if line in edges[ind]:
                 edges[ind - 1].remove(line)
-    if len(edges) > 1 and edges[ind + 1]:
+    if len(edges) > 1 and ind + 1 < len(edges) and edges[ind + 1]:
         for line in edges[ind + 1]:
             if line in edges[ind]:
                 edges[ind + 1].remove(line)

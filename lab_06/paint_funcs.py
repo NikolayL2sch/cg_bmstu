@@ -1,57 +1,67 @@
-from typing import List
+import time
+
+from PyQt5.QtCore import QEventLoop
+from PyQt5.QtGui import QColor, QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from class_point import Point
-from point_funcs import add_symmetr_points
 
 
-def paint_alg():
-    pass
+def paint_alg(edge_color: QColor, fill_color: QColor, seed_point: Point, win: QMainWindow, delay=False):
+    stack = [seed_point]
+    while stack:
+        # Извлечь затравочный пиксель из стека
+        seed_pixel = stack.pop()
 
+        win.image.setPixel(int(seed_pixel.x), int(seed_pixel.y), fill_color.rgb())
 
-def brezenhem_circle(p: Point, radius: float) -> List[Point]:
-    points = []
-    x = 0
-    y = radius
-    d = 2 * (1 - radius)
-    while x <= y:
-        points.extend(add_symmetr_points(p, Point(x + p.x, y + p.y), True))
-        d1 = 2 * d + 2 * y - 1
-        if d1 < 0:
+        x = seed_pixel.x + 1
+        y = seed_pixel.y
+
+        pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
+        while pixel_color != fill_color.rgb() and pixel_color != edge_color.rgb():
+            win.image.setPixel(int(x), int(y), fill_color.rgb())
             x += 1
-            d = d + 2 * x + 1
-        else:
-            x += 1
-            y -= 1
-            d = d + 2 * (x - y + 1)
-    return points
+            pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
 
+        xr = x - 1
+        x = seed_pixel.x - 1
+        pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
 
-def brezenhem_ellipse(p: Point, width: float, height: float) -> List[Point]:
-    x = 0
-    y = height
-    points = []
+        while pixel_color != fill_color.rgb() and pixel_color != edge_color.rgb() and x > 0:
+            win.image.setPixel(int(x), int(y), fill_color.rgb())
+            x -= 1
+            pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
 
-    d = height * height - width * width * (2 * height - 1)
-    y_k = 0
-    while y >= y_k:
-        points.extend(add_symmetr_points(p, Point(x + p.x, y + p.y)))
-        if d <= 0:
-            d1 = 2 * d + width * width * (2 * y + 2)
-            if d1 < 0:
-                x += 1
-                d = d + height * height * (2 * x + 1)
-            else:
-                x += 1
-                y -= 1
-                d += height * height * (2 * x + 1) + \
-                    width * width * (1 - 2 * y)
-        else:
-            d2 = 2 * d + height * height * (2 - 2 * x)
-            y -= 1
-            if d2 < 0:
-                x += 1
-                d = d + height * height * \
-                    (2 * x + 1) + width * width * (1 - 2 * y)
-            else:
-                d += width * width * (1 - 2 * y)
-    return points
+        xl = x + 1
+        sign = [1, -1]
+        for i in sign:
+            x = xl
+            y = seed_pixel.y + i
+            while x <= xr:
+                flag = False
+                pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
+                while pixel_color != fill_color.rgb() and pixel_color != edge_color.rgb() and x <= xr:
+                    flag = True
+                    x += 1
+                    pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
+
+                if flag:
+                    if x == xr and pixel_color != fill_color.rgb() and pixel_color != edge_color.rgb():
+                        stack.append(Point(x, y))
+                    else:
+                        stack.append(Point(x - 1, y))
+                x_in = x
+                pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
+                while x < xr and (pixel_color == fill_color.rgb() or pixel_color == edge_color.rgb()):
+                    x += 1
+                    pixel_color = win.image.pixelColor(int(x), int(y)).rgb()
+                if x == x_in:
+                    x += 1
+        if delay:
+            win.scene.clear()
+            win.scene.addPixmap(QPixmap.fromImage(win.image))
+            QApplication.processEvents(QEventLoop.AllEvents, 1)
+            time.sleep(0.01)
+    win.scene.clear()
+    win.scene.addPixmap(QPixmap.fromImage(win.image))

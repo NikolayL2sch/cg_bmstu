@@ -1,7 +1,8 @@
-EPS = 1e-6  # для сравнения вещественных точек-координат
-
-
 # класс точка
+
+EPS = 1e-13
+
+
 class Point:
     def __init__(self, *args) -> object:
         if args:
@@ -16,11 +17,11 @@ class Point:
             return abs(self._x - other.x) < EPS and abs(self._y - other.y) < EPS
         return False
 
-    x = property(float)
-    y = property(float)
+    x = property(int)
+    y = property(int)
 
     @x.getter
-    def x(self) -> float: return self._x
+    def x(self) -> int: return self._x
 
     @x.setter
     def x(self, value): self._x = value
@@ -29,7 +30,7 @@ class Point:
     def x(self): self._x = 0
 
     @y.getter
-    def y(self) -> float: return self._y
+    def y(self) -> int: return self._y
 
     @y.setter
     def y(self, value): self._y = value
