@@ -6,7 +6,8 @@ from typing import List
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog, \
+    QGraphicsRectItem
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
@@ -24,16 +25,48 @@ scale: float = 1.0
 
 is_pressed: bool = False
 dragging: bool = False
+enter_cutoff: bool = False
 
 last_pos: QPoint = None
 current_edge_color: QColor = QColor(255, 0, 0)
-current_paint_color: QColor = QColor(0, 0, 255)
+current_cutoff_color: QColor = QColor(0, 0, 255)
+
+
+def change_segment_color() -> None:
+    colour = QColorDialog.getColor(initial=current_cutoff_color)
+    if colour.isValid():
+        if colour.getRgb() != current_cutoff_color.getRgb():
+            set_segment_color(QColor(colour))
+        else:
+            show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
+
+
+def set_segment_color(color: QColor) -> None:
+    global current_edge_color
+    current_edge_color = color
+
+
+def set_cutoff_color(color: QColor) -> None:
+    global current_cutoff_color
+    current_cutoff_color = color
+
+
+def change_cutoff_color() -> None:
+    colour = QColorDialog.getColor(initial=current_cutoff_color)
+    if colour.isValid():
+        if colour.getRgb() != current_edge_color.getRgb():
+            set_cutoff_color(QColor(colour))
+        else:
+            show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
 
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
         uic.loadUi("./lab_07_03/template.ui", self)  # временно в корне
+
+        self.rect = []
+        self.scene_rect = None
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -53,8 +86,8 @@ class Ui(QtWidgets.QMainWindow):
 
         # push buttons
         self.add_cutoff_button.clicked.connect(self.add_cutoff)
-        self.change_cutoff_color_button.clicked.connect(self.change_cutoff_color)
-        self.change_segment_color_button.clicked.connect(self.change_segment_color)
+        self.change_cutoff_color_button.clicked.connect(change_cutoff_color)
+        self.change_segment_color_button.clicked.connect(change_segment_color)
         self.add_segment_cutoff_button.clicked.connect(self.add_segment_cutoff)
         self.cutoff_button.clicked.connect(self.cutoff)
 
@@ -90,8 +123,10 @@ class Ui(QtWidgets.QMainWindow):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         global is_pressed, dragging
         if event.button() == Qt.LeftButton:
-            if not dragging:
+            if not dragging and not enter_cutoff:
                 self.add_point_by_click(event)
+            elif not dragging and enter_cutoff:
+                self.add_point_cutoff(event)
             dragging = False
             is_pressed = False
 
@@ -225,7 +260,7 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 segments[-1].append(point_list[-1])
                 self.draw_line(point_list[-2], point_list[-1])
-            scene_point_list.append(point)
+            scene_point_list.append(scene_point)
 
     def add_point_label(self, scene_point: QGraphicsEllipseItem, point: Point) -> None:
         point_coords_label = QGraphicsTextItem(
@@ -258,14 +293,25 @@ class Ui(QtWidgets.QMainWindow):
         if colour.isValid():
             self.change_color(QColor(colour))
 
+    def add_point_cutoff(self, event: QMouseEvent):
+        global enter_cutoff
+        pos = event.pos()
+        scene_pos = self.graphicsView.mapToScene(pos)
+        p_x, p_y = scene_pos.x(), scene_pos.y()
+        self.rect.append(Point(p_x, -p_y))
+        if len(self.rect) == 2:
+            self.scene.removeItem(self.scene_rect)
+            self.scene_rect = QGraphicsRectItem(self.rect[0].x, -self.rect[0].y, self.rect[1].x - self.rect[0].x,
+                                                -self.rect[1].y + self.rect[0].y)
+            self.scene_rect.setPen(current_cutoff_color)
+            self.scene.addItem(self.scene_rect)
+            enter_cutoff = False
+
     def add_cutoff(self) -> None:
-        pass
-
-    def change_cutoff_color(self) -> None:
-        pass
-
-    def change_segment_color(self) -> None:
-        pass
+        global enter_cutoff
+        enter_cutoff = True
+        self.rect = []
+        self.scene_rect = None
 
     def add_segment_cutoff(self) -> None:
         pass
