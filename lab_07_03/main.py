@@ -8,7 +8,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog, \
     QGraphicsRectItem
-from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont
+from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont, QKeyEvent
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
 from class_point import Point
@@ -26,10 +26,15 @@ scale: float = 1.0
 is_pressed: bool = False
 dragging: bool = False
 enter_cutoff: bool = False
+enter_vert_segment: bool = False
+enter_hor_segment: bool = False
 
 last_pos: QPoint = None
 current_edge_color: QColor = QColor(255, 0, 0)
 current_cutoff_color: QColor = QColor(0, 0, 255)
+
+tmp_vert_segment: QGraphicsLineItem = None
+tmp_hor_segment: QGraphicsLineItem = None
 
 
 def change_segment_color() -> None:
@@ -121,12 +126,12 @@ class Ui(QtWidgets.QMainWindow):
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        global is_pressed, dragging
+        global is_pressed, dragging, enter_vert_segment, enter_hor_segment
         if event.button() == Qt.LeftButton:
             if not dragging and not enter_cutoff:
                 self.add_point_by_click(event)
-            elif not dragging and enter_cutoff:
-                self.add_point_cutoff(event)
+            enter_vert_segment = False
+            enter_hor_segment = False
             dragging = False
             is_pressed = False
 
@@ -134,18 +139,45 @@ class Ui(QtWidgets.QMainWindow):
         global last_pos, dragging
         if is_pressed:
             dragging = True
-            dx = event.pos().x() - last_pos.x()
-            dy = event.pos().y() - last_pos.y()
-            self.graphicsView.horizontalScrollBar().setValue(
-                self.graphicsView.horizontalScrollBar().value() - dx)
-            self.graphicsView.verticalScrollBar().setValue(
-                self.graphicsView.verticalScrollBar().value() - dy)
-            last_pos = event.pos()
-            if self.need_grid():
-                for grid_line in grid_lines:
-                    if grid_line in self.scene.items():
-                        self.scene.removeItem(grid_line)
-                self.add_grid()
+            last_scene_pos = self.graphicsView.mapToScene(last_pos)
+            cur_scene_pos = self.graphicsView.mapToScene(event.pos())
+            if enter_cutoff:
+                for elem in self.scene.items():
+                    if isinstance(elem, QGraphicsRectItem):
+                        self.scene.removeItem(elem)
+                        break
+                tmp_rect = QGraphicsRectItem(last_scene_pos.x(), last_scene_pos.y(),
+                                             cur_scene_pos.x() - last_scene_pos.x(),
+                                             cur_scene_pos.y() - last_scene_pos.y())
+                tmp_rect.setPen(current_cutoff_color)
+                self.scene.addItem(tmp_rect)
+                self.scene_rect = tmp_rect
+                self.rect = [last_scene_pos.x(), last_scene_pos.y(), cur_scene_pos.x(), cur_scene_pos.y()]
+
+            elif enter_vert_segment:
+                global tmp_vert_segment
+                if tmp_vert_segment:
+                    self.scene.removeItem(tmp_vert_segment)
+                tmp_vert_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
+                                                     cur_scene_pos.x(), last_scene_pos.y())
+                tmp_vert_segment.setPen(current_edge_color)
+                self.scene.addItem(tmp_vert_segment)
+            elif enter_hor_segment:
+                pass
+            else:
+                dx = event.pos().x() - last_pos.x()
+                dy = event.pos().y() - last_pos.y()
+                self.graphicsView.horizontalScrollBar().setValue(
+                    self.graphicsView.horizontalScrollBar().value() - dx)
+                self.graphicsView.verticalScrollBar().setValue(
+                    self.graphicsView.verticalScrollBar().value() - dy)
+                last_pos = event.pos()
+                if self.need_grid():
+                    for grid_line in grid_lines:
+                        if grid_line in self.scene.items():
+                            self.scene.removeItem(grid_line)
+                    self.add_grid()
+
         scene_pos = self.graphicsView.mapToScene(event.pos())
         self.current_coords_label.setText(
             f'x :{scene_pos.x():.2f}, y :{-scene_pos.y():.2f}')
@@ -155,6 +187,17 @@ class Ui(QtWidgets.QMainWindow):
         if event.button() == Qt.LeftButton:
             is_pressed = True
             last_pos = event.pos()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        global enter_vert_segment, enter_hor_segment
+        if event.key() == Qt.Key_Escape:
+            self.close()
+        elif event.key() == Qt.Key_Control and event.modifiers() & Qt.ControlModifier:
+            enter_vert_segment = True
+            enter_hor_segment = False
+        elif event.key() == Qt.Key_Shift and event.modifiers() & Qt.ControlModifier:
+            enter_hor_segment = True
+            enter_vert_segment = False
 
     def need_grid(self) -> bool:
         global max_win_size
@@ -293,23 +336,13 @@ class Ui(QtWidgets.QMainWindow):
         if colour.isValid():
             self.change_color(QColor(colour))
 
-    def add_point_cutoff(self, event: QMouseEvent):
-        global enter_cutoff
-        pos = event.pos()
-        scene_pos = self.graphicsView.mapToScene(pos)
-        p_x, p_y = scene_pos.x(), scene_pos.y()
-        self.rect.append(Point(p_x, -p_y))
-        if len(self.rect) == 2:
-            self.scene.removeItem(self.scene_rect)
-            self.scene_rect = QGraphicsRectItem(self.rect[0].x, -self.rect[0].y, self.rect[1].x - self.rect[0].x,
-                                                -self.rect[1].y + self.rect[0].y)
-            self.scene_rect.setPen(current_cutoff_color)
-            self.scene.addItem(self.scene_rect)
-            enter_cutoff = False
-
     def add_cutoff(self) -> None:
         global enter_cutoff
-        enter_cutoff = True
+        enter_cutoff = True if not enter_cutoff else False
+        if enter_cutoff:
+            self.add_cutoff_button.setText("Закончить добавление отсекателя")
+        else:
+            self.add_cutoff_button.setText("Добавить отсекатель")
         self.rect = []
         self.scene_rect = None
 
