@@ -1,0 +1,9 @@
+Name             Stmts   Miss  Cover
+------------------------------------
+class_point.py      26      1    96%
+cut_algs.py         54      8    85%
+dialogs.py          31     25    19%
+main.py            367    164    55%
+module_test.py      26      0   100%
+------------------------------------
+TOTAL              504    198    61%

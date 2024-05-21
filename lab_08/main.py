@@ -21,6 +21,7 @@ coords_desc: List[QGraphicsTextItem] = []
 scene_point_list: List[QGraphicsEllipseItem] = []
 segments: List[List[Point]] = []
 figure_points: List[Point] = []
+parallel_segment: List[Point] = []
 
 scale: float = 1.0
 
@@ -29,6 +30,7 @@ dragging: bool = False
 enter_cutoff: bool = False
 enter_vert_segment: bool = False
 enter_hor_segment: bool = False
+enter_parallel_segment: bool = False
 
 last_pos: QPoint = None
 current_edge_color: QColor = QColor(255, 0, 0)
@@ -37,6 +39,7 @@ cutted_segment_color: QColor = QColor(0, 255, 0)
 
 tmp_vert_segment: QGraphicsLineItem = None
 tmp_hor_segment: QGraphicsLineItem = None
+tmp_parallel_line: QGraphicsLineItem = None
 
 
 def change_segment_color() -> None:
@@ -68,7 +71,15 @@ def change_cutoff_color() -> None:
 
 
 def enable_line_mode(item):
-    print(f'Clicked on: {item.text()}')
+    global parallel_segment
+    global enter_parallel_segment
+    enter_parallel_segment = True if not enter_parallel_segment else False
+    unpacked_segment = item.text().split(' <-> ')
+    p1_str = unpacked_segment[0][1:-1].split(',')
+    p2_str = unpacked_segment[1][1:-1].split(',')
+
+    parallel_segment = [Point(float(p1_str[0]), float(p1_str[1])),
+                        Point(float(p2_str[0]), float(p2_str[1]))]
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -132,12 +143,19 @@ class Ui(QtWidgets.QMainWindow):
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        global is_pressed, dragging, enter_vert_segment, enter_hor_segment
+        global is_pressed, dragging, enter_vert_segment, enter_hor_segment, enter_parallel_segment, tmp_parallel_line
         if event.button() == Qt.LeftButton:
             if not dragging and not enter_cutoff:
                 self.add_point_by_click(event)
             elif not dragging and enter_cutoff:
                 self.add_point_figure(event)
+            elif enter_parallel_segment:
+                enter_parallel_segment = False
+                p_segment = segments.pop()
+                self.scene.removeItem(tmp_parallel_line)
+                self.draw_point(p_segment[0])
+                self.draw_point(p_segment[1])
+                tmp_parallel_line = None
             enter_vert_segment = False
             enter_hor_segment = False
             dragging = False
@@ -172,6 +190,22 @@ class Ui(QtWidgets.QMainWindow):
                 self.scene.addItem(tmp_hor_segment)
                 segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
                                  Point(last_scene_pos.x(), -cur_scene_pos.y())])
+            elif enter_parallel_segment:
+                global tmp_parallel_line
+                if tmp_parallel_line:
+                    self.scene.removeItem(tmp_parallel_line)
+                    segments.pop()
+                k = (parallel_segment[1].y - parallel_segment[0].y) / \
+                    (parallel_segment[1].x - parallel_segment[0].x)
+                b = -last_scene_pos.y() - k * last_scene_pos.x()
+                y = b + k * cur_scene_pos.x()
+                tmp_parallel_line = QGraphicsLineItem(
+                    last_scene_pos.x(), last_scene_pos.y(), cur_scene_pos.x(), -y)
+                tmp_parallel_line.setPen(current_edge_color)
+                self.scene.addItem(tmp_parallel_line)
+                segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
+                                 Point(cur_scene_pos.x(), y)])
+
             else:
                 dx = event.pos().x() - last_pos.x()
                 dy = event.pos().y() - last_pos.y()
@@ -438,18 +472,16 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         FUNC_TESTING = True
         test_i = int(sys.argv[1])
-        x_1 = float(sys.argv[2])
-        y_1 = float(sys.argv[3])
-        x_2 = float(sys.argv[4])
-        y_2 = float(sys.argv[5])
-        window.redraw_rect(x_1, -y_1, x_2, -y_2)
-        num_segments = int(sys.argv[6])
+        num_cutoff_points = int(sys.argv[2])
+        for _ in range(num_cutoff_points):
+            px, py = float(sys.argv[2 * _ + 3]), float(sys.argv[2 * _ + 4])
+            window.draw_figure_point(Point(px, py))
+        window.close_figure()
+        num_segments = int(sys.argv[2 * num_cutoff_points + 3])
+        start_id = 2 * num_cutoff_points + 4
         for _ in range(2 * num_segments):
             window.draw_point(
-                Point(float(sys.argv[2 * _ + 7]), float(sys.argv[2 * _ + 8])))
-        if len(sys.argv) > 4 * num_segments + 7:
-            if sys.argv[4 * num_segments + 7] == 'true':
-                window.add_segment_cutoff()
+                Point(float(sys.argv[start_id + 2 * _]), float(sys.argv[start_id + 2 * _ + 1])))
         window.cutoff()
 
     if FUNC_TESTING:
