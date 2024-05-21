@@ -74,7 +74,7 @@ def enable_line_mode(item):
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./lab_08/template.ui", self)  # временно в корне
+        uic.loadUi("./template.ui", self)  # временно в корне
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -329,11 +329,13 @@ class Ui(QtWidgets.QMainWindow):
 
     def update_figure_segments(self, closing=False):
         if closing:
-            self.draw_line(figure_points[-1], figure_points[0], current_cutoff_color)
+            self.draw_line(figure_points[-1],
+                           figure_points[0], current_cutoff_color)
             self.edges_list.addItem(f'({figure_points[-1].x}, {figure_points[-1].y}) <-> '
                                     f'({figure_points[0].x}, {figure_points[0].y})')
         elif len(figure_points) >= 2:
-            self.draw_line(figure_points[-1], figure_points[-2], current_cutoff_color)
+            self.draw_line(
+                figure_points[-1], figure_points[-2], current_cutoff_color)
             self.edges_list.addItem(f'({figure_points[-2].x}, {figure_points[-2].y}) <-> '
                                     f'({figure_points[-1].x}, {figure_points[-1].y})')
 

@@ -1,6 +1,6 @@
 from typing import List, Tuple, Union
 
-from PyQt5.QtGui import QVector2D, QVector3D
+from PyQt5.QtGui import QVector2D
 
 from class_point import Point
 
@@ -23,8 +23,10 @@ def check_convexity_polygon(figure_point_list: List[Point]) -> bool:
         sign = -1
 
     for i in range(len(figure_point_list)):
-        v_i = get_segment_vector(figure_point_list[i - 2], figure_point_list[i - 1])
-        v_j = get_segment_vector(figure_point_list[i - 1], figure_point_list[i])
+        v_i = get_segment_vector(
+            figure_point_list[i - 2], figure_point_list[i - 1])
+        v_j = get_segment_vector(
+            figure_point_list[i - 1], figure_point_list[i])
 
         # если знак произведения хотя бы раз отличается от начального sign, то многоугольник не выпуклый
         if sign * get_vector_mul(v_i, v_j) < 0:
@@ -55,10 +57,12 @@ def cyrus_beck(p1: Point, p2: Point, figure_point_list: List[Point]) -> Union[Tu
     # параметр параметрического уравнения отрезка
     t_beg = 0
     t_end = 1
-    d = get_segment_vector(p1, p2)  # вектор, задающий ориентацию отсекаемого отрезка
+    # вектор, задающий ориентацию отсекаемого отрезка
+    d = get_segment_vector(p1, p2)
     for i in range(-2, len(figure_point_list) - 2):
         # Вычисление вектора внутренней нормали к очередной i-ой стороне окна отсечения
-        normal = get_normal(figure_point_list[i], figure_point_list[i + 1], figure_point_list[i + 2])
+        normal = get_normal(
+            figure_point_list[i], figure_point_list[i + 1], figure_point_list[i + 2])
         # print(f'inner normal: {normal.x(), normal.y()}')
         w = get_segment_vector(figure_point_list[i], p1)
 
