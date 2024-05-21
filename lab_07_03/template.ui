@@ -33,7 +33,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>ЛР 6. Реализация и исследование алгоритма построчного затравочного  заполнения сплошных областей.</string>
+   <string>ЛР 7. Реализация алгоритма отсечения отрезка регулярным отсекателем.</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>

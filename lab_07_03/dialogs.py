@@ -29,7 +29,8 @@ def show_task():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle("Условие задачи")
-    msg.setText('Программа реализует алгоритм разбиения отрезка средней точкой.\n')
+    msg.setText(
+        'Программа реализует алгоритм разбиения отрезка средней точкой.\n')
     msg.exec_()
 
 

@@ -1,0 +1,7 @@
+Name             Stmts   Miss  Cover
+------------------------------------
+class_point.py      26      1    96%
+module_test.py      14      0   100%
+point_funcs.py      12      2    83%
+------------------------------------
+TOTAL               52      3    94%

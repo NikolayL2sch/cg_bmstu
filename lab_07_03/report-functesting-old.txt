@@ -1,0 +1,8 @@
+Name             Stmts   Miss  Cover
+------------------------------------
+class_point.py      26      3    88%
+dialogs.py          31     25    19%
+main.py            347    135    61%
+point_funcs.py      12      0   100%
+------------------------------------
+TOTAL              416    163    61%

@@ -70,7 +70,7 @@ def change_cutoff_color() -> None:
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./lab_07_03/template.ui", self)  # временно в корне
+        uic.loadUi("./template.ui", self)  # временно в корне
 
         self.rect = []
         self.scene_rect = None
@@ -144,17 +144,8 @@ class Ui(QtWidgets.QMainWindow):
             last_scene_pos = self.graphicsView.mapToScene(last_pos)
             cur_scene_pos = self.graphicsView.mapToScene(event.pos())
             if enter_cutoff:
-                for elem in self.scene.items():
-                    if isinstance(elem, QGraphicsRectItem):
-                        self.scene.removeItem(elem)
-                        break
-                tmp_rect = QGraphicsRectItem(last_scene_pos.x(), last_scene_pos.y(),
-                                             cur_scene_pos.x() - last_scene_pos.x(),
-                                             cur_scene_pos.y() - last_scene_pos.y())
-                tmp_rect.setPen(current_cutoff_color)
-                self.scene.addItem(tmp_rect)
-                self.scene_rect = tmp_rect
-                self.rect = [last_scene_pos.x(), -last_scene_pos.y(), cur_scene_pos.x(), -cur_scene_pos.y()]
+                self.redraw_rect(last_scene_pos.x(), last_scene_pos.y(
+                ), cur_scene_pos.x(), cur_scene_pos.y())
 
             elif enter_vert_segment:
                 global tmp_vert_segment
@@ -312,6 +303,17 @@ class Ui(QtWidgets.QMainWindow):
         scene_point_list.clear()
         self.scroll_list.clear()
 
+    def redraw_rect(self, x1: float, y1: float, x2: float, y2: float) -> None:
+        for elem in self.scene.items():
+            if isinstance(elem, QGraphicsRectItem):
+                self.scene.removeItem(elem)
+                break
+        tmp_rect = QGraphicsRectItem(x1, y1, x2 - x1, y2 - y1)
+        tmp_rect.setPen(current_cutoff_color)
+        self.scene.addItem(tmp_rect)
+        self.scene_rect = tmp_rect
+        self.rect = [x1, -y1, x2, -y2]
+
     def add_point_by_click(self, event: QMouseEvent) -> None:
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
@@ -338,7 +340,8 @@ class Ui(QtWidgets.QMainWindow):
                 segments.append([point_list[-1]])
             else:
                 segments[-1].append(point_list[-1])
-                self.draw_line(point_list[-2], point_list[-1])
+                self.draw_line(
+                    point_list[-2], point_list[-1], current_edge_color)
             scene_point_list.append(scene_point)
 
     def add_point_label(self, scene_point: QGraphicsEllipseItem, point: Point) -> None:
@@ -355,9 +358,9 @@ class Ui(QtWidgets.QMainWindow):
         point_coords_label.setZValue(1)
         self.scene.addItem(point_coords_label)
 
-    def draw_line(self, p1: Point, p2: Point) -> None:
+    def draw_line(self, p1: Point, p2: Point, color: QColor) -> None:
         line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
-        line.setPen(current_edge_color)
+        line.setPen(color)
         line.setZValue(1)
         self.scene.addItem(line)
 
@@ -416,11 +419,7 @@ class Ui(QtWidgets.QMainWindow):
         if get_code(p1, self.rect) & get_code(p2, self.rect):
             return
         if not (get_code(p1, self.rect) | get_code(p2, self.rect)):
-            line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
-            # print(f'{p1.x}, {p1.y}, {p2.x}, {p2.y}')
-            line.setPen(cutted_segment_color)
-            line.setZValue(1)
-            self.scene.addItem(line)
+            self.draw_line(p1, p2, cutted_segment_color)
             return
         center = Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)
         self.middle_point(p1, center)
@@ -437,14 +436,19 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         FUNC_TESTING = True
         test_i = int(sys.argv[1])
-        num_points = int(sys.argv[2])
-        for _ in range(num_points):
-            window.add_point(
-                Point(float(sys.argv[2 * _ + 3]), float(sys.argv[2 * _ + 4])))
-        if sys.argv[-1] == 'true':
-            window.set_delay_cb.setChecked(True)
-        window.close_figure()
-        window.paint_figures(func_testing=True)
+        x_1 = float(sys.argv[2])
+        y_1 = float(sys.argv[3])
+        x_2 = float(sys.argv[4])
+        y_2 = float(sys.argv[5])
+        window.redraw_rect(x_1, -y_1, x_2, -y_2)
+        num_segments = int(sys.argv[6])
+        for _ in range(2 * num_segments):
+            window.draw_point(
+                Point(float(sys.argv[2 * _ + 7]), float(sys.argv[2 * _ + 8])))
+        if len(sys.argv) > 4 * num_segments + 7:
+            if sys.argv[4 * num_segments + 7] == 'true':
+                window.add_segment_cutoff()
+        window.cutoff()
 
     if FUNC_TESTING:
         screenshot = window.grab()
