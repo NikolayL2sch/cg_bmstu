@@ -419,6 +419,7 @@ class Ui(QtWidgets.QMainWindow):
         if not check_convexity_polygon(figure_points):
             show_war_win("Отсекатель должен быть выпуклым!")
             return
+
         for segment in segments:
             res = cyrus_beck(segment[0], segment[1], figure_points)
             if res:

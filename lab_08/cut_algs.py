@@ -1,6 +1,6 @@
 from typing import List, Tuple, Union
 
-from PyQt5.QtGui import QVector2D
+from PyQt5.QtGui import QVector2D, QVector3D
 
 from class_point import Point
 
@@ -38,14 +38,15 @@ def check_convexity_polygon(figure_point_list: List[Point]) -> bool:
 
 def get_normal(p1: Point, p2: Point, p3: Point) -> QVector2D:
     vector = get_segment_vector(p1, p2)
-
+    # print(f'segment: {p1.x, p1.y}, {p2.x, p2.y}')
+    # print(f'point: {p3.x, p3.y}')
     if vector.y() != 0:
         normal = QVector2D(1, -vector.x() / vector.y())
     else:
         normal = QVector2D(0, 1)
 
     if QVector2D.dotProduct(get_segment_vector(p2, p3), normal) < 0:
-        normal.x, normal.y = -normal.x(), normal.y()
+        return -normal
 
     return normal
 
@@ -54,43 +55,37 @@ def cyrus_beck(p1: Point, p2: Point, figure_point_list: List[Point]) -> Union[Tu
     # параметр параметрического уравнения отрезка
     t_beg = 0
     t_end = 1
-
-    d = get_segment_vector(p1, p2)
-
+    d = get_segment_vector(p1, p2)  # вектор, задающий ориентацию отсекаемого отрезка
     for i in range(-2, len(figure_point_list) - 2):
         # Вычисление вектора внутренней нормали к очередной i-ой стороне окна отсечения
         normal = get_normal(figure_point_list[i], figure_point_list[i + 1], figure_point_list[i + 2])
+        # print(f'inner normal: {normal.x(), normal.y()}')
+        w = get_segment_vector(figure_point_list[i], p1)
 
-        w = get_segment_vector(p1, figure_point_list[i])
+        d_i = QVector2D.dotProduct(d, normal)
+        w_i = QVector2D.dotProduct(w, normal)
 
-        d_scalar = QVector2D.dotProduct(d, normal)
-        w_scalar = QVector2D.dotProduct(w, normal)
-
-        if d_scalar == 0:
-            if w_scalar < 0:
-                return
-            else:
+        if d_i == 0:
+            if w_i >= 0:
                 continue
+            else:
+                return
 
-        t = - w_scalar / d_scalar
+        t = - w_i / d_i
 
-        if d_scalar > 0:
-            if t <= 1:
+        if d_i > 0:
+            if t > 1:
+                return
+            else:
                 t_beg = max(t_beg, t)
-            else:
+        else:
+            if t < 0:
                 return
-
-        elif d_scalar < 0:
-            if t >= 0:
+            else:
                 t_end = min(t_end, t)
-            else:
-                return
-
-        if t_beg > t_end:
-            break
 
     if t_beg <= t_end:
-        dot1_res = Point(p1.x + d.x() * t_beg, p1.y + d.x() * t_beg)
+        dot1_res = Point(p1.x + d.x() * t_beg, p1.y + d.y() * t_beg)
         dot2_res = Point(p1.x + d.x() * t_end, p1.y + d.y() * t_end)
 
         return dot1_res, dot2_res
