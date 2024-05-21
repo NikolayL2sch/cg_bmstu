@@ -5,13 +5,14 @@ from typing import List
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, QLineF
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog, \
     QGraphicsRectItem
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont, QKeyEvent
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
 from class_point import Point
+from point_funcs import get_code
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -32,6 +33,7 @@ enter_hor_segment: bool = False
 last_pos: QPoint = None
 current_edge_color: QColor = QColor(255, 0, 0)
 current_cutoff_color: QColor = QColor(0, 0, 255)
+cutted_segment_color: QColor = QColor(0, 255, 0)
 
 tmp_vert_segment: QGraphicsLineItem = None
 tmp_hor_segment: QGraphicsLineItem = None
@@ -152,18 +154,31 @@ class Ui(QtWidgets.QMainWindow):
                 tmp_rect.setPen(current_cutoff_color)
                 self.scene.addItem(tmp_rect)
                 self.scene_rect = tmp_rect
-                self.rect = [last_scene_pos.x(), last_scene_pos.y(), cur_scene_pos.x(), cur_scene_pos.y()]
+                self.rect = [last_scene_pos.x(), -last_scene_pos.y(), cur_scene_pos.x(), -cur_scene_pos.y()]
 
             elif enter_vert_segment:
                 global tmp_vert_segment
                 if tmp_vert_segment:
                     self.scene.removeItem(tmp_vert_segment)
+                    segments.pop()
                 tmp_vert_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
                                                      cur_scene_pos.x(), last_scene_pos.y())
                 tmp_vert_segment.setPen(current_edge_color)
                 self.scene.addItem(tmp_vert_segment)
+                segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
+                                 Point(cur_scene_pos.x(), -last_scene_pos.y())])
+
             elif enter_hor_segment:
-                pass
+                global tmp_hor_segment
+                if tmp_hor_segment:
+                    self.scene.removeItem(tmp_hor_segment)
+                    segments.pop()
+                tmp_hor_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
+                                                    last_scene_pos.x(), cur_scene_pos.y())
+                tmp_hor_segment.setPen(current_edge_color)
+                self.scene.addItem(tmp_hor_segment)
+                segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
+                                 Point(last_scene_pos.x(), -cur_scene_pos.y())])
             else:
                 dx = event.pos().x() - last_pos.x()
                 dy = event.pos().y() - last_pos.y()
@@ -192,12 +207,33 @@ class Ui(QtWidgets.QMainWindow):
         global enter_vert_segment, enter_hor_segment
         if event.key() == Qt.Key_Escape:
             self.close()
-        elif event.key() == Qt.Key_Control and event.modifiers() & Qt.ControlModifier:
+        elif event.key() == Qt.Key_Control:
             enter_vert_segment = True
             enter_hor_segment = False
-        elif event.key() == Qt.Key_Shift and event.modifiers() & Qt.ControlModifier:
+        elif event.key() == Qt.Key_Shift:
             enter_hor_segment = True
             enter_vert_segment = False
+        else:
+            super().keyPressEvent(event)
+
+    def keyReleaseEvent(self, event: QKeyEvent) -> None:
+        global enter_vert_segment, enter_hor_segment, tmp_vert_segment, tmp_hor_segment
+        if event.key() == Qt.Key_Control:
+            enter_vert_segment = False
+            vert_segment = segments.pop()
+            self.scene.removeItem(tmp_vert_segment)
+            self.draw_point(vert_segment[0])
+            self.draw_point(vert_segment[1])
+            tmp_vert_segment = None
+        elif event.key() == Qt.Key_Shift:
+            enter_hor_segment = False
+            hor_segment = segments.pop()
+            self.scene.removeItem(tmp_hor_segment)
+            self.draw_point(hor_segment[0])
+            self.draw_point(hor_segment[1])
+            tmp_hor_segment = None
+        else:
+            super().keyReleaseEvent(event)
 
     def need_grid(self) -> bool:
         global max_win_size
@@ -343,14 +379,52 @@ class Ui(QtWidgets.QMainWindow):
             self.add_cutoff_button.setText("Закончить добавление отсекателя")
         else:
             self.add_cutoff_button.setText("Добавить отсекатель")
-        self.rect = []
-        self.scene_rect = None
 
     def add_segment_cutoff(self) -> None:
-        pass
+        if self.scene_rect is None or not self.rect:
+            show_war_win("Не задан отсекатель!")
+            return
+        hor = abs(self.rect[0] - self.rect[2]) * 0.8
+        ver = abs(self.rect[1] - self.rect[3]) * 0.8
+
+        self.draw_point(Point(self.rect[0] + hor, self.rect[1]))
+        self.draw_point(Point(self.rect[2] - hor, self.rect[1]))
+        self.draw_point(Point(self.rect[0] + hor, self.rect[3]))
+        self.draw_point(Point(self.rect[2] - hor, self.rect[3]))
+
+        self.draw_point(Point(self.rect[0], self.rect[1] - ver))
+        self.draw_point(Point(self.rect[0], self.rect[3] + ver))
+        self.draw_point(Point(self.rect[2], self.rect[1] - ver))
+        self.draw_point(Point(self.rect[2], self.rect[3] + ver))
 
     def cutoff(self) -> None:
-        pass
+        if self.scene_rect is None or not self.rect:
+            show_war_win("Не построен отсекатель!")
+            return
+        if enter_cutoff:
+            show_war_win("Не окончен ввод отсекателя!")
+            return
+        if not point_list or len(point_list) == 1:
+            show_war_win("Не заданы отрезки.")
+            return
+        for segment in segments:
+            self.middle_point(segment[0], segment[1])
+
+    def middle_point(self, p1: Point, p2: Point) -> None:
+        if abs(QLineF(p1.x, -p1.y, p2.x, -p2.y).length()) < 1:
+            return
+        if get_code(p1, self.rect) & get_code(p2, self.rect):
+            return
+        if not (get_code(p1, self.rect) | get_code(p2, self.rect)):
+            line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
+            # print(f'{p1.x}, {p1.y}, {p2.x}, {p2.y}')
+            line.setPen(cutted_segment_color)
+            line.setZValue(1)
+            self.scene.addItem(line)
+            return
+        center = Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)
+        self.middle_point(p1, center)
+        self.middle_point(center, p2)
 
 
 if __name__ == '__main__':

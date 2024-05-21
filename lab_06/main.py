@@ -318,7 +318,7 @@ class Ui(QtWidgets.QMainWindow):
             self.draw_ellipse(args)
 
     def draw_ellipse(self, coords=None) -> None:
-        if coords is None:
+        if not coords:
             coords = self.get_ellipse_params()
             if coords is None:
                 return
@@ -358,7 +358,7 @@ class Ui(QtWidgets.QMainWindow):
         return Point(xc, yc), radius
 
     def draw_circle(self, coords=None):
-        if coords is None:
+        if not coords:
             coords = self.get_circle_params()
             if coords is None:
                 return
