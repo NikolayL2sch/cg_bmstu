@@ -5,13 +5,13 @@ from typing import List
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QPoint, QLineF
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog, \
-    QGraphicsRectItem
+from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont, QKeyEvent
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
 from class_point import Point
+from cut_algs import check_convexity_polygon, cyrus_beck
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
@@ -20,6 +20,7 @@ point_scale: List[float] = []
 coords_desc: List[QGraphicsTextItem] = []
 scene_point_list: List[QGraphicsEllipseItem] = []
 segments: List[List[Point]] = []
+figure_points: List[Point] = []
 
 scale: float = 1.0
 
@@ -66,12 +67,14 @@ def change_cutoff_color() -> None:
             show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
 
 
+def enable_line_mode(item):
+    print(f'Clicked on: {item.text()}')
+
+
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
         uic.loadUi("./lab_08/template.ui", self)  # временно в корне
-
-        self.rect = []
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -93,7 +96,6 @@ class Ui(QtWidgets.QMainWindow):
         self.add_cutoff_button.clicked.connect(self.add_cutoff)
         self.change_cutoff_color_button.clicked.connect(change_cutoff_color)
         self.change_segment_color_button.clicked.connect(change_segment_color)
-        self.add_segment_cutoff_button.clicked.connect(self.add_segment_cutoff)
         self.cutoff_button.clicked.connect(self.cutoff)
         self.close_figure_button.clicked.connect(self.close_figure)
 
@@ -102,6 +104,9 @@ class Ui(QtWidgets.QMainWindow):
         self.graphicsView.wheelEvent = self.wheel_event
         self.graphicsView.mouseReleaseEvent = self.mouseReleaseEvent
         self.graphicsView.mouseMoveEvent = self.mouseMoveEvent
+
+        # QListWidget events
+        self.edges_list.itemClicked.connect(enable_line_mode)
 
         self.show()
 
@@ -299,22 +304,38 @@ class Ui(QtWidgets.QMainWindow):
         coords_desc.clear()
         scene_point_list.clear()
         self.scroll_list.clear()
-
-    def redraw_rect(self, x1: float, y1: float, x2: float, y2: float) -> None:
-        for elem in self.scene.items():
-            if isinstance(elem, QGraphicsRectItem):
-                self.scene.removeItem(elem)
-                break
-        tmp_rect = QGraphicsRectItem(x1, y1, x2 - x1, y2 - y1)
-        tmp_rect.setPen(current_cutoff_color)
-        self.scene.addItem(tmp_rect)
-        self.rect = [x1, -y1, x2, -y2]
+        figure_points.clear()
+        self.edges_list.clear()
 
     def close_figure(self):
-        pass
+        if len(figure_points) < 3:
+            show_war_win("Невозможно замкнуть фигуру.")
+            return
+        self.update_figure_segments(closing=True)
 
     def add_point_figure(self, event: QMouseEvent):
-        pass
+        pos = event.pos()
+        scene_pos = self.graphicsView.mapToScene(pos)
+        p_x, p_y = scene_pos.x(), scene_pos.y()
+        self.draw_figure_point(Point(p_x, -p_y))
+
+    def draw_figure_point(self, point: Point):
+        figure_points.append(point)
+        self.update_figure_segments()
+        scene_point = QGraphicsEllipseItem(
+            point.x, -point.y, 5 * (1 / scale), 5 * (1 / scale))
+        scene_point.setBrush(current_cutoff_color)
+        self.scene.addItem(scene_point)
+
+    def update_figure_segments(self, closing=False):
+        if closing:
+            self.draw_line(figure_points[-1], figure_points[0], current_cutoff_color)
+            self.edges_list.addItem(f'({figure_points[-1].x}, {figure_points[-1].y}) <-> '
+                                    f'({figure_points[0].x}, {figure_points[0].y})')
+        elif len(figure_points) >= 2:
+            self.draw_line(figure_points[-1], figure_points[-2], current_cutoff_color)
+            self.edges_list.addItem(f'({figure_points[-2].x}, {figure_points[-2].y}) <-> '
+                                    f'({figure_points[-1].x}, {figure_points[-1].y})')
 
     def add_point_by_click(self, event: QMouseEvent) -> None:
         pos = event.pos()
@@ -385,25 +406,8 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.add_cutoff_button.setText("Добавить отсекатель")
 
-    def add_segment_cutoff(self) -> None:
-        if not self.rect:
-            show_war_win("Не задан отсекатель!")
-            return
-        hor = abs(self.rect[0] - self.rect[2]) * 0.8
-        ver = abs(self.rect[1] - self.rect[3]) * 0.8
-
-        self.draw_point(Point(self.rect[0] + hor, self.rect[1]))
-        self.draw_point(Point(self.rect[2] - hor, self.rect[1]))
-        self.draw_point(Point(self.rect[0] + hor, self.rect[3]))
-        self.draw_point(Point(self.rect[2] - hor, self.rect[3]))
-
-        self.draw_point(Point(self.rect[0], self.rect[1] - ver))
-        self.draw_point(Point(self.rect[0], self.rect[3] + ver))
-        self.draw_point(Point(self.rect[2], self.rect[1] - ver))
-        self.draw_point(Point(self.rect[2], self.rect[3] + ver))
-
     def cutoff(self) -> None:
-        if not self.rect:
+        if len(figure_points) < 3:
             show_war_win("Не построен отсекатель!")
             return
         if enter_cutoff:
@@ -412,20 +416,13 @@ class Ui(QtWidgets.QMainWindow):
         if not point_list or len(point_list) == 1:
             show_war_win("Не заданы отрезки.")
             return
+        if not check_convexity_polygon(figure_points):
+            show_war_win("Отсекатель должен быть выпуклым!")
+            return
         for segment in segments:
-            self.middle_point(segment[0], segment[1])
-
-    def middle_point(self, p1: Point, p2: Point) -> None:
-        if abs(QLineF(p1.x, -p1.y, p2.x, -p2.y).length()) < 1:
-            return
-        if get_code(p1, self.rect) & get_code(p2, self.rect):
-            return
-        if not (get_code(p1, self.rect) | get_code(p2, self.rect)):
-            self.draw_line(p1, p2, cutted_segment_color)
-            return
-        center = Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)
-        self.middle_point(p1, center)
-        self.middle_point(center, p2)
+            res = cyrus_beck(segment[0], segment[1], figure_points)
+            if res:
+                self.draw_line(res[0], res[1], cutted_segment_color)
 
 
 if __name__ == '__main__':

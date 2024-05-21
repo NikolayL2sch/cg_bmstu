@@ -139,30 +139,6 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="add_segment_cutoff_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
-        </property>
-        <property name="text">
-         <string>Добавить отрезки на границах отсекателя</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="close_figure_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -247,6 +223,34 @@ background-color: rgb(86, 86, 86);</string>
           <width>400</width>
           <height>100</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="edges_list">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>11</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">font: 11pt &quot;Segoe UI&quot;;
