@@ -20,8 +20,9 @@ point_scale: List[float] = []
 coords_desc: List[QGraphicsTextItem] = []
 scene_point_list: List[QGraphicsEllipseItem] = []
 segments: List[List[Point]] = []
-figure_points: List[Point] = []
-parallel_segment: List[Point] = []
+cutoff_figure_points: List[Point] = []
+polygon_points: List[Point] = []
+pinned_edge: List[Point] = []
 
 scale: float = 1.0
 
@@ -30,30 +31,29 @@ dragging: bool = False
 enter_cutoff: bool = False
 enter_vert_segment: bool = False
 enter_hor_segment: bool = False
-enter_parallel_segment: bool = False
+enter_pinned_point: bool = False
 
 last_pos: QPoint = None
-current_edge_color: QColor = QColor(255, 0, 0)
-current_cutoff_color: QColor = QColor(0, 0, 255)
-cutted_segment_color: QColor = QColor(0, 255, 0)
+current_polygon_color: QColor = QColor(255, 0, 0)
+current_cutoff_figure_color: QColor = QColor(0, 0, 255)
+cutted_figure_color: QColor = QColor(0, 255, 0)
 
 tmp_vert_segment: QGraphicsLineItem = None
 tmp_hor_segment: QGraphicsLineItem = None
-tmp_parallel_line: QGraphicsLineItem = None
 
 
-def change_segment_color() -> None:
+def change_polygon_color() -> None:
     colour = QColorDialog.getColor(initial=current_cutoff_color)
     if colour.isValid():
         if colour.getRgb() != current_cutoff_color.getRgb():
-            set_segment_color(QColor(colour))
+            set_polygon_color(QColor(colour))
         else:
-            show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
+            show_war_win("Цвет отсекателя и отсекаемого многоугольника не могут совпадать.")
 
 
-def set_segment_color(color: QColor) -> None:
-    global current_edge_color
-    current_edge_color = color
+def set_polygon_color(color: QColor) -> None:
+    global current_polygon_color
+    current_polygon_color = color
 
 
 def set_cutoff_color(color: QColor) -> None:
@@ -64,22 +64,22 @@ def set_cutoff_color(color: QColor) -> None:
 def change_cutoff_color() -> None:
     colour = QColorDialog.getColor(initial=current_cutoff_color)
     if colour.isValid():
-        if colour.getRgb() != current_edge_color.getRgb():
+        if colour.getRgb() != current_polygon_color.getRgb():
             set_cutoff_color(QColor(colour))
         else:
             show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
 
 
-def enable_line_mode(item):
-    global parallel_segment
-    global enter_parallel_segment
-    enter_parallel_segment = True if not enter_parallel_segment else False
+def connect_to_edge(item):
+    global pinned_edge
+    global enter_pinned_point
+    enter_pinned_point = True if not enter_pinned_point else False
     unpacked_segment = item.text().split(' <-> ')
     p1_str = unpacked_segment[0][1:-1].split(',')
     p2_str = unpacked_segment[1][1:-1].split(',')
 
-    parallel_segment = [Point(float(p1_str[0]), float(p1_str[1])),
-                        Point(float(p2_str[0]), float(p2_str[1]))]
+    pinned_edge = [Point(float(p1_str[0]), float(p1_str[1])),
+                   Point(float(p2_str[0]), float(p2_str[1]))]
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -106,7 +106,7 @@ class Ui(QtWidgets.QMainWindow):
         # push buttons
         self.add_cutoff_button.clicked.connect(self.add_cutoff)
         self.change_cutoff_color_button.clicked.connect(change_cutoff_color)
-        self.change_segment_color_button.clicked.connect(change_segment_color)
+        self.change_polygon_color_button.clicked.connect(change_polygon_color)
         self.cutoff_button.clicked.connect(self.cutoff)
         self.close_figure_button.clicked.connect(self.close_figure)
 
@@ -117,7 +117,7 @@ class Ui(QtWidgets.QMainWindow):
         self.graphicsView.mouseMoveEvent = self.mouseMoveEvent
 
         # QListWidget events
-        self.edges_list.itemClicked.connect(enable_line_mode)
+        self.edges_list.itemClicked.connect(connect_to_edge)
 
         self.show()
 
@@ -143,19 +143,17 @@ class Ui(QtWidgets.QMainWindow):
             self.add_grid()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        global is_pressed, dragging, enter_vert_segment, enter_hor_segment, enter_parallel_segment, tmp_parallel_line
+        global is_pressed, dragging, enter_vert_segment, enter_hor_segment, enter_pinned_point
         if event.button() == Qt.LeftButton:
             if not dragging and not enter_cutoff:
-                self.add_point_by_click(event)
+                self.add_point_figure(event, False)
             elif not dragging and enter_cutoff:
-                self.add_point_figure(event)
-            elif enter_parallel_segment:
-                enter_parallel_segment = False
-                p_segment = segments.pop()
-                self.scene.removeItem(tmp_parallel_line)
-                self.draw_point(p_segment[0])
-                self.draw_point(p_segment[1])
-                tmp_parallel_line = None
+                self.add_point_figure(event, True)
+            elif enter_pinned_point:
+                enter_pinned_point = False
+                #
+                # add point polygon
+                #
             enter_vert_segment = False
             enter_hor_segment = False
             dragging = False
@@ -174,7 +172,7 @@ class Ui(QtWidgets.QMainWindow):
                     segments.pop()
                 tmp_vert_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
                                                      cur_scene_pos.x(), last_scene_pos.y())
-                tmp_vert_segment.setPen(current_edge_color)
+                tmp_vert_segment.setPen(current_polygon_color)
                 self.scene.addItem(tmp_vert_segment)
                 segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
                                  Point(cur_scene_pos.x(), -last_scene_pos.y())])
@@ -186,26 +184,10 @@ class Ui(QtWidgets.QMainWindow):
                     segments.pop()
                 tmp_hor_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
                                                     last_scene_pos.x(), cur_scene_pos.y())
-                tmp_hor_segment.setPen(current_edge_color)
+                tmp_hor_segment.setPen(current_polygon_color)
                 self.scene.addItem(tmp_hor_segment)
                 segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
                                  Point(last_scene_pos.x(), -cur_scene_pos.y())])
-            elif enter_parallel_segment:
-                global tmp_parallel_line
-                if tmp_parallel_line:
-                    self.scene.removeItem(tmp_parallel_line)
-                    segments.pop()
-                k = (parallel_segment[1].y - parallel_segment[0].y) / \
-                    (parallel_segment[1].x - parallel_segment[0].x)
-                b = -last_scene_pos.y() - k * last_scene_pos.x()
-                y = b + k * cur_scene_pos.x()
-                tmp_parallel_line = QGraphicsLineItem(
-                    last_scene_pos.x(), last_scene_pos.y(), cur_scene_pos.x(), -y)
-                tmp_parallel_line.setPen(current_edge_color)
-                self.scene.addItem(tmp_parallel_line)
-                segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
-                                 Point(cur_scene_pos.x(), y)])
-
             else:
                 dx = event.pos().x() - last_pos.x()
                 dy = event.pos().y() - last_pos.y()
@@ -322,12 +304,12 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(axis_y)
 
     def change_color(self, color: QColor) -> None:
-        global current_edge_color
-        current_edge_color = color
+        global current_polygon_color
+        current_polygon_color = color
         objects = self.scene.items()
         for obj in objects:
             if obj not in grid_lines and not isinstance(obj, QGraphicsTextItem):
-                obj.setPen(current_edge_color)
+                obj.setPen(current_polygon_color)
 
     def clear_scene(self):
         for item in self.scene.items():
@@ -338,40 +320,67 @@ class Ui(QtWidgets.QMainWindow):
         coords_desc.clear()
         scene_point_list.clear()
         self.scroll_list.clear()
-        figure_points.clear()
+        cutoff_figure_points.clear()
         self.edges_list.clear()
 
     def close_figure(self):
-        if len(figure_points) < 3:
-            show_war_win("Невозможно замкнуть фигуру.")
-            return
-        self.update_figure_segments(closing=True)
+        if self.add_cutoff_button.text() == 'Добавить выпуклый отсекатель':
+            if len(polygon_points) < 3:
+                show_war_win("Невозможно замкнуть отсекаемый многоугольник, задано слишком мало точек.")
+                return
+            self.update_figure_segments(is_cutoff=False, closing=True)
+        else:
+            if len(cutoff_figure_points) < 3:
+                show_war_win("Невозможно замкнуть отсекатель, задано слишком мало точек.")
+                return
+            self.update_figure_segments(is_cutoff=True, closing=True)
 
-    def add_point_figure(self, event: QMouseEvent):
+    def add_point_figure(self, event: QMouseEvent, is_cutoff: bool) -> None:
         pos = event.pos()
         scene_pos = self.graphicsView.mapToScene(pos)
         p_x, p_y = scene_pos.x(), scene_pos.y()
-        self.draw_figure_point(Point(p_x, -p_y))
+        self.draw_figure_point(Point(p_x, -p_y), is_cutoff)
 
-    def draw_figure_point(self, point: Point):
-        figure_points.append(point)
-        self.update_figure_segments()
+    def draw_figure_point(self, point: Point, is_cutoff: bool) -> None:
         scene_point = QGraphicsEllipseItem(
             point.x, -point.y, 5 * (1 / scale), 5 * (1 / scale))
-        scene_point.setBrush(current_cutoff_color)
+        if is_cutoff:
+            cutoff_figure_points.append(point)
+            self.update_figure_segments(is_cutoff=True)
+            scene_point.setBrush(current_cutoff_figure_color)
+        else:
+            polygon_points.append(point)
+            self.update_figure_segments()
+            scene_point.setBrush(current_polygon_color)
         self.scene.addItem(scene_point)
 
-    def update_figure_segments(self, closing=False):
-        if closing:
-            self.draw_line(figure_points[-1],
-                           figure_points[0], current_cutoff_color)
-            self.edges_list.addItem(f'({figure_points[-1].x}, {figure_points[-1].y}) <-> '
-                                    f'({figure_points[0].x}, {figure_points[0].y})')
-        elif len(figure_points) >= 2:
-            self.draw_line(
-                figure_points[-1], figure_points[-2], current_cutoff_color)
-            self.edges_list.addItem(f'({figure_points[-2].x}, {figure_points[-2].y}) <-> '
-                                    f'({figure_points[-1].x}, {figure_points[-1].y})')
+    def update_figure_segments(self, is_cutoff=False, closing=False):
+        if is_cutoff:
+            if closing:
+                new_list_item = f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y}) <-> ({cutoff_figure_points[0].x}, {cutoff_figure_points[0].y})'
+                if self.edges_list.item(self.edges_list.count() - 1).text() != new_list_item:
+                    self.draw_line(cutoff_figure_points[-1], cutoff_figure_points[0], current_cutoff_figure_color)
+                    self.edges_list.addItem(f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y}) <-> '
+                                            f'({cutoff_figure_points[0].x}, {cutoff_figure_points[0].y})')
+                else:
+                    show_war_win("Фигура уже замкнута.")
+            elif len(cutoff_figure_points) >= 2:
+                self.draw_line(cutoff_figure_points[-1], cutoff_figure_points[-2], current_cutoff_figure_color)
+                self.edges_list.addItem(f'({cutoff_figure_points[-2].x}, {cutoff_figure_points[-2].y}) <-> '
+                                        f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y})')
+        else:
+            if closing:
+                new_list_item = f'({polygon_points[-1].x}, {polygon_points[-1].y}) <-> ({polygon_points[0].x}, {polygon_points[0].y})'
+                if self.scroll_list.item(self.scroll_list.count() - 1).text() != new_list_item:
+                    self.draw_line(polygon_points[-1], polygon_points[0], current_polygon_color)
+                    self.scroll_list.addItem(f'({polygon_points[-1].x}, {polygon_points[-1].y}) <-> '
+                                             f'({polygon_points[0].x}, {polygon_points[0].y})')
+                else:
+                    show_war_win("Фигура уже замкнута.")
+            elif len(polygon_points) >= 2:
+                self.draw_line(polygon_points[-1], polygon_points[-2], current_polygon_color)
+                self.scroll_list.addItem(f'({polygon_points[-2].x}, {polygon_points[-2].y}) <-> '
+                                         f'({polygon_points[-1].x}, {polygon_points[-1].y})')
 
     def add_point_by_click(self, event: QMouseEvent) -> None:
         pos = event.pos()
@@ -391,7 +400,7 @@ class Ui(QtWidgets.QMainWindow):
             point_scale.append(1 / scale)
             scene_point = QGraphicsEllipseItem(
                 point.x, -point.y, 5 * (1 / scale), 5 * (1 / scale))
-            scene_point.setBrush(current_edge_color)
+            scene_point.setBrush(current_polygon_color)
             self.scene.addItem(scene_point)
             self.add_point_label(scene_point, point)
 
@@ -400,7 +409,7 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 segments[-1].append(point_list[-1])
                 self.draw_line(
-                    point_list[-2], point_list[-1], current_edge_color)
+                    point_list[-2], point_list[-1], current_polygon_color)
             scene_point_list.append(scene_point)
 
     def add_point_label(self, scene_point: QGraphicsEllipseItem, point: Point) -> None:
@@ -430,7 +439,7 @@ class Ui(QtWidgets.QMainWindow):
                 f'{i + 1}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def set_new_colour(self) -> None:
-        colour = QColorDialog.getColor(initial=current_edge_color)
+        colour = QColorDialog.getColor(initial=current_polygon_color)
         if colour.isValid():
             self.change_color(QColor(colour))
 
@@ -440,10 +449,10 @@ class Ui(QtWidgets.QMainWindow):
         if enter_cutoff:
             self.add_cutoff_button.setText("Закончить добавление отсекателя")
         else:
-            self.add_cutoff_button.setText("Добавить отсекатель")
+            self.add_cutoff_button.setText("Добавить выпуклый отсекатель")
 
     def cutoff(self) -> None:
-        if len(figure_points) < 3:
+        if len(cutoff_figure_points) < 3:
             show_war_win("Не построен отсекатель!")
             return
         if enter_cutoff:
@@ -452,12 +461,12 @@ class Ui(QtWidgets.QMainWindow):
         if not point_list or len(point_list) == 1:
             show_war_win("Не заданы отрезки.")
             return
-        if not check_convexity_polygon(figure_points):
+        if not check_convexity_polygon(cutoff_figure_points):
             show_war_win("Отсекатель должен быть выпуклым!")
             return
 
         for segment in segments:
-            res = cyrus_beck(segment[0], segment[1], figure_points)
+            res = cyrus_beck(segment[0], segment[1], cutoff_figure_points)
             if res:
                 self.draw_line(res[0], res[1], cutted_segment_color)
 

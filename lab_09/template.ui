@@ -50,7 +50,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -211,6 +211,23 @@ background-color: rgb(86, 86, 86);</string>
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Ребра отсекаемого многоугольника:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QListWidget" name="scroll_list">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -227,6 +244,23 @@ background-color: rgb(86, 86, 86);</string>
         <property name="styleSheet">
          <string notr="true">font: 11pt &quot;Segoe UI&quot;;
 color: rgb(255, 255, 255);</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Ребра отсекателя:</string>
         </property>
        </widget>
       </item>
