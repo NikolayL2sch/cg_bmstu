@@ -75,7 +75,6 @@ def connect_to_edge(item):
     unpacked_segment = item.text().split(' <-> ')
     p1_str = unpacked_segment[0][1:-1].split(',')
     p2_str = unpacked_segment[1][1:-1].split(',')
-
     pinned_edge = [Point(float(p1_str[0]), float(p1_str[1])),
                    Point(float(p2_str[0]), float(p2_str[1]))]
 
@@ -139,13 +138,13 @@ class Ui(QtWidgets.QMainWindow):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         global is_pressed, dragging, enter_vert_segment, enter_hor_segment, enter_pinned_point
         if event.button() == Qt.LeftButton:
-            if not dragging and not enter_cutoff:
+            if enter_pinned_point:
+                enter_pinned_point = False
+                self.add_point_to_edge(event)
+            elif not dragging and not enter_cutoff:
                 self.add_point_figure(event, False)
             elif not dragging and enter_cutoff:
                 self.add_point_figure(event, True)
-            elif enter_pinned_point:
-                enter_pinned_point = False
-                self.add_point_to_edge(event)
             enter_vert_segment = False
             enter_hor_segment = False
             dragging = False
@@ -210,6 +209,9 @@ class Ui(QtWidgets.QMainWindow):
                         if grid_line in self.scene.items():
                             self.scene.removeItem(grid_line)
                     self.add_grid()
+        scene_pos = self.graphicsView.mapToScene(event.pos())
+        self.current_coords_label.setText(
+            f'x :{scene_pos.x():.2f}, y :{-scene_pos.y():.2f}')
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         global last_pos, is_pressed
@@ -360,7 +362,14 @@ class Ui(QtWidgets.QMainWindow):
         self.scene.addItem(scene_point)
 
     def add_point_to_edge(self, event: QMouseEvent):
-        print('here')
+        pos = event.pos()
+        scene_pos = self.graphicsView.mapToScene(pos)
+        p_x = scene_pos.x()
+        k = (pinned_edge[1].y - pinned_edge[0].y) / \
+            (pinned_edge[1].x - pinned_edge[0].x)
+        b = pinned_edge[1].y - k * pinned_edge[1].x
+        y = b + k * p_x
+        self.draw_figure_point(Point(p_x, y), False)
 
     def update_figure_segments(self, is_cutoff=False, closing=False):
         if is_cutoff:
