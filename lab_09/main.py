@@ -7,7 +7,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog
-from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QFont, QKeyEvent
+from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QKeyEvent
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
 from class_point import Point
@@ -17,8 +17,6 @@ grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
 point_list: List[Point] = []
 point_scale: List[float] = []
-coords_desc: List[QGraphicsTextItem] = []
-scene_point_list: List[QGraphicsEllipseItem] = []
 segments: List[List[Point]] = []
 cutoff_figure_points: List[Point] = []
 polygon_points: List[Point] = []
@@ -43,9 +41,9 @@ tmp_hor_segment: QGraphicsLineItem = None
 
 
 def change_polygon_color() -> None:
-    colour = QColorDialog.getColor(initial=current_cutoff_color)
+    colour = QColorDialog.getColor(initial=current_polygon_color)
     if colour.isValid():
-        if colour.getRgb() != current_cutoff_color.getRgb():
+        if colour.getRgb() != current_cutoff_figure_color.getRgb():
             set_polygon_color(QColor(colour))
         else:
             show_war_win("Цвет отсекателя и отсекаемого многоугольника не могут совпадать.")
@@ -57,12 +55,12 @@ def set_polygon_color(color: QColor) -> None:
 
 
 def set_cutoff_color(color: QColor) -> None:
-    global current_cutoff_color
-    current_cutoff_color = color
+    global current_cutoff_figure_color
+    current_cutoff_figure_color = color
 
 
 def change_cutoff_color() -> None:
-    colour = QColorDialog.getColor(initial=current_cutoff_color)
+    colour = QColorDialog.getColor(initial=current_cutoff_figure_color)
     if colour.isValid():
         if colour.getRgb() != current_polygon_color.getRgb():
             set_cutoff_color(QColor(colour))
@@ -132,10 +130,6 @@ class Ui(QtWidgets.QMainWindow):
 
         # Получаем текущий масштаб по оси X (и Y)
         scale = self.graphicsView.transform().m11()
-        for i in range(len(scene_point_list)):
-            point = scene_point_list[i]
-            point.setTransformOriginPoint(point.boundingRect().center())
-            point.setScale(1 / (scale * point_scale[i]))
         if self.need_grid():
             for grid_line in grid_lines:
                 if grid_line in self.scene.items():
@@ -151,9 +145,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.add_point_figure(event, True)
             elif enter_pinned_point:
                 enter_pinned_point = False
-                #
-                # add point polygon
-                #
+                self.add_point_to_edge(event)
             enter_vert_segment = False
             enter_hor_segment = False
             dragging = False
@@ -163,31 +155,48 @@ class Ui(QtWidgets.QMainWindow):
         global last_pos, dragging
         if is_pressed:
             dragging = True
-            last_scene_pos = self.graphicsView.mapToScene(last_pos)
+            if enter_cutoff:
+                if len(cutoff_figure_points) == 0:
+                    last_scene_pos = self.graphicsView.mapToScene(last_pos)
+                    last_scene_pos = Point(last_scene_pos.x(), -last_scene_pos.y())
+                else:
+                    last_scene_pos = cutoff_figure_points[-1]
+            else:
+                if len(polygon_points) == 0:
+                    last_scene_pos = self.graphicsView.mapToScene(last_pos)
+                    last_scene_pos = Point(last_scene_pos.x(), -last_scene_pos.y())
+                else:
+                    last_scene_pos = polygon_points[-1]
             cur_scene_pos = self.graphicsView.mapToScene(event.pos())
             if enter_vert_segment:
                 global tmp_vert_segment
                 if tmp_vert_segment:
                     self.scene.removeItem(tmp_vert_segment)
                     segments.pop()
-                tmp_vert_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
-                                                     cur_scene_pos.x(), last_scene_pos.y())
-                tmp_vert_segment.setPen(current_polygon_color)
+                tmp_vert_segment = QGraphicsLineItem(last_scene_pos.x, -last_scene_pos.y,
+                                                     cur_scene_pos.x(), -last_scene_pos.y)
+                if enter_cutoff:
+                    tmp_vert_segment.setPen(current_cutoff_figure_color)
+                else:
+                    tmp_vert_segment.setPen(current_polygon_color)
                 self.scene.addItem(tmp_vert_segment)
-                segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
-                                 Point(cur_scene_pos.x(), -last_scene_pos.y())])
+                segments.append([Point(last_scene_pos.x, last_scene_pos.y),
+                                 Point(cur_scene_pos.x(), last_scene_pos.y)])
 
             elif enter_hor_segment:
                 global tmp_hor_segment
                 if tmp_hor_segment:
                     self.scene.removeItem(tmp_hor_segment)
                     segments.pop()
-                tmp_hor_segment = QGraphicsLineItem(last_scene_pos.x(), last_scene_pos.y(),
-                                                    last_scene_pos.x(), cur_scene_pos.y())
-                tmp_hor_segment.setPen(current_polygon_color)
+                tmp_hor_segment = QGraphicsLineItem(last_scene_pos.x, -last_scene_pos.y,
+                                                    last_scene_pos.x, cur_scene_pos.y())
+                if enter_cutoff:
+                    tmp_hor_segment.setPen(current_cutoff_figure_color)
+                else:
+                    tmp_hor_segment.setPen(current_polygon_color)
                 self.scene.addItem(tmp_hor_segment)
-                segments.append([Point(last_scene_pos.x(), -last_scene_pos.y()),
-                                 Point(last_scene_pos.x(), -cur_scene_pos.y())])
+                segments.append([Point(last_scene_pos.x, last_scene_pos.y),
+                                 Point(last_scene_pos.x, -cur_scene_pos.y())])
             else:
                 dx = event.pos().x() - last_pos.x()
                 dy = event.pos().y() - last_pos.y()
@@ -201,10 +210,6 @@ class Ui(QtWidgets.QMainWindow):
                         if grid_line in self.scene.items():
                             self.scene.removeItem(grid_line)
                     self.add_grid()
-
-        scene_pos = self.graphicsView.mapToScene(event.pos())
-        self.current_coords_label.setText(
-            f'x :{scene_pos.x():.2f}, y :{-scene_pos.y():.2f}')
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         global last_pos, is_pressed
@@ -229,17 +234,19 @@ class Ui(QtWidgets.QMainWindow):
         global enter_vert_segment, enter_hor_segment, tmp_vert_segment, tmp_hor_segment
         if event.key() == Qt.Key_Control:
             enter_vert_segment = False
-            vert_segment = segments.pop()
-            self.scene.removeItem(tmp_vert_segment)
-            self.draw_point(vert_segment[0])
-            self.draw_point(vert_segment[1])
+            if len(segments) > 0:
+                vert_segment = segments.pop()
+                self.scene.removeItem(tmp_vert_segment)
+                self.draw_figure_point(vert_segment[0], enter_cutoff)
+                self.draw_figure_point(vert_segment[1], enter_cutoff)
             tmp_vert_segment = None
         elif event.key() == Qt.Key_Shift:
             enter_hor_segment = False
-            hor_segment = segments.pop()
-            self.scene.removeItem(tmp_hor_segment)
-            self.draw_point(hor_segment[0])
-            self.draw_point(hor_segment[1])
+            if len(segments) > 0:
+                hor_segment = segments.pop()
+                self.scene.removeItem(tmp_hor_segment)
+                self.draw_figure_point(hor_segment[0], enter_cutoff)
+                self.draw_figure_point(hor_segment[1], enter_cutoff)
             tmp_hor_segment = None
         else:
             super().keyReleaseEvent(event)
@@ -317,14 +324,12 @@ class Ui(QtWidgets.QMainWindow):
                 self.scene.removeItem(item)
         point_list.clear()
         point_scale.clear()
-        coords_desc.clear()
-        scene_point_list.clear()
         self.scroll_list.clear()
         cutoff_figure_points.clear()
         self.edges_list.clear()
 
     def close_figure(self):
-        if self.add_cutoff_button.text() == 'Добавить выпуклый отсекатель':
+        if not enter_cutoff:
             if len(polygon_points) < 3:
                 show_war_win("Невозможно замкнуть отсекаемый многоугольник, задано слишком мало точек.")
                 return
@@ -354,6 +359,9 @@ class Ui(QtWidgets.QMainWindow):
             scene_point.setBrush(current_polygon_color)
         self.scene.addItem(scene_point)
 
+    def add_point_to_edge(self, event: QMouseEvent):
+        print('here')
+
     def update_figure_segments(self, is_cutoff=False, closing=False):
         if is_cutoff:
             if closing:
@@ -381,50 +389,6 @@ class Ui(QtWidgets.QMainWindow):
                 self.draw_line(polygon_points[-1], polygon_points[-2], current_polygon_color)
                 self.scroll_list.addItem(f'({polygon_points[-2].x}, {polygon_points[-2].y}) <-> '
                                          f'({polygon_points[-1].x}, {polygon_points[-1].y})')
-
-    def add_point_by_click(self, event: QMouseEvent) -> None:
-        pos = event.pos()
-        scene_pos = self.graphicsView.mapToScene(pos)
-        p_x, p_y = scene_pos.x(), scene_pos.y()
-        self.draw_point(Point(p_x, -p_y))
-
-    def draw_point(self, point: Point) -> None:
-        for _ in point_list:
-            if point == _:
-                show_war_win("Введенная точка уже существует.")
-                break
-        else:
-            point_list.append(point)
-            self.scroll_list.addItem(
-                f'{len(point_list)}.({round(point.x, 2)}; {round(point.y, 2)})')
-            point_scale.append(1 / scale)
-            scene_point = QGraphicsEllipseItem(
-                point.x, -point.y, 5 * (1 / scale), 5 * (1 / scale))
-            scene_point.setBrush(current_polygon_color)
-            self.scene.addItem(scene_point)
-            self.add_point_label(scene_point, point)
-
-            if len(point_list) % 2 == 1:
-                segments.append([point_list[-1]])
-            else:
-                segments[-1].append(point_list[-1])
-                self.draw_line(
-                    point_list[-2], point_list[-1], current_polygon_color)
-            scene_point_list.append(scene_point)
-
-    def add_point_label(self, scene_point: QGraphicsEllipseItem, point: Point) -> None:
-        point_coords_label = QGraphicsTextItem(
-            f'x:({point.x:.2f}, y:{point.y:.2f})')
-        coords_desc.append(point_coords_label)
-        point_coords_label.setPos(
-            scene_point.rect().center().x() + 10, scene_point.rect().center().y())
-
-        point_coords_label.setDefaultTextColor(QColor(255, 255, 255))
-        font = QFont()
-        font.setPointSize(8)
-        point_coords_label.setFont(font)
-        point_coords_label.setZValue(1)
-        self.scene.addItem(point_coords_label)
 
     def draw_line(self, p1: Point, p2: Point, color: QColor) -> None:
         line = QGraphicsLineItem(p1.x, -p1.y, p2.x, -p2.y)
@@ -468,7 +432,7 @@ class Ui(QtWidgets.QMainWindow):
         for segment in segments:
             res = cyrus_beck(segment[0], segment[1], cutoff_figure_points)
             if res:
-                self.draw_line(res[0], res[1], cutted_segment_color)
+                self.draw_line(res[0], res[1], cutted_figure_color)
 
 
 if __name__ == '__main__':
@@ -484,13 +448,9 @@ if __name__ == '__main__':
         num_cutoff_points = int(sys.argv[2])
         for _ in range(num_cutoff_points):
             px, py = float(sys.argv[2 * _ + 3]), float(sys.argv[2 * _ + 4])
-            window.draw_figure_point(Point(px, py))
+            window.draw_figure_point(Point(px, py), True)
         window.close_figure()
-        num_segments = int(sys.argv[2 * num_cutoff_points + 3])
-        start_id = 2 * num_cutoff_points + 4
-        for _ in range(2 * num_segments):
-            window.draw_point(
-                Point(float(sys.argv[start_id + 2 * _]), float(sys.argv[start_id + 2 * _ + 1])))
+
         window.cutoff()
 
     if FUNC_TESTING:
