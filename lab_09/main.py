@@ -11,12 +11,10 @@ from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QKeyEvent
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
 from class_point import Point
-from cut_algs import check_convexity_polygon, cyrus_beck
+from cut_algs import check_convexity_polygon, sutherland_hodgman
 
 grid_lines: List[QGraphicsLineItem] = []
 max_win_size: List[int] = [0, 0, 0]
-point_list: List[Point] = []
-point_scale: List[float] = []
 segments: List[List[Point]] = []
 cutoff_figure_points: List[Point] = []
 polygon_points: List[Point] = []
@@ -324,11 +322,10 @@ class Ui(QtWidgets.QMainWindow):
         for item in self.scene.items():
             if item not in grid_lines:
                 self.scene.removeItem(item)
-        point_list.clear()
-        point_scale.clear()
         self.scroll_list.clear()
         cutoff_figure_points.clear()
         self.edges_list.clear()
+        polygon_points.clear()
 
     def close_figure(self):
         if not enter_cutoff:
@@ -379,6 +376,7 @@ class Ui(QtWidgets.QMainWindow):
                     self.draw_line(cutoff_figure_points[-1], cutoff_figure_points[0], current_cutoff_figure_color)
                     self.edges_list.addItem(f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y}) <-> '
                                             f'({cutoff_figure_points[0].x}, {cutoff_figure_points[0].y})')
+                    cutoff_figure_points.append(cutoff_figure_points[0])
                 else:
                     show_war_win("Фигура уже замкнута.")
             elif len(cutoff_figure_points) >= 2:
@@ -392,6 +390,7 @@ class Ui(QtWidgets.QMainWindow):
                     self.draw_line(polygon_points[-1], polygon_points[0], current_polygon_color)
                     self.scroll_list.addItem(f'({polygon_points[-1].x}, {polygon_points[-1].y}) <-> '
                                              f'({polygon_points[0].x}, {polygon_points[0].y})')
+                    polygon_points.append(polygon_points[0])
                 else:
                     show_war_win("Фигура уже замкнута.")
             elif len(polygon_points) >= 2:
@@ -404,12 +403,6 @@ class Ui(QtWidgets.QMainWindow):
         line.setPen(color)
         line.setZValue(1)
         self.scene.addItem(line)
-
-    def update_scroll_list(self) -> None:
-        self.scroll_list.clear()
-        for i in range(len(point_list)):
-            self.scroll_list.addItem(
-                f'{i + 1}.({round(point_list[i].x, 2)}; {round(point_list[i].y, 2)})')
 
     def set_new_colour(self) -> None:
         colour = QColorDialog.getColor(initial=current_polygon_color)
@@ -431,17 +424,17 @@ class Ui(QtWidgets.QMainWindow):
         if enter_cutoff:
             show_war_win("Не окончен ввод отсекателя!")
             return
-        if not point_list or len(point_list) == 1:
-            show_war_win("Не заданы отрезки.")
+        if len(polygon_points) < 3:
+            show_war_win("Не построен отсекатель!")
             return
         if not check_convexity_polygon(cutoff_figure_points):
             show_war_win("Отсекатель должен быть выпуклым!")
             return
 
-        for segment in segments:
-            res = cyrus_beck(segment[0], segment[1], cutoff_figure_points)
-            if res:
-                self.draw_line(res[0], res[1], cutted_figure_color)
+        cutted_polygon_points = sutherland_hodgman(polygon_points, cutoff_figure_points)
+        for i in range(len(cutted_polygon_points) - 1):
+            self.draw_line(cutted_polygon_points[i], cutted_polygon_points[i + 1], cutted_figure_color)
+        self.draw_line(cutted_polygon_points[-1], cutted_polygon_points[0], cutted_figure_color)
 
 
 if __name__ == '__main__':
