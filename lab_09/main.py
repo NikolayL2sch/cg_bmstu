@@ -237,7 +237,6 @@ class Ui(QtWidgets.QMainWindow):
             if len(segments) > 0:
                 vert_segment = segments.pop()
                 self.scene.removeItem(tmp_vert_segment)
-                self.draw_figure_point(vert_segment[0], enter_cutoff)
                 self.draw_figure_point(vert_segment[1], enter_cutoff)
             tmp_vert_segment = None
         elif event.key() == Qt.Key_Shift:
@@ -245,7 +244,6 @@ class Ui(QtWidgets.QMainWindow):
             if len(segments) > 0:
                 hor_segment = segments.pop()
                 self.scene.removeItem(tmp_hor_segment)
-                self.draw_figure_point(hor_segment[0], enter_cutoff)
                 self.draw_figure_point(hor_segment[1], enter_cutoff)
             tmp_hor_segment = None
         else:
