@@ -44,7 +44,8 @@ def change_polygon_color() -> None:
         if colour.getRgb() != current_cutoff_figure_color.getRgb():
             set_polygon_color(QColor(colour))
         else:
-            show_war_win("Цвет отсекателя и отсекаемого многоугольника не могут совпадать.")
+            show_war_win(
+                "Цвет отсекателя и отсекаемого многоугольника не могут совпадать.")
 
 
 def set_polygon_color(color: QColor) -> None:
@@ -80,7 +81,7 @@ def connect_to_edge(item):
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./lab_09/template.ui", self)  # временно в корне
+        uic.loadUi("./template.ui", self)  # временно в корне
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -155,13 +156,15 @@ class Ui(QtWidgets.QMainWindow):
             if enter_cutoff:
                 if len(cutoff_figure_points) == 0:
                     last_scene_pos = self.graphicsView.mapToScene(last_pos)
-                    last_scene_pos = Point(last_scene_pos.x(), -last_scene_pos.y())
+                    last_scene_pos = Point(
+                        last_scene_pos.x(), -last_scene_pos.y())
                 else:
                     last_scene_pos = cutoff_figure_points[-1]
             else:
                 if len(polygon_points) == 0:
                     last_scene_pos = self.graphicsView.mapToScene(last_pos)
-                    last_scene_pos = Point(last_scene_pos.x(), -last_scene_pos.y())
+                    last_scene_pos = Point(
+                        last_scene_pos.x(), -last_scene_pos.y())
                 else:
                     last_scene_pos = polygon_points[-1]
             cur_scene_pos = self.graphicsView.mapToScene(event.pos())
@@ -325,15 +328,23 @@ class Ui(QtWidgets.QMainWindow):
         self.edges_list.clear()
         polygon_points.clear()
 
-    def close_figure(self):
+    def close_figure(self, arg=None):
+        global enter_cutoff
+        if arg:
+            if arg == 'set_cutoff':
+                enter_cutoff = True
+            else:
+                enter_cutoff = False
         if not enter_cutoff:
             if len(polygon_points) < 3:
-                show_war_win("Невозможно замкнуть отсекаемый многоугольник, задано слишком мало точек.")
+                show_war_win(
+                    "Невозможно замкнуть отсекаемый многоугольник, задано слишком мало точек.")
                 return
             self.update_figure_segments(is_cutoff=False, closing=True)
         else:
             if len(cutoff_figure_points) < 3:
-                show_war_win("Невозможно замкнуть отсекатель, задано слишком мало точек.")
+                show_war_win(
+                    "Невозможно замкнуть отсекатель, задано слишком мало точек.")
                 return
             self.update_figure_segments(is_cutoff=True, closing=True)
 
@@ -369,30 +380,36 @@ class Ui(QtWidgets.QMainWindow):
     def update_figure_segments(self, is_cutoff=False, closing=False):
         if is_cutoff:
             if closing:
-                new_list_item = f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y}) <-> ({cutoff_figure_points[0].x}, {cutoff_figure_points[0].y})'
+                new_list_item = f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y}) <->' \
+                    f'({cutoff_figure_points[0].x}, {cutoff_figure_points[0].y})'
                 if self.edges_list.item(self.edges_list.count() - 1).text() != new_list_item:
-                    self.draw_line(cutoff_figure_points[-1], cutoff_figure_points[0], current_cutoff_figure_color)
+                    self.draw_line(
+                        cutoff_figure_points[-1], cutoff_figure_points[0], current_cutoff_figure_color)
                     self.edges_list.addItem(f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y}) <-> '
                                             f'({cutoff_figure_points[0].x}, {cutoff_figure_points[0].y})')
                     cutoff_figure_points.append(cutoff_figure_points[0])
                 else:
                     show_war_win("Фигура уже замкнута.")
             elif len(cutoff_figure_points) >= 2:
-                self.draw_line(cutoff_figure_points[-1], cutoff_figure_points[-2], current_cutoff_figure_color)
+                self.draw_line(
+                    cutoff_figure_points[-1], cutoff_figure_points[-2], current_cutoff_figure_color)
                 self.edges_list.addItem(f'({cutoff_figure_points[-2].x}, {cutoff_figure_points[-2].y}) <-> '
                                         f'({cutoff_figure_points[-1].x}, {cutoff_figure_points[-1].y})')
         else:
             if closing:
-                new_list_item = f'({polygon_points[-1].x}, {polygon_points[-1].y}) <-> ({polygon_points[0].x}, {polygon_points[0].y})'
+                new_list_item = f'({polygon_points[-1].x}, {polygon_points[-1].y}) <->' \
+                    f' ({polygon_points[0].x}, {polygon_points[0].y})'
                 if self.scroll_list.item(self.scroll_list.count() - 1).text() != new_list_item:
-                    self.draw_line(polygon_points[-1], polygon_points[0], current_polygon_color)
+                    self.draw_line(
+                        polygon_points[-1], polygon_points[0], current_polygon_color)
                     self.scroll_list.addItem(f'({polygon_points[-1].x}, {polygon_points[-1].y}) <-> '
                                              f'({polygon_points[0].x}, {polygon_points[0].y})')
                     polygon_points.append(polygon_points[0])
                 else:
                     show_war_win("Фигура уже замкнута.")
             elif len(polygon_points) >= 2:
-                self.draw_line(polygon_points[-1], polygon_points[-2], current_polygon_color)
+                self.draw_line(
+                    polygon_points[-1], polygon_points[-2], current_polygon_color)
                 self.scroll_list.addItem(f'({polygon_points[-2].x}, {polygon_points[-2].y}) <-> '
                                          f'({polygon_points[-1].x}, {polygon_points[-1].y})')
 
@@ -429,10 +446,13 @@ class Ui(QtWidgets.QMainWindow):
             show_war_win("Отсекатель должен быть выпуклым!")
             return
 
-        cutted_polygon_points = sutherland_hodgman(polygon_points, cutoff_figure_points)
+        cutted_polygon_points = sutherland_hodgman(
+            polygon_points, cutoff_figure_points)
         for i in range(len(cutted_polygon_points) - 1):
-            self.draw_line(cutted_polygon_points[i], cutted_polygon_points[i + 1], cutted_figure_color)
-        self.draw_line(cutted_polygon_points[-1], cutted_polygon_points[0], cutted_figure_color)
+            self.draw_line(
+                cutted_polygon_points[i], cutted_polygon_points[i + 1], cutted_figure_color)
+        self.draw_line(
+            cutted_polygon_points[-1], cutted_polygon_points[0], cutted_figure_color)
 
 
 if __name__ == '__main__':
@@ -449,8 +469,14 @@ if __name__ == '__main__':
         for _ in range(num_cutoff_points):
             px, py = float(sys.argv[2 * _ + 3]), float(sys.argv[2 * _ + 4])
             window.draw_figure_point(Point(px, py), True)
-        window.close_figure()
-
+        window.close_figure('set_cutoff')
+        num_polygon_points = int(sys.argv[2 * num_cutoff_points + 3])
+        curr_ind = 2 * num_cutoff_points + 4
+        for _ in range(num_polygon_points):
+            px, py = float(sys.argv[curr_ind + 2 * _]
+                           ), float(sys.argv[curr_ind + 2 * _ + 1])
+            window.draw_figure_point(Point(px, py), False)
+        window.close_figure('set_polygon')
         window.cutoff()
 
     if FUNC_TESTING:

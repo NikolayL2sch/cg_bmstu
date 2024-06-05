@@ -47,7 +47,8 @@ def check_convexity_polygon(figure_point_list: List[Point]) -> bool:
 
 
 def visibility(point: Point, begin: Point, end: Point) -> int:
-    res = (point.x - begin.x) * (end.y - begin.y) - (point.y - begin.y) * (end.x - begin.x)
+    res = (point.x - begin.x) * (end.y - begin.y) - \
+        (point.y - begin.y) * (end.x - begin.x)
     return sign(res)
 
 
