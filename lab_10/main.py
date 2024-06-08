@@ -1,12 +1,12 @@
 import sys
 from time import time
 
-from typing import List
+from typing import List, Callable
 
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsTextItem, QColorDialog
+from PyQt5.QtWidgets import QGraphicsScene, QColorDialog
 from PyQt5.QtGui import QWheelEvent, QMouseEvent, QColor
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
@@ -25,34 +25,13 @@ current_color: QColor = QColor(255, 0, 0)
 
 equations, equations_str = get_equations()
 
+angles: List[float] = []
 
-def change_polygon_color() -> None:
-    colour = QColorDialog.getColor(initial=current_polygon_color)
+def change_color() -> None:
+    global current_color
+    colour = QColorDialog.getColor(initial=current_color)
     if colour.isValid():
-        if colour.getRgb() != current_cutoff_figure_color.getRgb():
-            set_polygon_color(QColor(colour))
-        else:
-            show_war_win(
-                "Цвет отсекателя и отсекаемого многоугольника не могут совпадать.")
-
-
-def set_polygon_color(color: QColor) -> None:
-    global current_polygon_color
-    current_polygon_color = color
-
-
-def set_cutoff_color(color: QColor) -> None:
-    global current_cutoff_figure_color
-    current_cutoff_figure_color = color
-
-
-def change_cutoff_color() -> None:
-    colour = QColorDialog.getColor(initial=current_cutoff_figure_color)
-    if colour.isValid():
-        if colour.getRgb() != current_polygon_color.getRgb():
-            set_cutoff_color(QColor(colour))
-        else:
-            show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
+        current_color = colour
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -73,9 +52,15 @@ class Ui(QtWidgets.QMainWindow):
 
         self.clear_button.clicked.connect(self.clear_scene)
 
-        self.graphicsView.setMouseTracking(True)
-
         # push buttons
+        self.change_color_button.clicked.connect(change_color)
+        self.draw_graph_button.clicked.connect(self.get_rotate_params)
+
+        # QComboBox events
+        self.set_rotate_x.valueChanged.connect(self.rotate_graph)
+        self.set_rotate_y.valueChanged.connect(self.rotate_graph)
+        self.set_rotate_z.valueChanged.connect(self.rotate_graph)
+
         # graphics view mouse events
         self.graphicsView.mousePressEvent = self.mousePressEvent
         self.graphicsView.wheelEvent = self.wheel_event
@@ -120,25 +105,29 @@ class Ui(QtWidgets.QMainWindow):
             is_pressed = True
             last_pos = event.pos()
 
-    def change_color(self, color: QColor) -> None:
-        global current_polygon_color
-        current_polygon_color = color
-        objects = self.scene.items()
-        for obj in objects:
-            if obj not in grid_lines and not isinstance(obj, QGraphicsTextItem):
-                obj.setPen(current_polygon_color)
-
     def clear_scene(self):
+        self.scene.clear()
+
+    def get_angles(self):
+        return [self.set_rotate_x.value(), self.set_rotate_y.value(), self.set_rotate_z.value()]
+
+    def get_rotate_params(self) -> None:
+        global angles
+        self.clear_scene()
+        angles = self.get_angles()
+        x_left = self.set_limit_x1.value()
+        z_left = self.ui.set_limit_z1.value()
+        x_right = self.set_limit_x2.value()
+        z_right = self.set_limit_z2.value()
+        delta_x = self.set_step_x.value()
+        delta_z = self.set_step_z.value()
+        data_x = [x_left, x_right, delta_x]
+        data_z = [z_left, z_right, delta_z]
+        f = equations[self.ui.FuncOptions.currentIndex()]
+        self.draw_graph(data_x, data_z, f)
+
+    def draw_graph(self, data_x: List[float], data_z: List[float], f: Callable[..., float]) -> None:
         pass
-
-    def set_new_colour(self) -> None:
-        colour = QColorDialog.getColor(initial=current_polygon_color)
-        if colour.isValid():
-            self.change_color(QColor(colour))
-
-    def show_current_index(self):
-        current_index = self.set_cur_equation.currentIndex()
-        print(f"Current index: {current_index}")
 
 
 if __name__ == '__main__':
@@ -156,5 +145,4 @@ if __name__ == '__main__':
         screenshot = window.grab()
         screenshot.save(f'./results/test_{test_i}.png', 'png')
     else:
-        window.show_current_index()
         sys.exit(app.exec_())
