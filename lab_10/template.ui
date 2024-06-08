@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1069</width>
-    <height>900</height>
+    <width>1000</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,7 +22,7 @@
   <property name="minimumSize">
    <size>
     <width>1000</width>
-    <height>900</height>
+    <height>800</height>
    </size>
   </property>
   <property name="font">
@@ -49,8 +49,24 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="minimumSize">
+       <size>
+        <width>630</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>1920</width>
+        <height>1080</height>
+       </size>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>7</number>
       </property>
@@ -67,10 +83,33 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QComboBox" name="set_cur_equation"/>
+       <widget class="QLabel" name="set_cur_equation_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Выбор уравнения плоскости</string>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="add_cutoff_button">
+       <widget class="QComboBox" name="set_cur_equation">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200, 200, 200);
+font: 10pt &quot;Segoe UI&quot;;
+background-color: rgb(86, 86, 86);</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="change_color_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -89,105 +128,518 @@ font: 10pt &quot;Segoe UI&quot;;
 background-color: rgb(86, 86, 86);</string>
         </property>
         <property name="text">
-         <string>Добавить выпуклый отсекатель</string>
+         <string>Изменить цвет графика</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="change_cutoff_color_button">
+       <widget class="QLabel" name="rotate_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="styleSheet">
          <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
+font: 11pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="text">
-         <string>Изменить цвет отсекателя</string>
+         <string>Поворот</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="change_polygon_color_button">
+       <layout class="QHBoxLayout" name="rotate_x_layout">
+        <item>
+         <widget class="QLabel" name="rotate_x_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>OX:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_rotate_x">
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-180.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>180.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="rotate_y_layout">
+        <item>
+         <widget class="QLabel" name="rotate_y_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>OY:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_rotate_y">
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-180.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>180.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="rotate_z_layout">
+        <item>
+         <widget class="QLabel" name="rotat_z_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>OZ:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_rotate_z">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-180.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>180.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="step_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="styleSheet">
          <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
+font: 11pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="text">
-         <string>Изменить цвет отсекаемого многоугольника</string>
+         <string>Шаг</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="close_figure_button">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="step_x_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>OX:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_step_x">
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="step_y_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>OY:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_step_y">
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="step_z_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>OZ:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_step_z">
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="limit_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="styleSheet">
          <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
+font: 11pt &quot;Segoe UI&quot;;</string>
         </property>
         <property name="text">
-         <string>Замкнуть многоугольник</string>
+         <string>Предел</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cutoff_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>460</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-background-color: rgb(86, 86, 86);</string>
-        </property>
-        <property name="text">
-         <string>Отсечь</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="limit_x1_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>X1:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_limit_x1">
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="limit_x2_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>X2:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_limit_x2">
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLabel" name="limit_y1_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Y1:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_limit_y1">
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="limit_y2_label">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Y2:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_limit_y2">
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="limit_z1_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Z1:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="set_Limit_z1">
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="limit_z2_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(200, 200, 200);
+font: 11pt &quot;Segoe UI&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Z2:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox">
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;Segoe UI&quot;;
+color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QPushButton" name="clear_button">
@@ -213,171 +665,7 @@ background-color: rgb(86, 86, 86);</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;</string>
-        </property>
-        <property name="text">
-         <string>Ребра отсекаемого многоугольника:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="scroll_list">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>400</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 11pt &quot;Segoe UI&quot;;
-color: rgb(255, 255, 255);</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;</string>
-        </property>
-        <property name="text">
-         <string>Ребра отсекателя:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="edges_list">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>400</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Segoe UI</family>
-          <pointsize>11</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 11pt &quot;Segoe UI&quot;;
-color: rgb(255, 255, 255);</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="current_coords_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>150</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-border-color: rgb(255, 255, 255);
-background-color: rgb(75, 75, 75);</string>
-          </property>
-          <property name="text">
-           <string>x, y:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="current_grid_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>230</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(200, 200, 200);
-font: 10pt &quot;Segoe UI&quot;;
-border-color: rgb(255, 255, 255);
-background-color: rgb(75, 75, 75);</string>
-          </property>
-          <property name="text">
-           <string>Текущий шаг сетки: 50</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
-    </item>
-    <item row="0" column="1">
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="minimumSize">
-       <size>
-        <width>630</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>1920</width>
-        <height>1080</height>
-       </size>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>
@@ -386,7 +674,7 @@ background-color: rgb(75, 75, 75);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1069</width>
+     <width>1000</width>
      <height>29</height>
     </rect>
    </property>

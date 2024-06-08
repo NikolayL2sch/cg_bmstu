@@ -6,8 +6,8 @@ from typing import List
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsLineItem, QGraphicsEllipseItem, QGraphicsTextItem, QColorDialog
-from PyQt5.QtGui import QWheelEvent, QMouseEvent, QPen, QColor, QKeyEvent
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsTextItem, QColorDialog
+from PyQt5.QtGui import QWheelEvent, QMouseEvent, QColor
 
 from dialogs import show_author, show_task, show_instruction, show_war_win
 from class_point import Point
@@ -55,28 +55,16 @@ def change_cutoff_color() -> None:
             show_war_win("Цвет отсекателя и отрезков не могут совпадать.")
 
 
-def connect_to_edge(item):
-    global pinned_edge
-    global enter_pinned_point
-    enter_pinned_point = True if not enter_pinned_point else False
-    unpacked_segment = item.text().split(' <-> ')
-    p1_str = unpacked_segment[0][1:-1].split(',')
-    p2_str = unpacked_segment[1][1:-1].split(',')
-    pinned_edge = [Point(float(p1_str[0]), float(p1_str[1])),
-                   Point(float(p2_str[0]), float(p2_str[1]))]
-
-
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi("./template.ui", self)  # временно в корне
+        uic.loadUi("./lab_10/template.ui", self)  # временно в корне
+
+        for _ in equations_str:
+            self.set_cur_equation.addItem(_)
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
-
-        self.need_grid()
-
-        self.add_grid()
 
         # menu bar
         self.about_author.triggered.connect(show_author)
@@ -88,22 +76,25 @@ class Ui(QtWidgets.QMainWindow):
         self.graphicsView.setMouseTracking(True)
 
         # push buttons
-        self.add_cutoff_button.clicked.connect(self.add_cutoff)
-        self.change_cutoff_color_button.clicked.connect(change_cutoff_color)
-        self.change_polygon_color_button.clicked.connect(change_polygon_color)
-        self.cutoff_button.clicked.connect(self.cutoff)
-        self.close_figure_button.clicked.connect(self.close_figure)
-
         # graphics view mouse events
         self.graphicsView.mousePressEvent = self.mousePressEvent
         self.graphicsView.wheelEvent = self.wheel_event
         self.graphicsView.mouseReleaseEvent = self.mouseReleaseEvent
         self.graphicsView.mouseMoveEvent = self.mouseMoveEvent
 
-        # QListWidget events
-        self.edges_list.itemClicked.connect(connect_to_edge)
-
         self.show()
+
+    def wheel_event(self, event: QWheelEvent) -> None:
+        global scale
+        factor = 1.2
+
+        if event.angleDelta().y() > 0:
+            self.graphicsView.scale(factor, factor)
+        else:
+            self.graphicsView.scale(1.0 / factor, 1.0 / factor)
+
+        # Получаем текущий масштаб по оси X (и Y)
+        scale = self.graphicsView.transform().m11()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         global is_pressed, dragging
@@ -145,6 +136,10 @@ class Ui(QtWidgets.QMainWindow):
         if colour.isValid():
             self.change_color(QColor(colour))
 
+    def show_current_index(self):
+        current_index = self.set_cur_equation.currentIndex()
+        print(f"Current index: {current_index}")
+
 
 if __name__ == '__main__':
     global test_i
@@ -161,4 +156,5 @@ if __name__ == '__main__':
         screenshot = window.grab()
         screenshot.save(f'./results/test_{test_i}.png', 'png')
     else:
+        window.show_current_index()
         sys.exit(app.exec_())
